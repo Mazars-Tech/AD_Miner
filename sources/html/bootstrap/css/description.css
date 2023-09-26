@@ -1,0 +1,105 @@
+.descriptionHeader {
+    padding-left: 50px;
+    padding-right: 50px;
+    text-align: justify;
+    text-align-last: center;
+}
+
+.descriptionText {
+    color: rgb(70, 70, 70);
+    font-weight: 600;
+}
+
+.descriptionIcon {
+    width: 40px;
+    margin-bottom: 5px;
+}
+
+#descriptionButton {
+    border-bottom-right-radius: 30%;
+    border-bottom-left-radius: 30%;
+    position: absolute; top: 4px;
+    border: none;
+    background-color: #f1f1f1;
+    color: rgb(59, 59, 59);
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 250px;
+}
+
+#descriptionButton:focus {
+    outline: none;
+}
+
+.descIn {
+    max-height: 175px;
+    overflow: hidden;
+   -moz-animation: slideIn 0.6s linear;
+   -webkit-animation: slideIn 0.6s linear;
+   -o-animation: slideIn 0.6s linear;
+   -ms-animation: slideIn 0.6s linear;
+    animation: slideIn 0.6s linear;
+}
+
+@-moz-keyframes slideIn /* Firefox */{
+from {max-height: 0;}
+to {max-height: 175px;}
+}
+
+@-webkit-keyframes slideIn /* Safari and Chrome */
+{
+from {max-height: 0;}
+to {max-height: 175px;}
+}
+
+@-ms-keyframes slideIn /* IE10 */
+{
+from {max-height: 0;}
+to {max-height: 175px;}
+}
+
+@keyframes slideIn
+{
+from {max-height: 0;}
+to {max-height: 175px;}
+}
+
+.descOut {
+    max-height: 0px;
+    overflow: hidden;
+   -moz-animation: slideOut 0.6s linear;
+   -webkit-animation: slideOut 0.6s linear;
+   -o-animation: slideOut 0.6s linear;
+   -ms-animation: slideOut 0.6s linear;
+    animation: slideOut 0.6s linear;
+}
+
+@-moz-keyframes slideOut /* Firefox */{
+from {max-height: 175px;}
+to {max-height: 0px;}
+}
+
+@-webkit-keyframes slideOut /* Safari and Chrome */
+{
+from {max-height: 175px;}
+to {max-height: 0px;}
+}
+
+@-ms-keyframes slideOut /* IE10 */
+{
+from {max-height: 175px;}
+to {max-height: 0px;}
+}
+
+@keyframes slideOut
+{
+from {max-height: 175px;}
+to {max-height: 0px;}
+}
+
+.initialDiv {
+    max-height: 0px;
+    overflow: hidden;
+}

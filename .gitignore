@@ -1,0 +1,7 @@
+venv/
+render_*/
+cache_neo4j/
+sources/python/__pycache__/
+sources/python/temporary*
+*node_modules*
+/tests

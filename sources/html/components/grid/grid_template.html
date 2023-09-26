@@ -1,0 +1,192 @@
+
+    <div class="card-body" style="height:90vh; min-height: 800px;">
+      <div id="grid-wrapper" class="gridWrapper">
+        <div id="myGrid" class="ag-theme-balham gridWrapper"></div>
+        <!--
+          Au choix pour les thèmes :
+            - ag-theme-alpine
+            - ag-theme-balham
+            - ag-theme-material
+        -->
+      </div>
+    </div>
+	  <script type="text/javascript" charset="utf-8">
+
+var bigGrid;
+// Adjust the size of columns depending on the number of columns, keeping a minimal width of 200px and adding a horizontal scroll if necessary
+function adjustSizeDependingOnNbOfColumns(params) {
+  if (document.getElementById('grid-wrapper').offsetWidth / params.columnApi.getColumns().length < 200) {
+    gridOptions.columnApi.autoSizeAllColumns();
+    bigGrid = true;
+  }
+  else {
+    params.api.sizeColumnsToFit({defaultMinWidth: 200,});
+    bigGrid = false;
+  }
+}
+
+function onBtnExport() {
+	/*
+	This function get the data of the grid, clears it of useless data and download it as a CSV file.
+	*/
+	var csvRawData = gridOptions.api.getDataAsCsv();
+	var csvData = csvRawData.replace(/<[^>]*>\s*/g, '');
+	const filename = 'data.csv';
+
+	const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    
+    const downloadLink = document.querySelector("#button_download_link");
+    downloadLink.href = url;
+    downloadLink.download = filename;
+}
+
+function sort_string(valueA, valueB){
+	if (valueA === valueB) {
+		return 0;
+	}
+	return (valueA > valueB) ? 1 : -1;
+}
+
+function sort_integer(valueA, valueB){
+	return valueA - valueB 
+}
+
+function customComparator(_valueA, _valueB, nodeA, nodeB) {
+	if (typeof _valueA === 'object'){
+		if (typeof _valueA.value === 'string'){
+			return sort_string(_valueA.value, _valueB.value)
+		}
+		return sort_integer(_valueA.value, _valueB.value)
+  	}
+	if (typeof _valueA === 'string'){
+		return sort_string(_valueA, _valueB)
+  	}
+	return sort_integer(_valueA, _valueB)
+}
+
+// DATA PLACEHOLDER
+
+var url = new URL(window.location.href);
+var parameter = url.searchParams.get("parameter");
+if (parameter != null) {
+	arrayData = display_computer(parameter);
+	rowData = arrayData[0];
+	columnDefs = arrayData[1];
+}
+
+
+function display_computer(parameter) {
+	var rowData2 = [];
+	for (var i=0; i<rowData.length; i++) {
+		const keys = Object.keys(rowData[i]);
+
+		if (window.location.href.includes('users_admin_of_computers')) { 
+			if (rowData[i][keys[0]] == parameter) {
+				for (var k=0; k<rowData[i][keys[1]].length; k++) {
+					var new_dico = {};
+					new_dico[parameter] = rowData[i][keys[1]][k];
+					new_dico['href_link']='';
+					rowData2.push(new_dico);
+				}
+			}
+		}
+		else if (window.location.href.includes('kerberoastables_SPN')) {
+			if (rowData[i][keys[0]] == parameter) {
+				var new_dico = {};
+				new_dico[parameter] = rowData[i][keys[1]];
+				new_dico['href_link']='';
+				rowData2.push(new_dico);
+			}
+		}
+		else if (window.location.href.includes('users_rdp_access') || window.location.href.includes('computers_list_of_rdp_users')) {
+			
+			if (rowData[i][keys[0]].includes(parameter)) {
+				const startSubstring = "<p style='visibility:hidden;'>";
+				const endSubstring = "</p>";
+
+				const startIndex = rowData[i][keys[1]].indexOf(startSubstring) + startSubstring.length;
+				const endIndex = rowData[i][keys[1]].indexOf(endSubstring, startIndex);
+				data = JSON.parse(rowData[i][keys[1]].substring(startIndex, endIndex).replaceAll(`'`,`"`))
+				for (var j=0; j<data.length; j++) {
+					var new_dico = {};
+					new_dico[parameter] = data[j];
+					new_dico['href_link']='';
+					rowData2.push(new_dico);
+				}
+			}
+		}
+		else {
+			n = 2;
+			// In generic_formating.py, function formatGridValues3Columns
+			if (rowData[i][keys[0]] == parameter) {
+				data = JSON.parse(rowData[i][keys[n]]["value"].substring(91, rowData[i][keys[n]]["value"].length-4).replaceAll(`'`,`"`))
+				for (var j=0; j<data.length; j++) {
+					var new_dico = {};
+					new_dico[parameter] = data[j];
+					new_dico['href_link']='';
+					rowData2.push(new_dico);
+				}
+			}
+		}
+	}
+	columnDefs2 = [{field: parameter}];
+	return [rowData2, columnDefs2];
+}
+
+var url = new URL(window.location.href);
+var object = url.searchParams.get("object");
+if (object != null) {
+	arrayData = filterByObject(object);
+	rowData = arrayData[0];
+	columnDefs = arrayData[1];
+}
+
+function filterByObject(object) {
+	var rowData2 = [];
+	for (var i=0; i<rowData.length; i++) {
+		if (rowData[i]['TO CHANGE'].includes(object) && !rowData[i]['TO CHANGE'].includes('> ' + object + ' <')) {
+			new_dico = {object: '0'};
+			new_dico[object] = rowData[i]['TO CHANGE'].slice(rowData[i]['TO CHANGE'].indexOf('>')+2,-8);
+			rowData2.push(new_dico);
+		}
+	}
+	columnDefs2 = [{field: object}];
+	return [rowData2, columnDefs2];
+}
+
+// Grid options
+const gridOptions = {
+	columnDefs: columnDefs,
+	rowData: rowData,
+	defaultColDef: {resizable: true, filter: 'agTextColumnFilter', sortable: true, comparator: customComparator,},
+	suppressFieldDotNotation: true,
+	suppressHorizontalScroll: false,
+	animateRows: true,
+	pagination: true,
+	paginationPageSize: 100000,
+	enableCellTextSelection: true,
+	ensureDomOrder: true,
+	onGridReady: adjustSizeDependingOnNbOfColumns,
+	onGridSizeChanged: adjustSizeDependingOnNbOfColumns
+};
+
+
+// setup the grid after the page has finished loading
+document.addEventListener('DOMContentLoaded', function () {
+	var gridDiv = document.querySelector('#myGrid');
+	new agGrid.Grid(gridDiv, gridOptions);
+
+	// Adjust size of columns for large grids when scrolling horizontally
+	if (bigGrid) {
+		document.querySelector(".ag-body-horizontal-scroll-viewport").addEventListener("scroll", (event) => {
+			clearTimeout(window.scrollEndTimer)
+			window.scrollEndTimer = setTimeout((a) => {
+				gridOptions.columnApi.autoSizeAllColumns(); 
+			}, 100)
+		});
+	}
+});
+
+	  </script>
+
