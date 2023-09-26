@@ -1,0 +1,31 @@
+name: Release # Workflow name displayed on GitHub
+
+on:
+   push:
+      branches:
+         - main
+
+jobs:
+   changelog:
+      runs-on: ubuntu-latest
+
+      steps:
+         - uses: actions/checkout@v3 # Checkout our working repository
+
+         - name: Conventional Changelog Action # This action will look for conventional commits
+           id: changelog
+           uses: TriPSs/conventional-changelog-action@v3
+           with:
+              github-token: ${{ secrets.github_token }}
+              output-file: "false"
+              skip-version-file: "true"
+
+         - name: Create Release # This action will create the actual release
+           uses: actions/create-release@v1
+           if: ${{ steps.changelog.outputs.skipped == 'false' }}
+           env:
+              GITHUB_TOKEN: ${{ secrets.github_token }}
+           with:
+              tag_name: ${{ steps.changelog.outputs.tag }}
+              release_name: ${{ steps.changelog.outputs.tag }}
+              body: ${{ steps.changelog.outputs.clean_changelog }}

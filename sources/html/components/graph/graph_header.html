@@ -1,0 +1,193 @@
+<!-- <div id="wrapper"> -->
+
+<!-- <div><button id="clusterButton" class="btn btn-primary" onclick="clusterNodes()" style="display:none">Cluster nodes with >30 connections</button></div> -->
+
+<div id="hooker"></div>
+<!-- <div class="form-check form-switch" style="padding-left: 80px;">
+			<input type="checkbox" class="form-check-input" id="switchHideText" onchange="displayHideText(this)" checked>
+			<label class="form-check-label" for="switchHideText">Hide text</label>
+		</div> -->
+
+<div
+  class="collapse"
+  id="collapseSettings"
+  style="max-width: 60rem; margin: auto"
+>
+  <div class="card card-body border-primary">
+    <h5>Settings</h5>
+    <div class="row">
+      <div class="col">
+        <div
+          class="form-check form-switch"
+          style="padding-left: 80px"
+          id="switch_hide_node"
+        >
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="switchHideText"
+            onchange="displayHideNodes(this)"
+          />
+          <label class="form-check-label" for="switchHideText"
+            >Hide nodes</label
+          >
+        </div>
+        <div class="form-check form-switch" style="padding-left: 80px">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="switchHideText"
+            onchange="displayHideEdges(this)"
+          />
+          <label class="form-check-label" for="switchHideText"
+            >Hide edges</label
+          >
+        </div>
+
+        <div class="form-check form-switch" style="padding-left: 80px">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="switchHorizontalGraph"
+            onchange="horizontalGraph()"
+          />
+          <label class="form-check-label" for="switchHorizontalGraph"
+            >Graph layout</label
+          >
+        </div>
+      </div>
+
+      <div class="col">
+        <div>
+          <form>
+            <label for="cluster_threshold_range">Cluster Threshold</label>
+            <input
+              type="range"
+              name="cluster_threshold_range"
+              min="3"
+              max="200"
+              value="3"
+              oninput="this.form.cluster_threshold.value=this.value;"
+            />
+            <input
+              type="number"
+              id="cluster_threshold"
+              name="cluster_threshold"
+              min="3"
+              max="200"
+              value="3"
+              oninput="this.form.cluster_threshold_range.value=this.value;"
+            />
+            <button
+              class="refreshButton"
+              onclick="newThreshold(cluster_threshold.value)"
+            >
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <div class="tooltips">
+              <i class="bi bi-info-circle tooltipicon"></i>
+              <span class="tooltiptext"
+                >Refresh graph according to the new cluster threshold. It may
+                take a few seconds !</span
+              >
+            </div>
+          </form>
+        </div>
+        <style>
+          .refreshButton {
+            border-radius: 5px;
+          }
+
+          .tooltips {
+            position: relative;
+            display: inline-block;
+          }
+
+          .tooltipicon {
+            width: 25px;
+            margin-left: 5px;
+          }
+
+          .tooltips .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 5px;
+            position: absolute;
+            z-index: 1;
+            top: 150%;
+            left: 0%;
+            margin-left: -112px;
+          }
+
+          .tooltips .tooltiptext::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent black transparent;
+          }
+
+          .tooltips:hover .tooltiptext {
+            visibility: visible;
+          }
+        </style>
+        <div>
+          Select end node :
+          <select class="form-select">
+            <option value="All End Nodes">All End Nodes</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading box -->
+<!-- <div class="box" id="loadingBox">
+		<div class="percent">
+			<svg>
+				<circle cx="70" cy="70" r="70"></circle>
+				<circle cx="70" cy="70" r="70"></circle>
+				<circle cx="70" cy="70" r="70" id="progressCircle"></circle>
+			</svg>
+				<div class="num">
+					<h2><span id="loadingPourcent">0</span><span id="pourcentPourcent">%</span></h2>
+				</div>
+			</div>
+		<h2 class="text">Loading</h2>
+		<p>Parsing <span id="nbNodes">X</span> nodes and <span id="nbEdges">Y</span> edges...</p>
+		<p>Estimated time remaining : <span id="eta"></span></p>
+	</div>
+	 -->
+<div
+  id="collapseNetwork"
+  class="modal"
+  style="position: relative; --bs-modal-width: -1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        Selected path
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          onclick="$('.modal')[0].style.display='';"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div id="pathnetwork"></div>
+    </div>
+  </div>
+</div>
+<div id="mynetwork"></div>
