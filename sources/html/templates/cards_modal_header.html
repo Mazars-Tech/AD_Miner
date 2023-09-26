@@ -1,0 +1,62 @@
+<div class="modal fade" id="cardsModal" aria-hidden="true" aria-labelledby="cardsModalLabel" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="cardsModalLabel">Indicators of exposure</h5>
+            <div class="form-check form-switch" style="margin-left: 40px; padding-top: 8px;">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="showEvolutionGraph()">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Show evolution</label>
+            </div>        
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <div class="row" style="margin-right: 15px !important; margin-left: 15px !important;">
+        <script>
+            function showEvolutionGraph() {
+                var switch_status = document.querySelector('#flexSwitchCheckDefault').checked;
+
+                // Limit size of chart
+                all_charts = [...document.querySelectorAll('.smol-evolution-chart')];
+                all_charts.forEach(e => {
+                    e.style.maxHeight = '140px';
+                })
+
+                // Limit size of cards
+                if (switch_status) {
+                    var card_height = Math.max(...Array.from(document.getElementsByClassName('non-evolution-display')).map(element => element.offsetHeight)).toString()+'px';
+                    all_cards = [...document.querySelectorAll('.smolcard')];
+                    all_cards.forEach(e => {
+                        e.style.maxHeight = card_height;
+                        e.style.height = card_height;
+                    });
+                }
+                else {
+                    var card_height = Math.max(...Array.from(document.getElementsByClassName('evolution-display')).map(element => element.offsetHeight)).toString()+'px';
+                    all_cards = [...document.querySelectorAll('.smolcard')];
+                    all_cards.forEach(e => {
+                        e.style.maxHeight = card_height;
+                        e.style.height = card_height;
+                    });
+                }
+                
+                // Switch view between cards description and evolution charts
+                var evol_graph = [...document.querySelectorAll('.evolution-display')];
+                var non_evol_graph = [...document.querySelectorAll('.non-evolution-display')];
+                if (switch_status) {
+                    evol_graph.forEach(e => {
+                        e.style.display = 'block';
+                    });
+                    non_evol_graph.forEach(e => {
+                        e.style.display = 'none';
+                    });
+                }
+                else {
+                    evol_graph.forEach(e => {
+                        e.style.display = 'none';
+                    });
+                    non_evol_graph.forEach(e => {
+                        e.style.display = 'block';
+                    });
+                }
+            }
+        </script>

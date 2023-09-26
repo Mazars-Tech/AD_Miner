@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="18.72 15.12 46.56 53.76">
+<g opacity="0.75">
+<path d="M42 15.12L65.2788 28.56V55.44L42 68.88L18.7212 55.44L18.7212 28.56L42 15.12Z" fill="#F43235"/>
+<path d="M42 15.12L65.2788 28.56V55.44L42 68.88L18.7212 55.44L18.7212 28.56L42 15.12Z" fill="url(#paint0_linear_6_991)" fill-opacity="0.5" style="mix-blend-mode:overlay"/>
+<path d="M19.2212 28.8487L42 15.6973L64.7788 28.8487V55.1513L42 68.3026L19.2212 55.1513L19.2212 28.8487Z" stroke="black" stroke-opacity="0.5" style="mix-blend-mode:overlay"/>
+</g>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M38.55 33.6667H45.45L50.3333 38.55V45.45L45.45 50.3333H38.55L33.6666 45.45V38.55L38.55 33.6667ZM42 38.0002C42.3682 38.0002 42.6666 38.2986 42.6666 38.6668V42.8335C42.6666 43.2017 42.3682 43.5002 42 43.5002C41.6318 43.5002 41.3333 43.2017 41.3333 42.8335V38.6668C41.3333 38.2986 41.6318 38.0002 42 38.0002ZM41.3333 46.167C41.3333 45.7988 41.6317 45.5003 41.9999 45.5003H42.0083C42.3764 45.5003 42.6749 45.7988 42.6749 46.167C42.6749 46.5352 42.3764 46.8337 42.0083 46.8337H41.9999C41.6317 46.8337 41.3333 46.5352 41.3333 46.167Z" fill="white" fill-opacity="0.25"/>
+<defs>
+<linearGradient id="paint0_linear_6_991" x1="15.12" y1="15.12" x2="68.88" y2="68.88" gradientUnits="userSpaceOnUse">
+<stop offset="0.240868" stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>
