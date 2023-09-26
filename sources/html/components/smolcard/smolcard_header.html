@@ -1,0 +1,98 @@
+<div class="smolcard-div col-xl-3 col-md-6 mb-4 {{category}}">
+  <div class="smolcard-icon">
+    <img class="smolcard-img" src="../icons/main_circle/hexagone_{{hexa_color}}.svg" />
+  </div>
+  <div class="smolcard card border-left-{{color}} shadow py-2 non-evolution-display" onclick="location.href='{{href}}';">
+    <div class="card-body smolcard-body">
+      <div
+          class="text-xs text-{{color}} font-weight-bold text-uppercase mb-1 smolcard-title">
+          {{title}}
+      </div>
+      <div class="h6 mb-0 text-secondary" title="{{description}}">
+        {{description_reduced}}
+      </div>
+    </div>
+    <div
+      class="h6 text-gray-800"
+      style="margin-left: 4%; margin-right: 4%; margin-bottom: 5px; line-height: 150%; position: absolute; bottom: 5px;">
+      {{details}}
+    </div>
+  </div>
+  <div class="smolcard card border-left-{{color}} shadow py-2 evolution-display" style="display: none" onclick="location.href='{{href}}';">
+    <div class="card-body smolcard-body">
+      <div class="sb-row no-gutters align-items-center">
+        <div
+            class="text-xs text-{{color}} font-weight-bold text-uppercase mb-1 smolcard-title">
+            {{title}}
+        </div>
+        <div style="text-align: center;">
+          <canvas id="card-chart-{{id}}" class="chart smol-evolution-chart" style="width: 80%"></canvas>
+          <script>
+            if (`{{evolution_chart_data}}`.length > 0) {
+              new Chart(document.querySelector('#card-chart-{{id}}'), {
+                type: 'line',
+                data: {
+                  labels: `{{evolution_labels}}`,
+                  datasets: [
+                    {
+                      label: 'Value',
+                      data: `{{evolution_chart_data}}`,
+                      backgroundColor: ['rgb({{rgb_color}})'],
+                      borderColor: 'rgba({{rgb_color}}, 0.25)',
+                      hoverOffset: 4,
+                      tension: 0.3,
+                      fill: false,
+                    },
+                  ],
+                },
+                options: {
+                  responsive: true,
+                  animation: {
+                    duration: 0,
+                  },
+                  layout: {
+                    padding: 15,
+                  },
+                  scales: {
+                    x: {
+                      type: 'time',
+                      display: false
+                    },
+                    y: {
+                      display: true
+                    }
+                  },
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        title: context => {
+                          const d = new Date(context[0].parsed.x);
+                          const formattedDate = d.toLocaleString([], {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          });
+                          return formattedDate;
+                        }
+                      }
+                    },
+                    center_text_doughnut: false,
+                    shadow_plugin: false,
+                    legend: {
+                      display: false,
+                    },
+                  },
+                }
+              });
+            }
+            else {
+              const elementToReplace = document.querySelector('#card-chart-{{id}}');
+              const h1Element = document.createRange().createContextualFragment('<h4 style="color: grey; margin-top: 30px;">No evolution data</h4>');
+              elementToReplace.parentNode.replaceChild(h1Element, elementToReplace);
+            }
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

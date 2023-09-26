@@ -1,0 +1,59 @@
+@font-face {
+  font-family: 'mazars';
+  src:  url('../icons/fonts/mazars-icons.eot');
+  src:  url('../icons/fonts/mazars-icons.eot') format('embedded-opentype'),
+    url('../icons/fonts/mazars-icons.ttf') format('truetype'),
+    url('../icons/fonts/mazars-icons.woff') format('woff'),
+    url('../icons/fonts/mazars-icons.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'mazars' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-Domain:before {
+  content: "\e900";
+  color: #494949;
+}
+.icon-GPO:before {
+  content: "\e901";
+  color: #494949;
+}
+.icon-Group:before {
+  content: "\e902";
+  color: #494949;
+}
+.icon-OU:before {
+  content: "\e903";
+  color: #494949;
+}
+.icon-Computer:before {
+  content: "\e904";
+  color: #494949;
+}
+.icon-User:before {
+  content: "\e905";
+  color: #494949;
+}
+#ctxmenu {
+  position: fixed;
+  cursor: pointer;
+}
+#searchbar {
+  position: fixed;
+  cursor: pointer;
+}
