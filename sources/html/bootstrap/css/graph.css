@@ -1,0 +1,156 @@
+	html,
+	.mycontainer {
+	  position: relative;
+	  width: 100%;
+	  height: 100%;
+	}
+	#mynetwork {
+	  height: 90vh;
+	}
+	body {
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+		  "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+		  "Helvetica Neue", sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		height: 100%;
+			  width: 100%;
+			  margin: 0px;
+			  padding: 0px;
+			  background: #EEEEEE;
+
+			}
+	code {
+	  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+		monospace;
+	}
+
+	.box
+	{
+		background:#EEEEEE;
+		width:100%;
+		height:100%;
+		display:flex;
+		justify-content:center;
+		align-items:center;
+		position:relative;
+		flex-direction:column;
+		margin-top: 50px;
+		transition: transform .2s;
+	}
+
+	.box .percent
+	{
+		width:150px;
+		height:150px;
+		position:relative;
+	}
+
+	.box .percent svg
+	{
+		width:160px;
+		height:160px;
+		position:relative;
+	}
+
+	.box .percent svg circle
+	{
+		width:150px;
+		height:150px;
+		fill:none;
+		stroke-width:10;
+		stroke:#000;
+		transform:translate(6px,6px);
+		stroke-dasharray:440;
+		stroke-dashoffset:440;
+		stroke-linecap:round;
+	}
+
+	.box .percent svg circle:nth-child(1)
+	{
+		stroke-dashoffset:0;
+		stroke:black;
+		stroke-width: 12;
+	}
+
+	.box .percent svg circle:nth-child(2)
+	{
+		stroke-dashoffset:0;
+		stroke:#f3f3f3;
+	}
+
+	.box .percent svg circle:nth-child(3)
+	{
+		stroke-dashoffset:440;
+		stroke:#03a9f4;
+	}
+
+	.box .percent .num
+	{
+		top:0;
+		left:0;
+		width:100%;
+		height:100%;
+		display:flex;
+		justify-content:center;
+		align-items:center;
+		position:absolute;
+		color:#111;
+	}
+
+	#loadingPourcent
+	{
+		font-size:48px;
+	}
+
+	#pourcentPourcent
+	{
+		font-size:24px;
+	}
+
+	.box .text
+	{
+		padding:10px 0 0;
+		color:#999;
+		font-weight:700;
+		letter-spacing:1px;
+	}
+
+	.position {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    z-index: 2;
+    display: none;
+	}
+	.container_right_click {
+	    width: 220px;
+	    height: auto;
+	    border: 1px solid black;
+	    background: rgb(245, 243, 243);
+	}
+	.container_right_click p {
+	    height: 30px;
+	    font-size: 18px;
+	    font-family: arial;
+	    width: 99%;
+	    cursor: pointer;
+	    display: flex;
+	    justify-content: center;
+	    align-items: center;
+	    background: rgb(245, 243, 243);
+	    color: black;
+	    transition: 0.2s;
+	}
+	.container_right_click p:hover {
+	    background: lightblue;
+	}
+	td {
+	    font-family: arial;
+	    font-size: 20px;
+	}
+	td:hover {
+	    background: lightblue;
+	    transition: 0.2s;
+	    cursor: pointer;
+	}

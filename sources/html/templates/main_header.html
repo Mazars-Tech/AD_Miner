@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <title>AD Miner</title>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="../css/mazars-icons.css" />
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap-icons.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../css/flaty_bootstrap.min.css"
+    />
+
+    <link rel="stylesheet" href="../css/font.css" />
+
+    <link rel="icon" href="../assets/favicon.png" type="image/x-icon" />
+
+    <link rel="stylesheet" href="../css/main_page.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/description.css" />
+  </head>
+
+  <body>
+    <header>
+      <nav
+        class="navbar navbar-expand-lg navbar-dark mb-3"
+        style="background-color: rgb(44, 62, 80); width: 100%"
+      >
+        <div class="nav-left">
+          <a class="navbar-brand" href="index.html" id="title">
+            <img src="../assets/hub.svg" class="mx-2" height="30" id="hub" />
+            AD Miner
+          </a>
+        </div>
+        <div class="nav-center">
+          <h1 class="ml-0 text-light" id="title_current_page">
+            {{render_name}} - {{date}}
+          </h1>
+        </div>
+        <div class="nav-right">
+          <img
+            src="../assets/Mazars_white.png"
+            height="12"
+            style="margin: auto"
+          />
+        </div>
+      </nav>
+    </header>
+
+    <div class="container main-container">
+      <div class="row">
+        <!-- Left column -->
+        <div class="col-left">
+          <!-- Rating card-->
+          <div class="card main-card-category shadow mb-3">
+            <div class="card-body">
+              <h5 class="card-title">
+                Global Risk rating
+                <i
+                  class="bi bi-info-circle"
+                  data-bs-toggle="tooltip"
+                  data-bs-title="This rating is an overall evaluation of the security level of your Active Directory based on the estimated risk of each indicator of exposure"
+                ></i>
+              </h5>
+              {{global_rating}}
+              <hr />
+              <h6 class="card-subtitle mb-2 text-muted">
+                Indicators of exposures breakdown
+              </h6>
+              <ul class="list-group">
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <i
+                      class="bi bi-exclamation-diamond-fill"
+                      style="color: rgb(245, 75, 75); margin-right: 5px"
+                    ></i>
+                    Immediate risk
+                  </div>
+                  <span
+                    class="badge rounded-pill"
+                    style="background-color: rgb(245, 75, 75)"
+                    >{{immediate_risk}}</span
+                  >
+                </li>
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <i
+                      class="bi bi-exclamation-triangle-fill"
+                      style="color: rgb(245, 177, 75); margin-right: 5px"
+                    ></i>
+                    Potential risk
+                  </div>
+                  <span
+                    class="badge rounded-pill"
+                    style="background-color: rgb(245, 177, 75)"
+                    >{{potential_risk}}</span
+                  >
+                </li>
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <i
+                      class="bi bi-dash-circle-fill"
+                      style="color: rgb(255, 221, 0); margin-right: 5px"
+                    ></i>
+                    Minor risk
+                  </div>
+                  <span
+                    class="badge rounded-pill"
+                    style="background-color: rgb(255, 221, 0)"
+                    >{{minor_risk}}</span
+                  >
+                </li>
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <i
+                      class="bi bi-check-circle-fill"
+                      style="color: rgb(91, 180, 32); margin-right: 5px"
+                    ></i>
+                    Handled risk
+                  </div>
+                  <span
+                    class="badge rounded-pill"
+                    style="background-color: rgb(91, 180, 32)"
+                    >{{handled_risk}}</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Stats card -->
+          <div class="card main-card-category shadow mb-3">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                  <a
+                    class="nav-link active stats-link text-primary"
+                    data-bs-toggle="tab"
+                    id="stats-tab-title-overview"
+                    href="#recap"
+                    aria-selected="true"
+                    ><i class="bi bi-search stats-link-icon"></i>Recap</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link stats-link text-primary"
+                    data-bs-toggle="tab"
+                    id="stats-tab-title-users"
+                    href="#users"
+                    aria-selected="false"
+                    ><i class="bi bi-person-fill stats-link-icon"></i>Users</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link stats-link text-primary"
+                    data-bs-toggle="tab"
+                    id="stats-tab-title-computers"
+                    href="#computers"
+                    aria-selected="false"
+                    ><i class="bi bi-pc-display stats-link-icon"></i
+                    >Computers</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="recap" role="tabpanel">
+                <div class="card-body" id="stats-tab-overview">
+                  <h5 class="card-title stats-title">General statistics</h5>
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-building stats-icon"></i
+                          >{{nb_domains}}</span
+                        >
+                        {{domain_or_domains}} ({{nb_domain_collected}} collected)
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="domain_map_trust.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-gem stats-icon"></i>{{nb_dc}}</span
+                        >
+                        Domain controllers
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="nb_domain_controllers.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-gem stats-icon"></i>{{nb_da}}</span
+                        >
+                        Domain admins
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="nb_domain_admins.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <hr />
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-person-fill stats-icon"></i
+                          >{{nb_users}}</span
+                        >
+                        Users
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="users.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-people-fill stats-icon"></i
+                          >{{nb_groups}}</span
+                        >
+                        Groups
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="groups.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <hr />
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-pc-display stats-icon"></i
+                          >{{nb_computers}}</span
+                        >
+                        Computers
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="computers.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-center stats-div"
+                  >
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"
+                          ><i class="bi bi-server stats-icon"></i
+                          >{{nb_adcs}}</span
+                        >
+                        ADCS servers
+                      </p>
+                    </div>
+                    <div>
+                      <a
+                        href="adcs.html"
+                        class="btn btn-outline-dark stats-button"
+                        >Details <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="users" role="tabpanel">
+                <div class="card-body" id="stats-tab-users">
+                  <h5 class="card-title stats-title">Users distribution</h5>
+                  <div>
+                    <canvas id="chart-users" class="chart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="computers" role="tabpanel">
+                <div class="card-body" id="stats-tab-computers">
+                  <h5 class="card-title stats-title">Computers distribution</h5>
+                  <div>
+                    <canvas id="chart-computers" class="chart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main column -->
+        <div class="col-center">
+          <div class="card main-card-category shadow mb-3">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                  <a
+                    class="nav-link active main-link text-primary"
+                    id="main-tab-title-overview"
+                    data-bs-toggle="tab"
+                    aria-selected="true"
+                    href="#overview"
+                    role="tab"
+                    ><i class="bi bi-search main-link-icon"></i>Overview</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link main-link text-primary"
+                    id="main-tab-title-breakdown"
+                    aria-selected="false"
+                    data-bs-toggle="tab"
+                    href="#exposure"
+                    role="tab"
+                    ><i class="bi bi-ui-checks-grid main-link-icon"></i
+                    >Indicators of exposure breakdown</a
+                  >
+                </li>
+
+                <li
+                  class="nav-item"
+                  style="display:{{boolean_evolution_over_time}}"
+                >
+                  <a
+                    class="nav-link main-link text-primary"
+                    id="main-tab-title-evolution"
+                    aria-selected="false"
+                    data-bs-toggle="tab"
+                    href="#evolution"
+                    role="tab"
+                    ><i class="bi bi-graph-up-arrow main-link-icon"></i
+                    >Evolution over time</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div class="tab-content">
+              <div
+                class="tab-pane fade show active"
+                id="overview"
+                role="tabpanel"
+              >
+                <div class="card-body" id="main-tab-overview">
+                  <!-- Overview -->
+                  <div
+                    class="main_circle"
+                    style="
+                      background-image: url(../icons/main_circle/background.svg);
+                      width: 750px;
+                      height: 750px;
+                      margin: auto;
+                      position: relative;
+                    "
+                  ></div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="exposure" role="tabpanel">
+                <div class="row" style="margin-bottom: 15px">
+                  <div class="col-graph-main-left">
+                    <canvas id="chart-details-main"></canvas>
+                  </div>
+                  <div class="col-graph-main-right">
+                    <br />
+                    <h5 class="card-title">
+                      Your infrastructure's exposure to cyberattacks is rated:
+                    </h5>
+                    <br />
+                    {{global_rating}}
+                    <br />
+                    <ul
+                      style="
+                        text-align: justify;
+                        font-size: 18px;
+                        margin-right: 30px;
+                      "
+                    >
+                      <li>
+                        You have
+                        <i
+                          class="bi bi-exclamation-diamond-fill"
+                          style="color: rgb(245, 75, 75); margin-right: 3px"
+                        ></i>
+                        <span style="font-weight: 700"
+                          >{{immediate_risk}} critical
+                          {{vuln_text_major_risk}}</span
+                        >
+                        : these must be addressed as soon as possible.
+                      </li>
+                      <br />
+                      <li>
+                        You have
+                        <i
+                          class="bi bi-exclamation-triangle-fill"
+                          style="color: rgb(245, 177, 75); margin-right: 3px"
+                        ></i>
+                        <span style="font-weight: 700"
+                          >{{potential_risk}} major
+                          {{vuln_text_major_risk}}</span
+                        >
+                        : these should be fixed quickly as they could
+                        potentially lead to a full compromission.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <hr />
+                <div class="row" style="margin-bottom: 10px">
+                  <div class="col-graph-details">
+                    <div>
+                      <canvas
+                        id="chart-details-1"
+                        class="chart-details"
+                      ></canvas>
+                      <h5 class="card-title chart-details-title">
+                        Permissions
+                      </h5>
+                    </div>
+                    <div>{{permissions_graph_summary}}</div>
+                    <div>
+                      <a
+                        href="cards.html?page=permission"
+                        class="btn btn-outline-dark chart-details-button"
+                        >Full IOE list <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div class="col-graph-details">
+                    <div>
+                      <canvas
+                        id="chart-details-2"
+                        class="chart-details"
+                      ></canvas>
+                      <h5 class="card-title chart-details-title">Passwords</h5>
+                    </div>
+                    <div>{{passwords_graph_summary}}</div>
+                    <div>
+                      <a
+                        href="cards.html?page=passwords"
+                        class="btn btn-outline-dark chart-details-button"
+                        >Full IOE list <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div class="col-graph-details">
+                    <div>
+                      <canvas
+                        id="chart-details-3"
+                        class="chart-details"
+                      ></canvas>
+                      <h5 class="card-title chart-details-title">Kerberos</h5>
+                    </div>
+                    <div>{{kerberos_graph_summary}}</div>
+                    <div>
+                      <a
+                        href="cards.html?page=kerberos"
+                        class="btn btn-outline-dark chart-details-button"
+                        >Full IOE list <i class="bi bi-box-arrow-up-right"></i
+                      ></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="evolution" role="tabpanel">
+                <div>
+                  <canvas
+                    id="chart-evolution-time-1"
+                    class="chart py-3 px-3"
+                  ></canvas>
+                </div>
+
+                <div class="row">
+                  <div class="col-3">
+                    <div
+                      class="accordion px-3 pb-3"
+                      id="accordion_evolution_time"
+                      style="font-size: 14px"
+                    >
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                          <button
+                            class="accordion-button"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne"
+                            aria-expanded="true"
+                            aria-controls="collapseOne"
+                          >
+                            General statistics
+                          </button>
+                        </h2>
+                        <div
+                          id="collapseOne"
+                          class="accordion-collapse collapse show"
+                          aria-labelledby="headingOne"
+                          data-bs-parent="#accordion_evolution_time"
+                          style=""
+                        >
+                          <div class="accordion-body">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_domains"
+                                id="checkbox_nb_domains"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_domains"
+                              >
+                                Domains
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_dc"
+                                id="checkbox_nb_dc"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_dc"
+                              >
+                                Domain controllers
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_da"
+                                id="checkbox_nb_da"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_da"
+                              >
+                                Domain admins
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_users"
+                                id="checkbox_nb_users"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_users"
+                              >
+                                Users
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_groups"
+                                id="checkbox_nb_groups"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_groups"
+                              >
+                                Groups
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_computers"
+                                id="checkbox_nb_computers"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_computers"
+                              >
+                                Computers
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                          <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo"
+                            aria-expanded="false"
+                            aria-controls="collapseTwo"
+                          >
+                            Permissions
+                          </button>
+                        </h2>
+                        <div
+                          id="collapseTwo"
+                          class="accordion-collapse collapse"
+                          aria-labelledby="headingTwo"
+                          data-bs-parent="#accordion_evolution_time"
+                          style=""
+                        >
+                          <div class="accordion-body">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="users_admin_of_computers"
+                                id="checkbox_users_admin_of_computers"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_users_admin_of_computers"
+                              >
+                                Users with admin privs.
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="server_users_could_be_admin"
+                                id="checkbox_server_users_could_be_admin"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_server_users_could_be_admin"
+                              >
+                                Users can compromise a server
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="dom_admin_on_non_dc"
+                                id="checkbox_dom_admin_on_non_dc"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_dom_admin_on_non_dc"
+                              >
+                                Domain admin sessions on non-DC
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="nb_domain_admins"
+                                id="checkbox_nb_domain_admins"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_nb_domain_admins"
+                              >
+                                Domain admins
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="users_shadow_credentials_to_non_admins"
+                                id="checkbox_users_shadow_credentials_to_non_admins"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_users_shadow_credentials_to_non_admins"
+                              >
+                                Users can impersonate others
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="users_shadow_credentials"
+                                id="checkbox_users_shadow_credentials"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_users_shadow_credentials"
+                              >
+                                users can impersonate privileged accounts
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="can_dcsync"
+                                id="checkbox_can_dcsync"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_can_dcsync"
+                              >
+                                Non DA/DC objects have DCSync privileges
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="computers_members_high_privilege"
+                                id="checkbox_computers_members_high_privilege"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_computers_members_high_privilege"
+                              >
+                                Non DA/DC objects have DCSync privileges
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="computers_admin_of_computers"
+                                id="checkbox_computers_admin_of_computers"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_computers_admin_of_computers"
+                              >
+                                Computers admin of others
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="graph_path_objects_to_da"
+                                id="checkbox_graph_path_objects_to_da"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_graph_path_objects_to_da"
+                              >
+                                Paths to DA
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="computers_list_of_rdp_users"
+                                id="checkbox_computers_list_of_rdp_users"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_computers_list_of_rdp_users"
+                              >
+                                Computers with RDP access
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="unpriv_to_dnsadmins"
+                                id="checkbox_unpriv_to_dnsadmins"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_unpriv_to_dnsadmins"
+                              >
+                                Paths to DNSAdmins group
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="unpriv_to_backupoperators"
+                                id="checkbox_unpriv_to_backupoperators"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_unpriv_to_backupoperators"
+                              >
+                                Paths to Backup Operators group
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="graph_path_objects_to_ou_handlers"
+                                id="checkbox_graph_path_objects_to_ou_handlers"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_graph_path_objects_to_ou_handlers"
+                              >
+                                Dangerous control paths over OUs
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                          <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseThree"
+                            aria-expanded="false"
+                            aria-controls="collapseThree"
+                          >
+                            Kerberos
+                          </button>
+                        </h2>
+                        <div
+                          id="collapseThree"
+                          class="accordion-collapse collapse"
+                          aria-labelledby="headingThree"
+                          data-bs-parent="#accordion_evolution_time"
+                        >
+                          <div class="accordion-body">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="kerberoastables"
+                                id="checkbox_kerberoastables"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_kerberoastables"
+                              >
+                                Kerberoastable accounts
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="as_rep"
+                                id="checkbox_as_rep"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_as_rep"
+                              >
+                                Accounts are AS-REP-roastable
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="dc_with_unconstrained_delegations"
+                                id="checkbox_dc_with_unconstrained_delegations"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_dc_with_unconstrained_delegations"
+                              >
+                                Non-DC with unconstrained delegations
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="non-dc_users_with_unconstrained_delegations"
+                                id="checkbox_non-dc_users_with_unconstrained_delegations"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_non-dc_users_with_unconstrained_delegations"
+                              >
+                                Non-DC with unconstrained delegations
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="non-dc_users_with_unconstrained_delegations"
+                                id="checkbox_non-dc_users_with_unconstrained_delegations"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_non-dc_users_with_unconstrained_delegations"
+                              >
+                                Users with unconstrained delegations
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="users_constrained_delegations"
+                                id="checkbox_users_constrained_delegations"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_users_constrained_delegations"
+                              >
+                                Users with constrained delegations
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="krb_last_change"
+                                id="checkbox_krb_last_change"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_krb_last_change"
+                              >
+                                Days for which krbtgt has not been updated
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading4">
+                          <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse4"
+                            aria-expanded="false"
+                            aria-controls="collapseThree"
+                          >
+                            Passwords
+                          </button>
+                        </h2>
+                        <div
+                          id="collapse4"
+                          class="accordion-collapse collapse"
+                          aria-labelledby="heading4"
+                          data-bs-parent="#accordion_evolution_time"
+                        >
+                          <div class="accordion-body">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="users_pwd_cleartext"
+                                id="checkbox_users_pwd_cleartext"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_users_pwd_cleartext"
+                              >
+                                Users with clear text password
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="dc_impersonation"
+                                id="checkbox_dc_impersonation"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_dc_impersonation"
+                              >
+                                DCs impersonate by others
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="users_pwd_not_changed_since"
+                                id="checkbox_users_pwd_not_changed_since"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_users_pwd_not_changed_since"
+                              >
+                                Unchanged passwords > 3 months
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="computers_last_connexion"
+                                id="checkbox_computers_last_connexion"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_computers_last_connexion"
+                              >
+                                Ghost computers
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="never_expires"
+                                id="checkbox_never_expires"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_never_expires"
+                              >
+                                Users w/o password expiration
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="dormants_accounts"
+                                id="checkbox_dormants_accounts"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_dormants_accounts"
+                              >
+                                Dormant accounts
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="computers_os_obsolete"
+                                id="checkbox_computers_os_obsolete"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_computers_os_obsolete"
+                              >
+                                Computers with obsolete OS
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="computers_without_laps"
+                                id="checkbox_computers_without_laps"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="checkbox_computers_without_laps"
+                              >
+                                Computers with LAPS
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-9">
+                    <div>
+                      <canvas
+                        id="chart-evolution-time-2"
+                        class="chart"
+                        style="padding-right: 10px"
+                      ></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="col-right">
+          <div
+            class="card main-card-category shadow limit-height mb-3 overview"
+          >
+            <div class="card-body">
+              <h5 class="card-title">
+                <i
+                  class="bi bi-exclamation-diamond-fill"
+                  style="color: rgb(245, 75, 75); margin-right: 5px"
+                ></i>
+                <span class="threats-number">{{immediate_risk}}</span> Dangerous
+                {{issue_or_issues}}
+              </h5>
+              <h6 class="card-subtitle mb-2 text-muted">
+                Must be solved as soon as possible
+              </h6>
+
+              <div class="threats-list">{{list_cards_dangerous_issues}}</div>
+
+              <br />
+              <h5 class="card-title">
+                <i
+                  class="bi bi-exclamation-triangle-fill"
+                  style="color: rgb(245, 177, 75); margin-right: 5px"
+                ></i>
+                <span class="threats-number">{{potential_risk}}</span>
+                {{alert_or_alerts}}
+              </h5>
+              <h6 class="card-subtitle mb-2 text-muted">
+                These issues should be looked into shortly
+              </h6>
+              <div class="threats-list">{{list_cards_alert_issues}}</div>
+
+              <br />
+              <h5 class="card-title">
+                <i
+                  class="bi bi-dash-circle-fill"
+                  style="color: rgb(255, 221, 0); margin-right: 5px"
+                ></i>
+                <span class="threats-number">{{minor_risk}}</span>
+                {{minor_alert_or_alerts}}
+              </h5>
+              <h6 class="card-subtitle mb-2 text-muted">
+                Solve these issues to reach a better security level
+              </h6>
+              <div class="threats-list">{{list_cards_minor_alert_issues}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="../js/popper.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/chart.umd.min.js"></script>
+    <script type="text/javascript" src="../js/main_circle.js"></script>
+    <script type="text/javascript" src="../js/hide_cards.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <script>
+      // evolution time 2
+
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      const chart = document
+        .getElementById('chart-evolution-time-2')
+        .getContext('2d');
+
+      const data = {
+        labels: `{{label_evolution_time}}`,
+      };
+
+      // créer le graphique avec les données initiales
+      const myChart = new Chart(chart, {
+        type: 'line',
+        data: data,
+        options: {
+          responsive: true,
+          plugins: {
+            center_text_doughnut: false,
+            shadow_plugin: false,
+            legend: {
+              position: 'bottom',
+              align: 'start',
+            },
+          },
+          scales: {
+            x: {
+              stacked: true,
+              type: 'time',
+              title: {
+                display: true,
+                text: 'Date',
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Number of',
+              },
+            },
+          },
+        },
+      });
+
+      const dico_data_evolution_time = `{{dico_data_evolution_time}}`;
+
+      const COLORS = [
+        '#4dc9f6',
+        '#f67019',
+        '#f53794',
+        '#537bc4',
+        '#acc236',
+        '#166a8f',
+        '#00a950',
+        '#58595b',
+        '#8549ba',
+      ];
+
+      function hexToRgba(hex, opacity) {
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const alpha = opacity / 100;
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+      }
+
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', function () {
+          const checkboxValue = checkbox.value;
+          const checkboxLabel = $(checkbox).next().text().trim();
+
+          if (checkbox.checked) {
+            random_color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+            const newDataset = {
+              label: [checkboxLabel],
+              backgroundColor: hexToRgba(random_color, 50),
+              borderColor: random_color,
+              data: dico_data_evolution_time[checkboxValue], // NaN possible : TODO : implement NaN if a value is missing
+            };
+            data.datasets.push(newDataset);
+          } else {
+            var index = -1;
+            for (var i = 0; i < data.datasets.length; i++) {
+              if (data.datasets[i].label == checkboxLabel) {
+                index = i;
+              }
+            }
+            if (index > -1) {
+              data.datasets.splice(index, 1);
+            }
+          }
+          myChart.update();
+        });
+      });
+
+      // evolution time 1
+      const ctxEvolutionTime1 = document.querySelector(
+        '#chart-evolution-time-1',
+      );
+      new Chart(ctxEvolutionTime1, {
+        type: 'bar',
+        data: {
+          labels: `{{label_evolution_time}}`,
+          datasets: [
+            {
+              label: 'Immediate risk',
+              data: `{{value_evolution_time_immediate_risk}}`,
+              backgroundColor: 'rgb(245, 75, 75)',
+              borderColor: 'rgb(245, 75, 75)',
+
+              fill: true,
+              hoverOffset: 4,
+            },
+            {
+              label: 'Potential risk',
+              data: `{{value_evolution_time_potential_risk}}`,
+              backgroundColor: 'rgb(245, 177, 75)',
+              borderColor: 'rgb(245, 177, 75)',
+
+              fill: true,
+              hoverOffset: 4,
+            },
+            {
+              label: 'Minor risk',
+              data: `{{value_evolution_time_minor_risk}}`,
+              backgroundColor: 'rgb(255, 221, 0)',
+              borderColor: 'rgb(255, 221, 0)',
+
+              fill: true,
+              hoverOffset: 4,
+            },
+            {
+              label: 'Handled risk',
+              data: `{{value_evolution_time_handled_risk}}`,
+              backgroundColor: 'rgb(91, 180, 32)',
+              borderColor: 'rgb(91, 180, 32)',
+
+              fill: true,
+              hoverOffset: 4,
+            },
+            {
+              label: 'Not Evaluated',
+              data: `{{value_not_evaluated_time_handled_risk}}`,
+              backgroundColor: 'rgb(133,135,150)',
+              borderColor: 'rgb(133,135,150)',
+
+              fill: true,
+              hoverOffset: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          animation: {
+            duration: 0,
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Distribution of exposure categories by time',
+            },
+            tooltip: {
+              mode: 'index',
+            },
+            center_text_doughnut: false,
+            shadow_plugin: false,
+            legend: {
+              position: 'bottom',
+              align: 'start',
+            },
+          },
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false,
+          },
+          scales: {
+            x: {
+              stacked: true,
+              type: 'time',
+              title: {
+                display: true,
+                text: 'Date',
+              },
+            },
+            y: {
+              min: 0,
+              stacked: true,
+              title: {
+                display: true,
+                text: 'Number of indicators summed',
+              },
+            },
+          },
+        },
+      });
+
+      // Users stats chart
+      const ctxUsers = document.querySelector('#chart-users');
+      new Chart(ctxUsers, {
+        type: 'doughnut',
+        data: {
+          labels: `{{domain_names}}`,
+          datasets: [
+            {
+              label: 'Users',
+              data: `{{users_per_domain}}`,
+              backgroundColor: [
+                'rgb(3, 4, 94)',
+                'rgb(2, 62, 138)',
+                'rgb(0, 119, 182)',
+                'rgb(0, 150, 199)',
+                'rgb(0, 180, 216)',
+                'rgb(72, 202, 228)',
+                'rgb(144, 224, 239)',
+                'rgb(173, 232, 244)',
+              ],
+              hoverOffset: 4,
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          plugins: {
+            center_text_doughnut: false,
+            shadow_plugin: false,
+            legend: {
+              position: 'bottom',
+              align: 'start',
+              labels: {
+                boxWidth: 20,
+                font: {
+                  size: 10,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Computers stats chart
+      const ctxComputers = document.querySelector('#chart-computers');
+      new Chart(ctxComputers, {
+        type: 'doughnut',
+        data: {
+          labels: `{{domain_names}}`,
+          datasets: [
+            {
+              label: 'Computers',
+              data: `{{computers_per_domain}}`,
+              backgroundColor: [
+                'rgb(27, 67, 50)',
+                'rgb(45, 106, 79)',
+                'rgb(64, 145, 108)',
+                'rgb(82, 183, 136)',
+                'rgb(116, 198, 157)',
+                'rgb(149, 213, 178)',
+                'rgb(183, 228, 199)',
+                'rgb(216, 243, 220)',
+              ],
+              hoverOffset: 4,
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          plugins: {
+            center_text_doughnut: false,
+            shadow_plugin: false,
+            legend: {
+              position: 'bottom',
+              align: 'start',
+              labels: {
+                boxWidth: 20,
+                font: {
+                  size: 10,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Plugin to have text at the center of the donut
+      const centerTextDoughnutPlugin = {
+        id: 'center_text_doughnut',
+        beforeDraw: function (chart) {
+          if (chart.config.options.elements.center) {
+            // Get ctx from string
+            const { ctx } = chart;
+
+            // Get options from the center object in options
+            var centerConfig = chart.config.options.elements.center;
+            var fontStyle = centerConfig.fontStyle || 'Arial';
+            var txt = centerConfig.text;
+            var color = centerConfig.color || '#000';
+            var fontSizeToUse = centerConfig.fontSize || '60px';
+
+            // Set font settings to draw it correctly.
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            var centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+            var centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+            ctx.font = '700 ' + fontSizeToUse + ' ' + fontStyle;
+            ctx.fillStyle = color;
+
+            // Draw text in center
+            ctx.fillText(txt, centerX, centerY);
+          }
+        },
+      };
+
+      // Plugin for a pretty shadow effect
+      const ShadowPlugin = {
+        id: 'shadow_plugin',
+        beforeDraw: (chart, args, options) => {
+          const { ctx } = chart;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetX = 5;
+          ctx.shadowOffsetY = 5;
+        },
+      };
+
+      Chart.register(centerTextDoughnutPlugin);
+      Chart.register(ShadowPlugin);
+
+      // Main breakdown chart
+      const ctxBreakdownMain = document.querySelector('#chart-details-main');
+      new Chart(ctxBreakdownMain, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical', 'Major', 'Minor', 'Handled'],
+          datasets: [
+            {
+              label: 'Vulnerabilities',
+              cutout: '60%',
+              data: `{{main_graph_data}}`,
+              backgroundColor: [
+                'rgba(245, 75, 75, 0.9)',
+                'rgba(245, 177, 75, 0.9)',
+                'rgba(255, 221, 0, 0.9)',
+                'rgba(91, 180, 32, 0.9)',
+              ],
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          layout: {
+            padding: 15,
+          },
+          elements: {
+            center: {
+              text: '{{main_letter_grade}}',
+              color: 'rgb({{main_letter_color}})',
+              fontStyle: 'Arial',
+              fontSize: '70px',
+            },
+          },
+          plugins: {
+            shadow_plugin: false,
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+
+      // Main details chart
+      const ctxDetail1 = document.querySelector('#chart-details-1');
+      new Chart(ctxDetail1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical', 'Major', 'Minor', 'Handled'],
+          datasets: [
+            {
+              label: 'Vulnerabilities',
+              cutout: '60%',
+              data: `{{permissions_data}}`,
+              backgroundColor: [
+                'rgba(245, 75, 75, 0.9)',
+                'rgba(245, 177, 75, 0.9)',
+                'rgba(255, 221, 0, 0.9)',
+                'rgba(91, 180, 32, 0.9)',
+              ],
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          layout: {
+            padding: 10,
+          },
+          elements: {
+            center: {
+              text: '{{permissions_letter_grade}}',
+              color: 'rgb({{permissions_letter_color}})',
+              fontStyle: 'Arial',
+              fontSize: '50px',
+            },
+          },
+          plugins: {
+            shadow_plugin: false,
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+
+      const ctxDetail2 = document.querySelector('#chart-details-2');
+      new Chart(ctxDetail2, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical', 'Major', 'Minor', 'Handled'],
+          datasets: [
+            {
+              label: 'Vulnerabilities',
+              cutout: '60%',
+              data: `{{passwords_data}}`,
+              backgroundColor: [
+                'rgba(245, 75, 75, 0.9)',
+                'rgba(245, 177, 75, 0.9)',
+                'rgba(255, 221, 0, 0.9)',
+                'rgba(91, 180, 32, 0.9)',
+              ],
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          layout: {
+            padding: 10,
+          },
+          elements: {
+            center: {
+              text: '{{passwords_letter_grade}}',
+              color: 'rgb({{passwords_letter_color}})',
+              fontStyle: 'Arial',
+              fontSize: '50px',
+            },
+          },
+          plugins: {
+            shadow_plugin: false,
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+
+      const ctxDetail3 = document.querySelector('#chart-details-3');
+      new Chart(ctxDetail3, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical', 'Major', 'Minor', 'Handled'],
+          datasets: [
+            {
+              label: 'Vulnerabilities',
+              cutout: '60%',
+              data: `{{kerberos_data}}`,
+              backgroundColor: [
+                'rgba(245, 75, 75, 0.9)',
+                'rgba(245, 177, 75, 0.9)',
+                'rgba(255, 221, 0, 0.9)',
+                'rgba(91, 180, 32, 0.9)',
+              ],
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          layout: {
+            padding: 10,
+          },
+          elements: {
+            center: {
+              text: '{{kerberos_letter_grade}}',
+              color: 'rgb({{kerberos_letter_color}})',
+              fontStyle: 'Arial',
+              fontSize: '50px',
+            },
+          },
+          plugins: {
+            shadow_plugin: false,
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+
+      // Tooltip management
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]',
+      );
+      const tooltipList = [...tooltipTriggerList].map(
+        (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
+      );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,370 @@
+
+#hub {
+transition: transform .4s ease-in-out;
+}
+#title:hover #hub {
+
+    transform: rotate(60deg);
+}
+
+.container {
+    position: relative;
+    text-align: center;
+    color: white;
+    display: inline;
+}
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+
+}
+.centered_AllExtendedRights {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 180px;
+    height: 25px;
+
+}
+
+
+
+.centered_AddMember {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 100px;
+    height: 25px;
+
+}
+
+
+.centered_AdminTo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 100px;
+    height: 25px;
+
+}
+
+
+.centered_Contains {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 180px;
+    height: 25px;
+
+}
+
+
+.centered_ {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 100px;
+    height: 25px;
+
+}
+
+
+.centered_GenericAll {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 120px;
+    height: 25px;
+
+}
+
+
+.centered_HasSession {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 120px;
+    height: 25px;
+
+}
+
+
+.centered_MemberOf {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 100px;
+    height: 25px;
+
+}
+
+.centered_WriteDacl {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight:500;
+    font-size: 13px;
+    width: 100px;
+    height: 25px;
+
+}
+
+
+
+
+
+
+.node_User {
+    font-weight: 700;
+    border-radius: 25px;
+    border: 1px solid  #73AD21;
+}
+.node_Group {
+    font-weight: 700;
+    border-radius: 25px;
+    border: 1px solid  #FF7F27;
+}
+.node_Computer {
+    font-weight: 700;
+    border-radius: 25px;
+    border: 1px solid  #880015;
+}
+.node_OU {
+    font-weight: 700;
+    border-radius: 25px;
+    border: 1px solid  #110015;
+}
+.edge_AllExtendedRights {
+    background-image: url("arrow.png");
+}
+
+
+.btn-circle.btn-sm {
+    width: 30px;
+    height: 30px;
+    padding: 5px 0px;
+    border-radius: 15px;
+    font-size: 8px;
+    text-align: center;
+    background-color: rgb(44, 62, 80);
+    border-color: rgb(44, 62, 80);
+}
+
+.mycard {
+    margin : 1%;
+}
+
+
+/*Here starts sb-admin havoc*/
+
+.border-left-danger {
+  border-left: 0.25rem solid rgb(245, 75, 75) !important;
+}
+.border-left-warning {
+  border-left: 0.25rem solid rgb(245, 177, 75) !important;
+}
+.border-left-alert {
+  border-left: 0.25rem solid rgb(255, 221, 0) !important;
+}
+.border-left-success {
+  border-left: 0.25rem solid rgb(28, 200, 138) !important;
+}
+.border-left-info {
+  border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-secondary {
+  border-left: 0.25rem solid #858796 !important;
+}
+.text-danger {
+  color: rgb(245, 75, 75) !important;
+}
+.text-warning {
+  color: rgb(245, 177, 75) !important;
+}
+.text-alert {
+  color: rgb(255, 221, 0) !important;
+}
+.text-success {
+  color: rgb(28, 200, 138) !important;
+}
+.text-info {
+  color: #36b9cc !important;
+}
+.text-secondary {
+  color: #858796 !important;
+  text-align: justify;
+}
+
+.text-primary {
+  color: #4e73df !important;
+}
+a.text-primary:hover, a.text-primary:focus {
+  color: rgb(34, 74, 190) !important;
+}
+.text-gray-300 {
+  color: #dddfeb !important;
+}
+.text-uppercase, .dropdown .dropdown-menu .dropdown-header, .sidebar .sidebar-heading {
+  text-transform: uppercase !important;
+}
+.font-weight-bold {
+  font-weight: 700 !important;
+}
+.text-xs {
+  font-size: .7rem;
+}
+.font-weight-bold {
+  font-weight: 700 !important;
+}
+
+.pb-2, .py-2 {
+  padding-bottom: 0.5rem !important;
+}
+.py-2 {
+  padding-top: 0.5rem !important;
+}
+.h-100 {
+  min-height: 12rem !important;
+}
+.shadow {
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+.align-items-center {
+  align-items: center !important;
+}
+.no-gutters {
+  margin-right: 0;
+  margin-left: 0;
+}
+.no-gutters > .col, .no-gutters > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+}
+.sb-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.sb-col-auto {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+}
+.sb-col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+.mb-1, .my-1 {
+  margin-bottom: 0.25rem !important;
+}
+.mb-0, .my-0 {
+    margin-bottom: 0 !important;
+}
+.mr-2, .mx-2 {
+    margin-right: 0.5rem !important;
+}
+h6, .h6 {
+  font-size: 1rem;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.smolcard-div {
+  display: flex;
+}
+
+.smolcard-icon {
+  width: 10%;
+  margin-right: 3%;
+  position: relative;
+}
+
+.smolcard-img {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.smolcard {
+  width: 87%;
+  position: relative;
+}
+
+.smolcard:hover {
+  cursor: pointer;
+  transform: scale(1.04);
+  transition: 0.25s ease-in-out;
+}
+
+.smolcard-title {
+  font-size: 14px;
+}
+
+.smolcard-body {
+  display: flex;
+  min-height: 200px;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-bottom: 0px;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.number-in-details {
+  background-color: #858796;
+  color: white;
+  border-radius: 7px;
+  padding: 4px 5px;
+}
+
+
+a {
+  color: black;
+}
+a:hover{
+  color: black;
+}
+
+.modal-fullscreen {
+  width: 100vw;
+  max-width: none;
+  height: 90%;
+  margin: 5;
+}

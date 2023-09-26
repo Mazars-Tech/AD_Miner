@@ -1,0 +1,59 @@
+
+
+<div class="row">
+	<h3 style="margin-bottom: 30px;"> Main paths to Domain Admin</h3>
+</div>
+
+
+<div class="row" id="mainRow"></div>
+
+</style>
+
+<script type="text/javascript" charset="utf-8">
+
+
+function mainFunction(){
+
+	for (value in mainCompromisePaths)
+	{	
+
+		if (mainCompromisePaths[value]/numberPaths <= 0.05) {
+			var color = "bg-success";
+		}
+		else if (mainCompromisePaths[value]/numberPaths > 0.05 && mainCompromisePaths[value]/numberPaths <= 0.1) {
+			var color = "bg-info";
+		}
+		else if (mainCompromisePaths[value]/numberPaths > 0.1 && mainCompromisePaths[value]/numberPaths <= 0.15) {
+			var color = "bg-warning";
+		}
+		else {
+			var color = "bg-danger";
+		}
+		document.getElementById("mainRow").innerHTML += `
+		<div class='col-6'>
+			<div class='progress'>
+				<div 
+				class='progress-bar ${color}' 
+				role='progressbar' 
+				style='width: ${100*(mainCompromisePaths[value]/numberPaths)}%' 
+				aria-valuenow='${mainCompromisePaths[value]}' 
+				aria-valuemin='0' 
+				aria-valuemax='${numberPaths}'>
+				</div>
+			</div>
+			<div style="
+			text-align: right;
+			margin-top: -19px;
+			margin-right: 5px;
+			font-size: 14px;
+			color: rgb(80,80,80);">
+				${mainCompromisePaths[value]} paths - ${Math.round(100 * (mainCompromisePaths[value]/numberPaths))} %
+			</div>
+		</div>
+		<div class='col-6'>
+			<p>${value}</p>
+		</div>`;
+	}
+
+}
+
