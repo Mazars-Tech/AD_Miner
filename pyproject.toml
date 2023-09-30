@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "AD_Miner"
+version = "0.1.0"
+description = "AD Miner is an Active Directory audit tool that leverages cypher queries to crunch data from the Bloodhound graph database to uncover security weaknesses."
+authors = ["Thomas Girard", "Jean-Michel Besnard", "Alexandre Lac"]
+license = "GPL-3.0"
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+neo4j = "==5.6.0"
+numpy = "==1.24.2"
+pytz = "==2022.7.1"
+tqdm = "==4.64.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+AD-miner="ad_miner.__main__:main"

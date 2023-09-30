@@ -11,9 +11,17 @@ ADMiner was created and is maintained by the Mazars Cybersecurity Audit & Adviso
 
 ## Installation and setup ##
 
-Prerequisites: Python3
+The easier way is to do the following commmand using `pipx`:
+```shell
+pipx install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
+```
 
-    pip install -r requirements.txt
+Or, the same way using `pip`:
+```shell
+pip install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
+```
+
+But remain careful and aware that doing this with pip will "polute" your packages.
 
 ## Usage ##
 
