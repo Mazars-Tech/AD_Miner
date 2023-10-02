@@ -11,7 +11,7 @@ ADMiner was created and is maintained by the Mazars Cybersecurity Audit & Adviso
 
 ## Installation and setup ##
 
-The easier way is to do the following commmand using `pipx`:
+The easier way is to do the following command using `pipx`:
 ```shell
 pipx install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
 ```
