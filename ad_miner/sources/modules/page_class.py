@@ -1,5 +1,5 @@
-import json
 from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY, JS_DIRECTORY
+from os.path import sep
 
 class Page:
     def __init__(
@@ -36,7 +36,7 @@ class Page:
         # shutil.copyfile(self.template + "_header", "./render/" +  os.path.basename(self.template + ))
 
         with open(
-            "./render_%s/html/%s" % (self.render_prefix, self.name), "w"
+            "./render_%s/html/%s" % (self.render_prefix, self.name.replace(sep, '_')), "w"
         ) as page_f:
             with open(
                 TEMPLATES_DIRECTORY / (self.template + "_header.html"), "r"
