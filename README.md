@@ -11,23 +11,31 @@ ADMiner was created and is maintained by the Mazars Cybersecurity Audit & Adviso
 
 ## Installation and setup ##
 
-Prerequisites: Python3
+The easier way is to do the following commmand using `pipx`:
+```shell
+pipx install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
+```
 
-    pip install -r requirements.txt
+Or, the same way using `pip`:
+```shell
+pip install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
+```
+
+But remain careful and aware that doing this with pip will "polute" your packages.
 
 ## Usage ##
 
 Run the tool:
 
-    ./main.py [-h] [-b BOLT] [-u USERNAME] [-p PASSWORD] [-e EXTRACT_DATE] [-r RENEWAL_PASSWORD] [-a] [-c] [-l LEVEL] -cf CACHE_PREFIX [-ch NB_CHUNKS] [-co NB_CORES] [--rdp] [--evolution EVOLUTION] [--cluster CLUSTER]
+    AD-miner [-h] [-b BOLT] [-u USERNAME] [-p PASSWORD] [-e EXTRACT_DATE] [-r RENEWAL_PASSWORD] [-a] [-c] [-l LEVEL] -cf CACHE_PREFIX [-ch NB_CHUNKS] [-co NB_CORES] [--rdp] [--evolution EVOLUTION] [--cluster CLUSTER]
 
 Example:
 
-    ./main.py -c -cf My_Report -u neo4j -p mypassword
+    AD-miner -c -cf My_Report -u neo4j -p mypassword
 
 To better handle large data sets, it is possible to enable multi-threading and also to use a cluster of neo4j databases, as shown in the following example (where server1 handles 32 threads and server2 handles 16) :
 
-    ./main.py -c -cf My_Report -b bolt://server1:7687 -u neo4j -p mypassword  --cluster server1:7687:32,server2:7687:16
+    AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p mypassword  --cluster server1:7687:32,server2:7687:16
 
 Options:
 
