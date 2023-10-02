@@ -31,7 +31,7 @@ Run the tool:
 
 Example:
 
-    AD-minery -c -cf My_Report -u neo4j -p mypassword
+    AD-miner -c -cf My_Report -u neo4j -p mypassword
 
 To better handle large data sets, it is possible to enable multi-threading and also to use a cluster of neo4j databases, as shown in the following example (where server1 handles 32 threads and server2 handles 16) :
 
