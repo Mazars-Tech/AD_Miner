@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 import time
 import traceback
+import os
 
 # Local library imports
 from ad_miner.sources.modules import logger, main_page, render_order, utils
@@ -184,7 +185,8 @@ def main() -> None:
 
     neo4j.close()
 
-    (Path().cwd() / 'temporary.txt').unlink()
+    if os.path.exists(Path().cwd() / 'temporary.txt'):
+        (Path().cwd() / 'temporary.txt').unlink()
 
     logger.print_success(f"Program finished in {utils.timer_format(time.time() - start)}!")
 
