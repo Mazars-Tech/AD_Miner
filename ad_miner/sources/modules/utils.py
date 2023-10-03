@@ -82,7 +82,7 @@ def args():
     parser.add_argument(
         "--gpo_low",
         default=False,
-        help="Perform a fast query for GPO (faster than the regular query) but incomplete",
+        help="Perform a faster but incomplete query for GPO (faster than the regular query)",
         action="store_true",
     )
     parser.add_argument(

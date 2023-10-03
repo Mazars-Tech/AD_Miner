@@ -51,6 +51,7 @@ Options:
     -cf, --cache_prefix     Cache file to use (in case of multiple company cache files)
     -ch, --nb_chunks        Number of chunks for parallel neo4j requests. Default : number of CPU
     -co, --nb_cores         Number of cores for parallel neo4j requests. Default : number of CPU
+    --gpo_low               Perform a faster but incomplete query for GPO
     --rdp                   Include the CanRDP edge in graphs
     --evolution             Evolution over time : location of json data files. ex : '../../tests/'
     --cluster               Nodes of the cluster to run parallel neo4j queries. ex : host1:port1:nCore1,host2:port2:nCore2,...
