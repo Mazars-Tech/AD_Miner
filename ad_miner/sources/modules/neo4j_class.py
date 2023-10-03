@@ -1168,7 +1168,7 @@ class Neo4j:
                 }
             }
 
-        if arguments.gpo_deep:
+        if not arguments.gpo_low:
             # Deep version of GPO requests
             self.all_requests["unpriv_users_to_GPO_init"] = {
                 "name": "Initialization request for GPOs",
