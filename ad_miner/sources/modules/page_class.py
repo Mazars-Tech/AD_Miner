@@ -36,10 +36,10 @@ class Page:
         # shutil.copyfile(self.template + "_header", "./render/" +  os.path.basename(self.template + ))
 
         with open(
-            "./render_%s/html/%s" % (self.render_prefix, self.name), "w"
+            "./render_%s/html/%s" % (self.render_prefix, self.name), "w", encoding='utf-8'
         ) as page_f:
             with open(
-                TEMPLATES_DIRECTORY / (self.template + "_header.html"), "r"
+                TEMPLATES_DIRECTORY / (self.template + "_header.html"), "r", encoding='utf-8'
             ) as header_f:
                 page_f.write(
                     header_f.read()
