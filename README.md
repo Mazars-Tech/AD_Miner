@@ -11,7 +11,7 @@ ADMiner was created and is maintained by the Mazars Cybersecurity Audit & Adviso
 
 ## Installation and setup ##
 
-The easier way is to do the following commmand using `pipx`:
+The easier way is to do the following command using `pipx`:
 ```shell
 pipx install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
 ```
@@ -54,6 +54,22 @@ Options:
     --rdp                   Include the CanRDP edge in graphs
     --evolution             Evolution over time : location of json data files. ex : '../../tests/'
     --cluster               Nodes of the cluster to run parallel neo4j queries. ex : host1:port1:nCore1,host2:port2:nCore2,...
+
+## Evolution ##
+
+If you have multiple AD-Miner reports over time, you can easily track the evolution with the `--evolution` argument: each AD-Miner report generates a JSON data file alongside the `index.html file`. You just need to gather these different JSON files into a single folder and specify the path to that folder after the `--evolution` argument.
+
+A tab called 'Evolution over time'  then appears on the main page.
+
+<p align="center">
+    <img src="doc/img/evolution2.png" style="height:350px">
+</p>
+
+Also, views by categories 'permissions,' 'passwords,' 'kerberos' also allow you to track changes over time.
+
+<p align="center">
+    <img src="doc/img/evolution3.png" style="height:200px">
+</p>
 
 ## Implemented controls ##
 
