@@ -1,3 +1,13 @@
+## [0.1.2](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.1...v0.1.2) (2023-10-03)
+
+
+### Bug Fixes
+
+* bug if 'temporary.txt' does not exist ([2ed8326](https://github.com/Mazars-Tech/AD_Miner/commit/2ed83262b0fd9dd820001045e5cd9a549af293ad))
+* small bug in evolution ([7b75a3d](https://github.com/Mazars-Tech/AD_Miner/commit/7b75a3d406b05612e622d6935d87fadbecbf2bd9))
+
+
+
 ## [0.1.1](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.0...v0.1.1) (2023-10-02)
 
 
