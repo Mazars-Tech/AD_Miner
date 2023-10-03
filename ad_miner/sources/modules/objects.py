@@ -9,6 +9,7 @@ from ad_miner.sources.modules.page_class import Page
 #from relation_neo4j import Relation
 from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.utils import grid_data_stringify, timer_format
+from urllib.parse import quote
 
 
 class Objects:

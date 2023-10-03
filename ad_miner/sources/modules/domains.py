@@ -2,17 +2,15 @@ import json
 import time
 
 from urllib.parse import quote
+from os.path import sep
 
-from ad_miner.sources.modules import generic_computing
 from ad_miner.sources.modules import generic_formating
 from ad_miner.sources.modules import logger
-from ad_miner.sources.modules.card_class import Card
 from ad_miner.sources.modules.graph_class import Graph
 from ad_miner.sources.modules.grid_class import Grid
 from ad_miner.sources.modules.histogram_class import Histogram
 from ad_miner.sources.modules.node_neo4j import Node
 from ad_miner.sources.modules.page_class import Page
-from ad_miner.sources.modules.table_class import Table
 from ad_miner.sources.modules.utils import (days_format, grid_data_stringify,
                                            timer_format)
 
@@ -1424,24 +1422,24 @@ class Domains:
                         headers[1]: dict[headers[1]],
                         headers[2]: {
                             "link": "users_GPO_access-%s-left-graph.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (quote(str(dict[headers[0]]).replace(sep, '_'))),
                             "value": "<i class='bi bi-diagram-3-fill' aria-hidden='true'></i>",
                         },
                         headers[3]: {
                             "link": "users_GPO_access-%s-left-grid.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (quote(str(dict[headers[0]]).replace(sep, '_'))),
                             "value": "<i class='bi bi-list-columns-reverse' aria-hidden='true'></i>",
                         },
                         headers[4]: len(list(set(dict["end_list"]))),
                         headers[5]: "%s %d" % (icon, nbDomains),
                         headers[6]: {
                             "link": "users_GPO_access-%s-right-graph.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (quote(str(dict[headers[0]]).replace(sep, '_'))),
                             "value": "<i class='bi bi-diagram-3-fill' aria-hidden='true'></i>",
                         },
                         headers[7]: {
                             "link": "users_GPO_access-%s-right-grid.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (quote(str(dict[headers[0]]).replace(sep, '_'))),
                             "value": "<i class='bi bi-list-columns-reverse' aria-hidden='true'></i>",
                         },
                     }
