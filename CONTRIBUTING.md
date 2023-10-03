@@ -1,5 +1,7 @@
 # Contributing ? 
 
+> :warning: Before contributing, please note that commit messages **MUST** follow conventional rules as stated [here](https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13). 
+
 ## 1. General Description 🔧
 
 AD Miner is a set of scripts that plug into an already-populated graph database containing data imported with Bloodhound. The purpose of AD Miner is to produce readable reports for all types of users, including non-technical individuals. This imposes certain constraints:
