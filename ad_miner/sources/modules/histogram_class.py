@@ -26,8 +26,11 @@ class Histogram:
         ) as header_f:
             html_header = header_f.read()
             page_f.write(html_header)
-
+        
         with open(
-            self.template_base_path / (self.template + "_footer.html"), "r"
+            self.template_base_path / (self.template + "_footer.html"), "r", encoding='utf-8'
         ) as footer_f:
-            page_f.write(footer_f.read() % (self.data1, self.data2))
+            content = footer_f.read() % (self.data1, self.data2)
+            page_f.write(content.encode('utf-8', errors='replace').decode('utf-8'))
+
+        
