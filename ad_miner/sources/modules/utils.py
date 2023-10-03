@@ -80,9 +80,9 @@ def args():
         required=True,
     )
     parser.add_argument(
-        "--gpo_deep",
+        "--gpo_low",
         default=False,
-        help="Perform a deep query for GPO (may take some time)",
+        help="Perform a fast query for GPO (faster than the regular query) but incomplete",
         action="store_true",
     )
     parser.add_argument(
