@@ -1,6 +1,7 @@
 import json
 import time
 import re
+from urllib.parse import quote
 
 from ad_miner.sources.modules import generic_computing
 from ad_miner.sources.modules import generic_formating
@@ -323,14 +324,14 @@ class Computers:
                     "Computer Admin": '<i class="bi bi-pc-display"></i> ' + admin_computer,
                     "Computers count": grid_data_stringify({
                         "value": f"{computers_admin_to_count[admin_computer]} computers",
-                        "link": f"computer_admin_{admin_computer}.html",
+                        "link": f"computer_admin_{quote(str(admin_computer))}.html",
                         "before_link": f"<i class='bi bi-pc-display {sortClass1}'></i>"
                     })
                 }
                 if num_path > 0:
                     tmp_line["Paths to domain admin"] = grid_data_stringify({
                             "value": f"{num_path} paths to DA ({nb_domains} domain{'s' if nb_domains>1 else ''} impacted) <i class='bi bi-box-arrow-up-right'></i>",
-                            "link": f"computers_path_to_da_from_{admin_computer}.html",
+                            "link": f"computers_path_to_da_from_{quote(str(admin_computer))}.html",
                             "before_link": f"<i class='bi bi-shuffle {sortClass2}' aria-hidden='true'></i>"
                         })
                 else:
@@ -510,7 +511,7 @@ class Computers:
             nb_path_to_adcs = len(paths)
             sortClass = str(nb_path_to_adcs).zfill(6)
             tmp_data["Path to ADCS"] = grid_data_stringify({
-                    "link": "path_to_adcs_%s.html" % key,
+                    "link": "path_to_adcs_%s.html" % quote(str(key)),
                     "value": f"{nb_path_to_adcs} paths to ADCS <i class='bi bi-box-arrow-up-right'></i>",
                     "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                 })

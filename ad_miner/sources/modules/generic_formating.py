@@ -1,4 +1,5 @@
 from ad_miner.sources.modules.utils import grid_data_stringify
+from urllib.parse import quote
 
 # format data for grid components format: list of dicts [{key1:value1}, {key2:value2}]
 def formatGridValues2Columns(data, headers, prefix, icon="", icon2=""):
@@ -9,7 +10,7 @@ def formatGridValues2Columns(data, headers, prefix, icon="", icon2=""):
                 {
                     headers[0]: icon2 + key,
                     headers[1]: grid_data_stringify({
-                        "link": "%s.html?object=%s" % (prefix, key),
+                        "link": "%s.html?object=%s" % (quote(str(prefix)), quote(str(key))),
                         "value": str(value)
                         + ' <i class="bi bi-box-arrow-up-right"></i>',
                     }),
@@ -21,7 +22,7 @@ def formatGridValues2Columns(data, headers, prefix, icon="", icon2=""):
                 {
                     headers[0]: icon2 + key,
                     headers[1]: grid_data_stringify({
-                        "link": "%s.html?object=%s" % (prefix, key),
+                        "link": "%s.html?object=%s" % (quote(str(prefix)), quote(str(key))),
                         "before_link": f'{icon[:-6]} {sortClass}"></i>',
                         "value": str(value) + ' <i class="bi bi-box-arrow-up-right"></i>',
                     }),
@@ -48,7 +49,7 @@ def formatGridValues3Columns(data, headers, prefix):
                     headers[0]: dict[headers[0]],
                     headers[1]: dict[headers[1]],
                     headers[2]: {
-                        "link": "%s.html?parameter=%s" % (prefix, dict[headers[0]]),
+                        "link": "%s.html?parameter=%s" % (quote(str(prefix)), quote(str(dict[headers[0]]))),
                         "value": "Show list of objects <i class='bi bi-box-arrow-up-right'></i><p style='visibility:hidden;'>%s</p>"
                         % dict[headers[2]],
                     },
