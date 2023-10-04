@@ -1,3 +1,24 @@
+## [0.1.3](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.2...v0.1.3) (2023-10-04)
+
+
+### Bug Fixes
+
+* delete index_old that was unnecessary ([df86379](https://github.com/Mazars-Tech/AD_Miner/commit/df863790e003e9776cac1502bd3680ca68b54faa))
+* remove temporary.txt + occurence of gpo_deep ([ff1ebea](https://github.com/Mazars-Tech/AD_Miner/commit/ff1ebea4cd124274393b4ff844c8e22674183afb))
+* replace gpo_deep by default gpo ([806b820](https://github.com/Mazars-Tech/AD_Miner/commit/806b82025edbbe03b980d31076bbf1f748df8aa6))
+
+
+
+## [0.1.2](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.1...v0.1.2) (2023-10-03)
+
+
+### Bug Fixes
+
+* bug if 'temporary.txt' does not exist ([2ed8326](https://github.com/Mazars-Tech/AD_Miner/commit/2ed83262b0fd9dd820001045e5cd9a549af293ad))
+* small bug in evolution ([7b75a3d](https://github.com/Mazars-Tech/AD_Miner/commit/7b75a3d406b05612e622d6935d87fadbecbf2bd9))
+
+
+
 ## [0.1.1](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.0...v0.1.1) (2023-10-02)
 
 

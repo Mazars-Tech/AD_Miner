@@ -1168,7 +1168,7 @@ class Neo4j:
                 }
             }
 
-        if arguments.gpo_deep:
+        if not arguments.gpo_low:
             # Deep version of GPO requests
             self.all_requests["unpriv_users_to_GPO_init"] = {
                 "name": "Initialization request for GPOs",
@@ -1327,8 +1327,6 @@ class Neo4j:
                 logger.print_error(errorMessage)
                 logger.print_error(e)
 
-        with open("temporary.txt", "a") as f:
-            f.write(f"{str(int(time.time()-start_time))} : {str(len(result))} \n")
         gc.collect()
         return result
 
@@ -1549,8 +1547,6 @@ class Neo4j:
                 logger.print_error(errorMessage)
                 logger.print_error(e)
 
-        with open("temporary.txt", "a") as f:
-            f.write(f"{str(int(time.time()-start_time))} : {str(len(result))} \n")
         driver.close()  # TODO pas de base ?
         gc.collect
         return result

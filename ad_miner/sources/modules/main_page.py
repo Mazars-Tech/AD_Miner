@@ -52,7 +52,7 @@ def get_raw_other_data(arguments):
     try:
         raw_other_list_data = []
         for file_name in os.listdir(arguments.evolution):
-            with open(arguments.evolution + file_name, "r") as f:
+            with open(arguments.evolution + "/" + file_name, "r") as f:
                 raw_other_list_data.append(json.load(f))
         return raw_other_list_data
     except Exception as e:

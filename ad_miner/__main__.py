@@ -7,9 +7,10 @@ import shutil
 from pathlib import Path
 import time
 import traceback
+import os
 
 # Local library imports
-from ad_miner.sources.modules import logger, main_page, render_order, utils
+from ad_miner.sources.modules import logger, main_page, utils
 from ad_miner.sources.modules.computers import Computers
 from ad_miner.sources.modules.domains import Domains
 from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request_date
@@ -149,7 +150,7 @@ def main() -> None:
     # Each of the objects (domains, computers, users, objects) pulls the data of the corresponding requests from the neo4j object
     # example : computers.list_total_computers contains the list of computers, pulled from neo4j
     # The data will be used when :
-    # - Generating the main page (render_order.main_render(...))
+    # - Generating the main page ()
     # - Generating the secondary pages (created when the objects are initialized)
     domains = Domains(arguments, neo4j)
     computers = Computers(arguments, neo4j, domains)
@@ -170,21 +171,8 @@ def main() -> None:
     dico_name_description = main_page.render(
         arguments, neo4j, domains, computers, users, objects, rating_dic, extract_date
     )
-    render_order.main_render(
-        arguments,
-        neo4j,
-        domains,
-        computers,
-        users,
-        objects,
-        rating_dic,
-        dico_name_description,
-        extract_date,
-    )
 
     neo4j.close()
-
-    (Path().cwd() / 'temporary.txt').unlink()
 
     logger.print_success(f"Program finished in {utils.timer_format(time.time() - start)}!")
 
