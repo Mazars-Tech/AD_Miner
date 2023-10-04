@@ -112,7 +112,7 @@ class Domains:
         for admin in self.users_nb_domain_admins:
             self.admin_list.append(admin["name"])
 
-        if arguments.gpo_deep:
+        if not arguments.gpo_low:
             self.unpriv_users_to_GPO_init = neo4j.all_requests[
                 "unpriv_users_to_GPO_init"
             ]["result"]
@@ -1319,9 +1319,9 @@ class Domains:
         return (len(path_to_generate), len(list_domain))
 
     def get_unpriv_users_to_GPO(self):
-        if not self.arguments.gpo_deep and self.unpriv_users_to_GPO is None:
+        if self.arguments.gpo_low and self.unpriv_users_to_GPO is None:
             return
-        if self.arguments.gpo_deep:
+        if not self.arguments.gpo_low:
             fail = []
             if self.unpriv_users_to_GPO_init is None:
                 fail.append("unpriv_users_to_GPO_init")
@@ -1336,7 +1336,7 @@ class Domains:
 
             if 0 < len(fail) < 5:  # if only some of them are disabled
                 logger.print_error(
-                    f" In order to use 'gpo_deep', please activate the following in config.json : {', '.join(fail)}"
+                    f" In order to use 'normal GPO mode', please activate the following in config.json : {', '.join(fail)}"
                 )
 
             if len(fail) > 0:
@@ -1464,7 +1464,7 @@ class Domains:
             "Outbound graph",
             "Outbound list",
         ]
-        if self.arguments.gpo_deep:
+        if not self.arguments.gpo_low:
             data = (
                 self.unpriv_users_to_GPO_init
                 + self.unpriv_users_to_GPO_user_enforced
@@ -1550,7 +1550,7 @@ class Domains:
             )
             page_left_grid.addComponent(entry_grid)
 
-            if self.arguments.gpo_deep:
+            if not self.arguments.gpo_low:
                 end_grid = Grid("List of users impacted by %s" % GPO[headers[0]])
             else:
                 end_grid = Grid("List of users impacted by %s" % GPO[headers[0]])
