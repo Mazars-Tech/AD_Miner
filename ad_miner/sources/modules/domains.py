@@ -1535,7 +1535,7 @@ class Domains:
             graph_right.setPaths(GPO["right_path"])
             page_right_graph.addComponent(graph_right)
 
-            if self.arguments.gpo_deep:
+            if not self.arguments.gpo_low:
                 entry_grid = Grid("List of users able to compromise %s" % GPO[headers[0]])
             else:
                 entry_grid = Grid("List of users able to compromise %s" % GPO[headers[0]])
