@@ -72,6 +72,12 @@ Also, views by categories 'permissions,' 'passwords,' 'kerberos' also allow you 
     <img src="doc/img/evolution3.png" style="height:200px">
 </p>
 
+## Discord ##
+
+You can join an AD-Miner Discord : https://discord.gg/DmfK5dG7
+
+Feel free to share any thoughts, feedback or issue that you can come up with regarding AD Miner as it's still evolving 🛠️
+
 ## Implemented controls ##
 
 The following provides a list controls that have already been implemented in AD Miner :
