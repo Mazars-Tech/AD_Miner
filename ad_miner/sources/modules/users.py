@@ -1,13 +1,12 @@
 import json
 import time
 from xml.dom import UserDataHandler
-from urllib.parse import quote
 
 from ad_miner.sources.modules import generic_computing
 from ad_miner.sources.modules import generic_formating
 from ad_miner.sources.modules import logger
 #from relation_neo4j import Relation
-from ad_miner.sources.modules.utils import days_format, grid_data_stringify, timer_format
+from ad_miner.sources.modules.utils import days_format, grid_data_stringify, timer_format, clean_special_characters_link
 
 from ad_miner.sources.modules.card_class import Card
 from ad_miner.sources.modules.graph_class import Graph
@@ -345,7 +344,7 @@ class Users:
                 "name": '<i class="bi bi-person-fill"></i> ' + d["name"],
                 "target": grid_data_stringify({
                     "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
-                    "link": f"users_shadow_credentials_from_{quote(str(d['name']))}.html",
+                    "link": f"users_shadow_credentials_from_{clean_special_characters_link(str(d['name']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
                 })
             }
@@ -391,7 +390,7 @@ class Users:
                     "target": '<i class="bi bi-bullseye"></i> ' + data[target]["target"],
                     "paths": grid_data_stringify({
                         "value": f"{nb_paths} paths to target <i class='bi bi-box-arrow-up-right'></i>",
-                        "link": f"users_shadow_credentials_to_non_admins_to_{quote(str(data[target]['target']))}.html",
+                        "link": f"users_shadow_credentials_to_non_admins_to_{clean_special_characters_link(str(data[target]['target']))}.html",
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     })
                 }
@@ -564,7 +563,7 @@ class Users:
             partDict[headers[3]] = self.users_admin_computer_list[key]
             try:  # Case when node is not present in graph
                 partDict[headers[4]] = grid_data_stringify({
-                    "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
+                    "link": f"users_to_computers.html?node={clean_special_characters_link(str(self.users_to_computer_admin[key]))}",
                     "value": "Path to computers <i class='bi bi-box-arrow-up-right'></i>",
                     "before_link": f"<i class='bi bi-shuffle' aria-hidden='true'></i>"
                 })
@@ -577,7 +576,7 @@ class Users:
             if nb_path_to_da > 0:
                 sortClass = str(nb_path_to_da).zfill(6)
                 partDict[headers[5]] = grid_data_stringify({
-                    "link": "users_path_to_da_from_%s.html" % quote(str(key)),
+                    "link": "users_path_to_da_from_%s.html" % clean_special_characters_link(str(key)),
                     "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''}) <i class='bi bi-box-arrow-up-right'></i>",
                     "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                 })
@@ -597,7 +596,7 @@ class Users:
                 partDict[headers[3]] = "No data to show"
                 try:  # Case when node is not present in graph
                     partDict[headers[4]] = grid_data_stringify({
-                        "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
+                        "link": f"users_to_computers.html?node={clean_special_characters_link(str(self.users_to_computer_admin[key]))}",
                         "value": "Path to computers <i class='bi bi-box-arrow-up-right'></i>",
                         "before_link": f"<i class='bi bi-shuffle' aria-hidden='true'></i>"
                     })
@@ -612,7 +611,7 @@ class Users:
                 if nb_path_to_da > 0:
                     sortClass = str(nb_path_to_da).zfill(6)
                     partDict[headers[5]] = grid_data_stringify({
-                    "link": "users_path_to_da_from_%s.html" % quote(str(key)),
+                    "link": "users_path_to_da_from_%s.html" % clean_special_characters_link(str(key)),
                     "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''}) <i class='bi bi-box-arrow-up-right'></i>",
                     "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                 })
@@ -627,7 +626,7 @@ class Users:
                 sortClass = str(len(dict[headers[3]])).zfill(6)  # used to make the sorting feature work with icons
                 data_header_computer = grid_data_stringify({
                     "link": "%s.html?parameter=%s"
-                    % ("users_admin_of_computers_details", quote(str(dict[headers[0]]))),
+                    % ("users_admin_of_computers_details", clean_special_characters_link(str(dict[headers[0]]))),
                     "value": f" {len(dict[headers[3]])} Computer{'s' if len(dict[headers[3]]) > 1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
                     "before_link": f"<i class='bi bi-pc-display-horizontal {sortClass}'></i>"
                 })
@@ -757,7 +756,7 @@ class Users:
                 n += 1
             sortClass = str(n).zfill(6)  # used to make the sorting feature work with icons
             user["SPN"] = grid_data_stringify({
-                "link": "%s.html?parameter=%s" % ("kerberoastables_SPN", quote(str(user["name"]))),
+                "link": "%s.html?parameter=%s" % ("kerberoastables_SPN", clean_special_characters_link(str(user["name"]))),
                 "value": f"{n} SPN{'s' if n > 1 else ''} <i class='bi bi-box-arrow-up-right'></i></span>",
                 "before_link": f'<i class="bi bi-list-task {sortClass}"></i>'
             })
@@ -876,7 +875,7 @@ class Users:
                 "Users": '<i class="bi bi-person-fill"></i> ' + key,
                 "Computers": grid_data_stringify({
                     "value": f"{len(self.users_rdp_access_1[key])} Computers <i class='bi bi-box-arrow-up-right'></i><p style='visibility:hidden;'>{self.users_rdp_access_1[key]}</p>",
-                    "link": f"users_rdp_access.html?parameter={quote(str(key))}",
+                    "link": f"users_rdp_access.html?parameter={clean_special_characters_link(str(key))}",
                     "before_link": f'<i class="bi bi-pc-display {sortClass}"></i>'
                 })
             }
@@ -911,7 +910,7 @@ class Users:
                 "Computers": '<i class="bi bi-pc-display"></i> ' + key,
                 "Users": grid_data_stringify({
                     "value": f"{len(self.users_rdp_access_2[key])} Users <i class='bi bi-box-arrow-up-right'></i><p style='visibility:hidden;'>{self.users_rdp_access_2[key]}</p>",
-                    "link": f"computers_list_of_rdp_users.html?parameter={quote(str(key))}",
+                    "link": f"computers_list_of_rdp_users.html?parameter={clean_special_characters_link(str(key))}",
                     "before_link": f'<i class="bi bi-person-fill {sortClass}"></i>'
                 })
             }
@@ -1189,7 +1188,7 @@ class Users:
                 "name": '<i class="bi bi-person-fill"></i> ' + d["name"],
                 "target": grid_data_stringify({
                     "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
-                    "link": f"can_read_gmsapassword_of_adm_from_{quote(str(d['name']))}.html",
+                    "link": f"can_read_gmsapassword_of_adm_from_{clean_special_characters_link(str(d['name']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
                 })
             }
@@ -1229,7 +1228,7 @@ class Users:
                 data[path.nodes[0]] = {
                     "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[0].domain,
                     "name": '<i class="bi bi-person-fill"></i> ' + path.nodes[0].name,
-                    "link": quote(str(path.nodes[0].name)),
+                    "link": clean_special_characters_link(str(path.nodes[0].name)),
                     "target": [path.nodes[-1].name],
                     "paths": [path]
                 }
@@ -1243,7 +1242,7 @@ class Users:
                 "name": d["name"],
                 "target": grid_data_stringify({
                     "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
-                    "link": f"objects_to_operators_member_from_{quote(str(d['link']))}.html",
+                    "link": f"objects_to_operators_member_from_{clean_special_characters_link(str(d['link']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
                 })
             }
@@ -1347,7 +1346,7 @@ class Users:
                     sortClass = str(len(self.rbcd_to_da_graphs[destination]["paths"])).zfill(6)
                     sub_tmp_data["Paths to DA"] = grid_data_stringify({
                         "value": f'{len(self.rbcd_to_da_graphs[destination]["paths"])} path{"s" if len(self.rbcd_to_da_graphs[destination]["paths"]) > 1 else ""} to <i class="bi bi-gem"></i> DA',
-                        "link": "rbcd_target_%s_paths_to_da.html" % quote(str(destination)),
+                        "link": "rbcd_target_%s_paths_to_da.html" % clean_special_characters_link(str(destination)),
                         "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
                     })
                 else:
@@ -1376,14 +1375,14 @@ class Users:
                 sortClass1 = str(len(self.rbcd_graphs[object_name]["paths"])).zfill(6)
                 tmp_data["Paths to targets"] = grid_data_stringify({
                     "value": f'{len(self.rbcd_graphs[object_name]["paths"])} path{"s" if len(self.rbcd_graphs[object_name]["paths"]) > 1 else ""} to <i class="bi bi-bullseye"></i> targets',
-                    "link": "%s_rbcd_graph.html" % quote(str(object_name)),
+                    "link": "%s_rbcd_graph.html" % clean_special_characters_link(str(object_name)),
                     "before_link": f'<i class="bi bi-shuffle {sortClass1}"></i>'
                 })
                 if self.rbcd_graphs[object_name]["nb_paths_to_da"] > 0:
                     sortClass2 = str(self.rbcd_graphs[object_name]["nb_paths_to_da"]).zfill(6)
                     tmp_data["Paths to DA"] = grid_data_stringify({
                         "value": f'{self.rbcd_graphs[object_name]["nb_paths_to_da"]} path{"s" if self.rbcd_graphs[object_name]["nb_paths_to_da"] > 1 else ""} to <i class="bi bi-gem"></i> DA',
-                        "link": "graph_list_objects_rbcd_to_da_from_%s.html" % quote(str(object_name)),
+                        "link": "graph_list_objects_rbcd_to_da_from_%s.html" % clean_special_characters_link(str(object_name)),
                         "before_link": f'<i class="bi bi-shuffle {sortClass2}"></i>'
                     })
                 else:
@@ -1472,7 +1471,7 @@ class Users:
                         if "No data to show" not in u['List of computers']:
                             count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
                             tmp_dict["Computers admin"] = grid_data_stringify({
-                                "link": quote(str(u['Path to computers'].split("href='", 1)[-1].split("'", 1)[0])),
+                                "link": clean_special_characters_link(str(u['Path to computers'].split("href='", 1)[-1].split("'", 1)[0])),
                                 "value": f"Admin of {count} computer{'s' if count > 1 else ''}",
                                 "before_link": f"<i class='bi bi-pc-display-horizontal {str(count).zfill(6)}'></i>"
                             })
@@ -1502,7 +1501,7 @@ class Users:
                     "type": formated_data[name_instance]["type"],
                     "members count": f'<i class="{str(formated_data[name_instance]["members_count"]).zfill(6)} bi bi-people-fill"></i> ' + str(formated_data[name_instance]["members_count"]),
                     "targets count": grid_data_stringify({
-                        "link": f"group_anomaly_acl_details_{quote(str(name_instance))}.html",
+                        "link": f"group_anomaly_acl_details_{clean_special_characters_link(str(name_instance))}.html",
                         "value": f"{len(formated_data[name_instance]['targets'])} target{'s' if len(formated_data[name_instance]['targets']) > 1 else ''} <i class='bi bi-box-arrow-up-right' aria-hidden='true'></i>",
                         "before_link": f"<i class='<i bi bi-bullseye {str(len(formated_data[name_instance]['targets'])).zfill(6)}'></i> "
                     }),

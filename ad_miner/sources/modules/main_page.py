@@ -2,11 +2,10 @@ import json
 import os
 from datetime import datetime
 from operator import add
-from urllib.parse import quote
 
 from ad_miner.sources.modules import rating
 from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category
-from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY
+from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY, clean_special_characters_link
 
 
 def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
@@ -866,7 +865,7 @@ def render(
 
                 dico_js[indicator] = {
                     "color": color,
-                    "link": quote(str(indicator)) + ".html",
+                    "link": clean_special_characters_link(str(indicator)) + ".html",
                     "category": category,
                     "position": dico_position[category][
                         dico_position_instance[category]

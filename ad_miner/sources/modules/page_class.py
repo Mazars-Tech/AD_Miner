@@ -1,5 +1,5 @@
 import json
-from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY, JS_DIRECTORY
+from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY, JS_DIRECTORY, clean_special_characters_link 
 
 class Page:
     def __init__(
@@ -36,7 +36,7 @@ class Page:
         # shutil.copyfile(self.template + "_header", "./render/" +  os.path.basename(self.template + ))
 
         with open(
-            "./render_%s/html/%s" % (self.render_prefix, self.name), "w", encoding='utf-8'
+            "./render_%s/html/%s" % (clean_special_characters_link(self.render_prefix), clean_special_characters_link(self.name)), "w", encoding='utf-8'
         ) as page_f:
             with open(
                 TEMPLATES_DIRECTORY / (self.template + "_header.html"), "r", encoding='utf-8'

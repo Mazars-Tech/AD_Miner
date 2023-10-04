@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import multiprocessing as mp
 import json
+import re
 
 from datetime import date
 
@@ -166,3 +167,7 @@ def grid_data_stringify(raw_data: dict) -> str:
         return f"{raw_data['before_link']} <a style='color: blue' target='_blank' href='{raw_data['link']}'>{raw_data['value']} </a>"
     except KeyError:
         return f"<a style='color: blue' target='_blank' href='{raw_data['link']}'>{raw_data['value']} </a>"
+
+
+def clean_special_characters_link(value_string) -> str:
+    return  re.sub(r'[?&#!%:/"\'\\|]', '_', str(value_string))

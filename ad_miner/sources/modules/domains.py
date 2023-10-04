@@ -1,8 +1,6 @@
 import json
 import time
 
-from urllib.parse import quote
-
 from ad_miner.sources.modules import generic_computing
 from ad_miner.sources.modules import generic_formating
 from ad_miner.sources.modules import logger
@@ -14,8 +12,7 @@ from ad_miner.sources.modules.node_neo4j import Node
 from ad_miner.sources.modules.page_class import Page
 from ad_miner.sources.modules.table_class import Table
 from ad_miner.sources.modules.utils import (days_format, grid_data_stringify,
-                                           timer_format)
-
+                                           timer_format, clean_special_characters_link)
 
 class Domains:
     # we are manipulating Path and Node Objects
@@ -747,7 +744,7 @@ class Domains:
             if count != 0:
                 tmp_data[headers[1]] = grid_data_stringify({
                     "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.users_to_domain_admin[domain])})",
-                    "link": "%s_users_to_da.html" % quote(str(domain)),
+                    "link": "%s_users_to_da.html" % clean_special_characters_link(str(domain)),
                     "before_link": f"<i class='bi bi-person-fill {sortClass}' aria-hidden='true'></i> "
                 })
             else:
@@ -762,7 +759,7 @@ class Domains:
             if count != 0:
                 tmp_data[headers[2]] = grid_data_stringify({
                     "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.computers_to_domain_admin[domain])})",
-                    "link": "%s_computers_to_da.html" % quote(str(domain)),
+                    "link": "%s_computers_to_da.html" % clean_special_characters_link(str(domain)),
                     "before_link": f"<i class='bi bi-pc-display-horizontal {sortClass}' aria-hidden='true'></i>"
                 })
             else:
@@ -777,7 +774,7 @@ class Domains:
             if count != 0:
                 tmp_data[headers[3]] = grid_data_stringify({
                     "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.groups_to_domain_admin[domain])})",
-                    "link": "%s_groups_to_da.html" % quote(str(domain)),
+                    "link": "%s_groups_to_da.html" % clean_special_characters_link(str(domain)),
                     "before_link": f"<i class='bi bi-people-fill {sortClass}' aria-hidden='true'></i>"
                 })
             else:
@@ -792,7 +789,7 @@ class Domains:
             if count != 0:
                 tmp_data[headers[4]] = grid_data_stringify({
                     "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.ou_to_domain_admin[domain])})",
-                    "link": "%s_OU_to_da.html" % quote(str(domain)),
+                    "link": "%s_OU_to_da.html" % clean_special_characters_link(str(domain)),
                     "before_link": f"<i class='bi bi-building {sortClass}' aria-hidden='true'></i>"
                 })
             else:
@@ -807,7 +804,7 @@ class Domains:
             if count != 0:
                 tmp_data[headers[5]] = grid_data_stringify({
                     "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.gpo_to_domain_admin[domain])})",
-                    "link": "%s_GPO_to_da.html" % quote(str(domain)),
+                    "link": "%s_GPO_to_da.html" % clean_special_characters_link(str(domain)),
                     "before_link": f"<i class='bi bi-journal-text {sortClass}' aria-hidden='true'></i>"
                 })
             else:
@@ -909,7 +906,7 @@ class Domains:
                         str(len(self.users_to_dcsync[domain])).zfill(6),
                         len(self.users_to_dcsync[domain]),
                     ),
-                    "link": "%s_users_to_dcsync.html" % quote(str(domain)),
+                    "link": "%s_users_to_dcsync.html" % clean_special_characters_link(str(domain)),
                 }
             else:
                 tmp_data[
@@ -925,7 +922,7 @@ class Domains:
                         str(len(self.computers_to_dcsync[domain])).zfill(6),
                         len(self.computers_to_dcsync[domain]),
                     ),
-                    "link": "%s_computers_to_dcsync.html" % quote(str(domain)),
+                    "link": "%s_computers_to_dcsync.html" % clean_special_characters_link(str(domain)),
                 }
             else:
                 tmp_data["Computers"] = (
@@ -942,7 +939,7 @@ class Domains:
                         str(len(self.groups_to_dcsync[domain])).zfill(6),
                         len(self.groups_to_dcsync[domain]),
                     ),
-                    "link": "%s_groups_to_dcsync.html" % quote(str(domain)),
+                    "link": "%s_groups_to_dcsync.html" % clean_special_characters_link(str(domain)),
                 }
             else:
                 tmp_data[
@@ -958,7 +955,7 @@ class Domains:
                         str(len(self.ou_to_dcsync[domain])).zfill(6),
                         len(self.ou_to_dcsync[domain]),
                     ),
-                    "link": "%s_OU_to_dcsync.html" % quote(str(domain)),
+                    "link": "%s_OU_to_dcsync.html" % clean_special_characters_link(str(domain)),
                 }
             else:
                 tmp_data[
@@ -974,7 +971,7 @@ class Domains:
                         str(len(self.gpo_to_dcsync[domain])).zfill(6),
                         len(self.gpo_to_dcsync[domain]),
                     ),
-                    "link": "%s_GPO_to_dcsync.html" % quote(str(domain)),
+                    "link": "%s_GPO_to_dcsync.html" % clean_special_characters_link(str(domain)),
                 }
             else:
                 tmp_data[
@@ -1095,23 +1092,23 @@ class Domains:
             tmp_data["Domain"] = domain
             tmp_data["Users"] = {
                 "value": len(self.users_to_unconstrained_delegation[domain]),
-                "link": "%s_users_to_unconstrained_delegation.html" % quote(str(domain)),
+                "link": "%s_users_to_unconstrained_delegation.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["Computers"] = {
                 "value": len(self.computers_to_unconstrained_delegation[domain]),
-                "link": "%s_computers_to_unconstrained_delegation.html" % quote(str(domain)),
+                "link": "%s_computers_to_unconstrained_delegation.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["Groups"] = {
                 "value": len(self.groups_to_unconstrained_delegation[domain]),
-                "link": "%s_groups_to_unconstrained_delegation.html" % quote(str(domain)),
+                "link": "%s_groups_to_unconstrained_delegation.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["Ou"] = {
                 "value": len(self.ou_to_unconstrained_delegation[domain]),
-                "link": "%s_OU_to_unconstrained_delegation.html" % quote(str(domain)),
+                "link": "%s_OU_to_unconstrained_delegation.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["GPO"] = {
                 "value": len(self.gpo_to_unconstrained_delegation[domain]),
-                "link": "%s_GPO_to_unconstrained_delegation.html" % quote(str(domain)),
+                "link": "%s_GPO_to_unconstrained_delegation.html" % clean_special_characters_link(str(domain)),
             }
             grid_data.append(tmp_data)
         headers = ["Domain", "Users", "Computers", "Groups", "Ou", "GPO"]
@@ -1209,23 +1206,23 @@ class Domains:
             tmp_data["Domain"] = domain
             tmp_data["Users"] = {
                 "value": len(self.users_to_unconstrained_delegation_2[domain]),
-                "link": "%s_users_to_unconstrained_delegation_users.html" % quote(str(domain)),
+                "link": "%s_users_to_unconstrained_delegation_users.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["Computers"] = {
                 "value": len(self.computers_to_unconstrained_delegation_2[domain]),
-                "link": "%s_computers_to_unconstrained_delegation_users.html" % quote(str(domain)),
+                "link": "%s_computers_to_unconstrained_delegation_users.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["Groups"] = {
                 "value": len(self.groups_to_unconstrained_delegation_2[domain]),
-                "link": "%s_groups_to_unconstrained_delegation_users.html" % quote(str(domain)),
+                "link": "%s_groups_to_unconstrained_delegation_users.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["Ou"] = {
                 "value": len(self.ou_to_unconstrained_delegation_2[domain]),
-                "link": "%s_OU_to_unconstrained_delegation_users.html" % quote(str(domain)),
+                "link": "%s_OU_to_unconstrained_delegation_users.html" % clean_special_characters_link(str(domain)),
             }
             tmp_data["GPO"] = {
                 "value": len(self.gpo_to_unconstrained_delegation_2[domain]),
-                "link": "%s_GPO_to_unconstrained_delegation_users.html" % quote(str(domain)),
+                "link": "%s_GPO_to_unconstrained_delegation_users.html" % clean_special_characters_link(str(domain)),
             }
             grid_data.append(tmp_data)
         headers = ["Domain", "Users", "Computers", "Groups", "Ou", "GPO"]
@@ -1424,24 +1421,24 @@ class Domains:
                         headers[1]: dict[headers[1]],
                         headers[2]: {
                             "link": "users_GPO_access-%s-left-graph.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (clean_special_characters_link(str(dict[headers[0]]))),
                             "value": "<i class='bi bi-diagram-3-fill' aria-hidden='true'></i>",
                         },
                         headers[3]: {
                             "link": "users_GPO_access-%s-left-grid.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (clean_special_characters_link(str(dict[headers[0]]))),
                             "value": "<i class='bi bi-list-columns-reverse' aria-hidden='true'></i>",
                         },
                         headers[4]: len(list(set(dict["end_list"]))),
                         headers[5]: "%s %d" % (icon, nbDomains),
                         headers[6]: {
                             "link": "users_GPO_access-%s-right-graph.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (clean_special_characters_link(str(dict[headers[0]]))),
                             "value": "<i class='bi bi-diagram-3-fill' aria-hidden='true'></i>",
                         },
                         headers[7]: {
                             "link": "users_GPO_access-%s-right-grid.html"
-                            % (quote(str(dict[headers[0]]))),
+                            % (clean_special_characters_link(str(dict[headers[0]]))),
                             "value": "<i class='bi bi-list-columns-reverse' aria-hidden='true'></i>",
                         },
                     }
@@ -1537,7 +1534,7 @@ class Domains:
             graph_right.setPaths(GPO["right_path"])
             page_right_graph.addComponent(graph_right)
 
-            if self.arguments.gpo_deep:
+            if not self.arguments.gpo_low:
                 entry_grid = Grid("List of users able to compromise %s" % GPO[headers[0]])
             else:
                 entry_grid = Grid("List of users able to compromise %s" % GPO[headers[0]])
@@ -1626,7 +1623,7 @@ class Domains:
                 tmp_data["Domain"] = '<i class="bi bi-globe2"></i> ' + domain
                 tmp_data["Compromission paths"] = grid_data_stringify({
                     "value": f"{len(ous_with_da_by_admin[domain])} OU{'s' if len(ous_with_da_by_admin[domain]) > 1 else ''} exploitable by {len(starting_nodes_by_admin[domain])} object{'s' if len(starting_nodes_by_admin[domain]) > 1 else ''}",
-                    "link": "%s_paths_to_ou_handlers.html" % quote(str(domain)),
+                    "link": "%s_paths_to_ou_handlers.html" % clean_special_characters_link(str(domain)),
                     "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
                 })
                 # tmp_data["Paths to OU handlers"]= {"value" : '%d non DA may GPLink on %d OU' %(len(starting_nodes_by_admin[domain]),len(ous_with_da_by_admin[domain])), "link": "%s_paths_to_ou_handlers.html" % domain}
@@ -1758,9 +1755,9 @@ class Domains:
 
             # change value of the cell
             try:
-                pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]] = {"value": pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]]["value"] + 1, "link": quote(path.nodes[0].name.split('@')[1]+"_to_"+path.nodes[-1].name.split('@')[1])+".html"}
+                pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]] = {"value": pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]]["value"] + 1, "link": clean_special_characters_link(path.nodes[0].name.split('@')[1]+"_to_"+path.nodes[-1].name.split('@')[1])+".html"}
             except KeyError:
-                pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]] = {"value": 1, "link": quote(path.nodes[0].name.split('@')[1]+"_to_"+path.nodes[-1].name.split('@')[1])+".html"}
+                pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]] = {"value": 1, "link": clean_special_characters_link(path.nodes[0].name.split('@')[1]+"_to_"+path.nodes[-1].name.split('@')[1])+".html"}
 
             # add a path to the list
             try:
