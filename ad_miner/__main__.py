@@ -174,9 +174,6 @@ def main() -> None:
 
     neo4j.close()
 
-    if os.path.exists(Path().cwd() / 'temporary.txt'):
-        (Path().cwd() / 'temporary.txt').unlink()
-
     logger.print_success(f"Program finished in {utils.timer_format(time.time() - start)}!")
 
 if __name__ == "__main__":
