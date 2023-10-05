@@ -1171,7 +1171,7 @@ class Neo4j:
         if not arguments.gpo_low:
             # Deep version of GPO requests
             self.all_requests["unpriv_users_to_GPO_init"] = {
-                "name": "Initialization request for GPOs",
+                "name": "Initialization request for GPOs [WARNING: If this query is too slow, you can use --gpo_low]",
                 "request": 'MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS "MSOL_" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 '
                 "MATCH p = shortestPath((n)-[r:MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns*1..]->(g:GPO)) "
                 "WHERE NOT n=g AND NOT g.name IS NULL "
