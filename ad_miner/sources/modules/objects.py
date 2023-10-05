@@ -9,6 +9,7 @@ from ad_miner.sources.modules.page_class import Page
 #from relation_neo4j import Relation
 from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.utils import grid_data_stringify, timer_format
+from urllib.parse import quote
 
 
 class Objects:
@@ -92,7 +93,7 @@ class Objects:
                     "type": type_icon + ' ' + n.labels,
                     "name": name_icon + ' ' + n.name,
                     "path to account": grid_data_stringify({
-                        "link": "path_to_%s_with_dcsync.html" % n.name,
+                        "link": "path_to_%s_with_dcsync.html" % quote(str(n.name)),
                         "value": f"{len(paths)} paths <i class='bi bi-box-arrow-up-right'></i>",
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     }),
@@ -147,7 +148,7 @@ class Objects:
             graph_page.addComponent(graph)
             graph_page.render()
             sortClass = str(len(raw_data[k]["paths"])).zfill(6)
-            raw_data[k]["target graph"]["link"] = f"can_dcsync_from_{raw_data[k]['name']}.html"
+            raw_data[k]["target graph"]["link"] = f"can_dcsync_from_{quote(str(raw_data[k]['name']))}.html"
             raw_data[k]["target graph"]["value"] = f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i> View paths ({len(raw_data[k]['paths'])}) <i class='bi bi-box-arrow-up-right'></i>"
             data.append({
                 "domain": raw_data[k]["domain"],

@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from operator import add
+from urllib.parse import quote
 
 from ad_miner.sources.modules import rating
 from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category
@@ -865,7 +866,7 @@ def render(
 
                 dico_js[indicator] = {
                     "color": color,
-                    "link": indicator + ".html",
+                    "link": quote(str(indicator)) + ".html",
                     "category": category,
                     "position": dico_position[category][
                         dico_position_instance[category]
