@@ -1,3 +1,17 @@
+# [0.2.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.3...v0.2.0) (2023-10-05)
+
+
+### Bug Fixes
+
+* bug with special characters ([6ac0f1d](https://github.com/Mazars-Tech/AD_Miner/commit/6ac0f1d85beffd0fef374778dea3339932a8ffce))
+
+
+### Features
+
+* add warning message normal gpo may be slow ([b80dd3a](https://github.com/Mazars-Tech/AD_Miner/commit/b80dd3ac93864a43c0deb0ec864b566976245a47))
+
+
+
 ## [0.1.3](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.2...v0.1.3) (2023-10-04)
 
 
