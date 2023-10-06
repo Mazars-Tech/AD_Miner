@@ -17,7 +17,6 @@ jobs:
            uses: TriPSs/conventional-changelog-action@v3
            with:
               github-token: ${{ secrets.github_token }}
-              version-file: "./package.json, ./pyproject.toml"
 
          - name: Create Release # This action will create the actual release
            uses: actions/create-release@v1
