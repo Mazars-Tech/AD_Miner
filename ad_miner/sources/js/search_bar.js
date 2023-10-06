@@ -5,7 +5,9 @@ Controls the search bar on the main page.
 // Hide and display the search bar
 function toggleSearch() {
     const searchBarDiv = document.getElementById("search-bar-div");
-    searchBarDiv.style.display = (searchBarDiv.style.display === "block") ? "none" : "block";
+    //searchBarDiv.style.display = (searchBarDiv.style.display === "block") ? "none" : "block";
+    (searchBarDiv.classList.contains("search-bar-div-show")) ? searchBarDiv.classList.remove("search-bar-div-show") : searchBarDiv.classList.add("search-bar-div-show");
+    searchBar.focus();
 }
 
 const searchBar = document.getElementById("search-bar");
@@ -13,9 +15,9 @@ const controlDropdown = document.getElementById("search-dropdown");
 
 // Event listener for input in the search bar
 searchBar.addEventListener("input", function() {
-    const searchTerm = searchBar.value.toLowerCase();
+    const searchTerm = searchBar.value.toLowerCase().trim();
     
-    if (searchTerm.trim() === "") {
+    if (searchTerm === "") {
         // If the input is empty, hide the dropdown
         controlDropdown.classList.remove("active");
     } else {
@@ -38,6 +40,14 @@ function updateDropdown(filteredControls) {
         const dropdownItem = document.createElement("a");
         dropdownItem.classList.add("dropdown-item");
         dropdownItem.href = control.link;
+
+        // Highlight search input in result
+        const searchTerm = searchBar.value.toLowerCase().trim();
+        var regex = new RegExp(searchTerm, 'gi');
+        var name = control.name.replace(regex, '<span class="search-highlight">$&</span>');
+        var title = control.title.replace(regex, '<span class="search-highlight">$&</span>');
+
+        "aa".replace()
         dropdownItem.innerHTML = `
         <div class="container">
             <div class="row">
@@ -46,15 +56,16 @@ function updateDropdown(filteredControls) {
                 </div>
                 <div class="col-11">
                     <p class="search-element-name">
-                        ${control.name}
+                        ${name}
                     </p>
                     <p class="search-element-description">
-                        ${control.title}
+                        ${title}
                     </p>
                 </div>
             </div>
         </div>
         `;
+        // Add link to dropdown item
         dropdownItem.addEventListener("click", function() {
             searchBar.value = "";
         });

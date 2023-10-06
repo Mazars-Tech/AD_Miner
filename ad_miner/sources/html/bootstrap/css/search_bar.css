@@ -14,8 +14,15 @@
 }
 
 #search-bar-div {
-    display: none;
     text-align: center;
+    transition: all 0.3s cubic-bezier(0, 1, 0, 1);
+    max-height: 0px;
+    overflow: hidden;
+}
+
+.search-bar-div-show {
+    max-height: 1000px !important;
+    transition: all 0.5s ease-in-out !important;
     padding-top: 10px;
 }
 
@@ -36,8 +43,6 @@
     max-height: 400px;
     overflow-y: auto;
     position: absolute;
-    /*top: 100%;
-    left: 0;*/
     width: 32%;
     z-index: 1000;
 }
@@ -75,4 +80,9 @@
 
 .search-element-icon {
     font-size: 19px;
+}
+
+.search-highlight {
+    font-weight: bold;
+    background-color: lightgoldenrodyellow;
 }
