@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="../css/main_page.css" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/description.css" />
+    <link rel="stylesheet" type="text/css" href="../css/search_bar.css" />
   </head>
 
   <body>
@@ -35,8 +36,19 @@
         </div>
         <div class="nav-center">
           <h1 class="ml-0 text-light" id="title_current_page">
-            {{render_name}} - {{date}}
+            <span id="main-title">{{render_name}} - {{date}}</span>
+            <button class="btn btn-outline-light btn-sm" id="search-icon" onclick="toggleSearch()">
+              <i class="bi bi-search"></i>
+            </button>
           </h1>
+          <div class="form-inline my-2 my-lg-0" id="search-bar-div">
+            <div id="search-bar-div-2">
+              <input class="form-control mr-sm-2" id="search-bar" type="search" placeholder="Search" aria-label="Search">
+              <div id="search-dropdown"></div>
+            </div>
+          </div>
+          
+          </div>
         </div>
         <div class="nav-right">
           <img
@@ -1228,6 +1240,7 @@
     <script type="text/javascript" src="../js/chart.umd.min.js"></script>
     <script type="text/javascript" src="../js/main_circle.js"></script>
     <script type="text/javascript" src="../js/hide_cards.js"></script>
+    <script type="text/javascript" src="../js/search_bar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <script>

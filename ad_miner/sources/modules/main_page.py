@@ -866,12 +866,12 @@ def render(
 
                 dico_js[indicator] = {
                     "color": color,
+                    "name": dico_name_title[indicator],
                     "link": quote(str(indicator)) + ".html",
                     "category": category,
                     "position": dico_position[category][
                         dico_position_instance[category]
                     ],
-                    "color": color,  # TODO : twice color ?
                     "title": dico_name_description[indicator]
                     if dico_name_description.get(indicator)
                     else indicator,

@@ -1,0 +1,78 @@
+#main-title {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#search-icon {
+    color: white;
+    margin-left: 10px;
+}
+
+#search-icon:hover {
+    color: rgb(44, 62, 80);
+    background-color: white;
+}
+
+#search-bar-div {
+    display: none;
+    text-align: center;
+    padding-top: 10px;
+}
+
+#search-bar-div-2 {
+    width: 80%;
+    margin: auto;
+}
+
+#search-bar {
+    border: none;
+    border-radius: 0.25rem;
+    padding: .25rem .5rem;
+}
+
+#search-dropdown {
+    display: none;
+    border: 1px solid #ccc;
+    max-height: 400px;
+    overflow-y: auto;
+    position: absolute;
+    /*top: 100%;
+    left: 0;*/
+    width: 32%;
+    z-index: 1000;
+}
+
+#search-dropdown.active {
+    display: block;
+}
+
+/* Style for individual dropdown items */
+.dropdown-item {
+    padding: 5px;
+    cursor: pointer;
+    background-color: white;
+}
+
+.dropdown-item:hover {
+    background-color: rgb(233, 233, 233);
+}
+
+.search-element-name {
+    margin: 0;
+    text-align: left;
+}
+
+.search-element-description {
+    font-size: 14px;
+    color: grey;
+    text-align: left;
+    margin-bottom: 3px;
+}
+
+.search-element-icon-div {
+    margin: auto 0 auto 0;
+}
+
+.search-element-icon {
+    font-size: 19px;
+}
