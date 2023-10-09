@@ -80,10 +80,6 @@ class Neo4j:
         inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns"
 
         try:
-            # TODO handle dynamic data inside requests :
-            # $$PARAM1$$
-            # $$PARAM2$$
-            #
             # TODO add comments in json
             self.all_requests = json.loads(
                 (MODULES_DIRECTORY / "requests.json").read_text(
@@ -148,14 +144,9 @@ class Neo4j:
                 encrypted=False,
             )
 
-            # Test connection. Takes ~ 25ms
-            with self.driver.session() as session:
-                session.begin_transaction().close()
-
             self.arguments = arguments
             self.cache_enabled = arguments.cache
             self.cache = cache_class.Cache(arguments)
-            logger.print_success("Connected to database")
 
         except Exception as e:
             logger.print_error("Connection to neo4j database impossible.")
@@ -204,34 +195,30 @@ class Neo4j:
 
     @staticmethod
     def process_request(self, request, output_type):
-        print(request)
+        start = time.time()
+        result = []
+
         if "scope_query" in request:
             result = self.parallelRequest(self, request, output_type)
         else:
             result = self.simpleRequest(self, request, output_type)
         request["result"] = result
+        logger.print_time(
+            timer_format(time.time() - start) + " - %d objects" % len(result)
+        )
 
     @staticmethod
     def simpleRequest(self, request, output_type):
-        print("simple")
-        print(output_type)
-        print()
         result = None  # TODO fix
         return result
 
     @staticmethod
     def parallelRequestOnCluster(self, request, output_type):
-        print("parallel cluster")
-        print(output_type)
-        print()
         result = None  # TODO fix
         return result
 
     @staticmethod
     def parallelRequestLegacy(self, request, output_type):
-        print("parallel legacy")
-        print(output_type)
-        print()
         result = None  # TODO fix
         return result
 
