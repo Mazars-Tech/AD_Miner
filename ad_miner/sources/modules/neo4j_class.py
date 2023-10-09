@@ -65,64 +65,67 @@ class Neo4j:
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
         # We only use the Azure relationships when requested to do so
+
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets"
+
         if arguments.azure:
-            properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|CanRDP|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|AZAddMembers|AZContains|AZContributor|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZOwns|AZPrivilegedRoleAdmin|AZResetPassword|AZUserAccessAdministrator|AZAppAdmin|AZCloudAppAdmin|AZRunsAs|AZKeyVaultContributor|AddSelf|WriteSPN|AddKeyCredentialLink|AZAddSecret|AZAvereContributor|AZExecuteCommand|AZGrant|AZGrantSelf|AZHasRole|AZMemberOf|AZOwner|AZVMAdminLogin"
-        else:
-            properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets"
-            if arguments.rdp:
-                properties += "|CanRDP"
+            properties += "|AZAddMembers|AZContains|AZContributor|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZOwns|AZPrivilegedRoleAdmin|AZResetPassword|AZUserAccessAdministrator|AZAppAdmin|AZCloudAppAdmin|AZRunsAs|AZKeyVaultContributor|AddSelf|WriteSPN|AddKeyCredentialLink|AZAddSecret|AZAvereContributor|AZExecuteCommand|AZGrant|AZGrantSelf|AZHasRole|AZMemberOf|AZOwner|AZVMAdminLogin"
 
-            inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns"
+        if arguments.rdp:
+            properties += "|CanRDP"
 
-            try:
-                # TODO handle dynamic data inside requests :
-                # $$PARAM1$$
-                # $$PARAM2$$
-                #
-                # TODO add comments in json
-                self.all_requests = json.loads(
-                    (MODULES_DIRECTORY / "requests.json").read_text(
-                        encoding="utf-8"
-                    )
+        inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns"
+
+        try:
+            # TODO handle dynamic data inside requests :
+            # $$PARAM1$$
+            # $$PARAM2$$
+            #
+            # TODO add comments in json
+            self.all_requests = json.loads(
+                (MODULES_DIRECTORY / "requests.json").read_text(
+                    encoding="utf-8"
                 )
-                for request_key in self.all_requests.keys():
-                    # Replace methods with python methods
-                    self.all_requests[request_key]["method"] = {
-                        "Neo4j.requestGraph": self.requestGraph,
-                        "Neo4j.requestList": self.requestList,
-                        "Neo4j.requestDict": self.requestDict,
-                    }.get(
-                        self.all_requests[request_key]["method"],
-                    )  # TODO maybe add a check for the request type ?
-                    # Replace variables with their values in requests
-                    variables_to_replace = {
-                        "$extract_date": extract_date,
-                        "$password_renewal": self.password_renewal,
-                        "$properties": properties,
-                        "$recursive_level": recursive_level,
-                        "$inbound_control_edges": inbound_control_edges,
-                    }
-                    for variable in variables_to_replace.keys():
-                        self.all_requests[request_key][
-                            "request"
-                        ] = self.all_requests[request_key]["query"].replace(
-                            variable, variables_to_replace[variable]
-                        )
+            )
+            for request_key in self.all_requests.keys():
+                # Replace methods with python methods
+                self.all_requests[request_key]["method"] = {
+                    "Neo4j.requestGraph": self.requestGraph,
+                    "Neo4j.requestList": self.requestList,
+                    "Neo4j.requestDict": self.requestDict,
+                }.get(
+                    self.all_requests[request_key]["method"],
+                )  # TODO maybe add a check for the request type ?
+                # Replace variables with their values in requests
+                variables_to_replace = {
+                    "$extract_date": extract_date,
+                    "$password_renewal": self.password_renewal,
+                    "$properties": properties,
+                    "$recursive_level": recursive_level,
+                    "$inbound_control_edges": inbound_control_edges,
+                }
+                for variable in variables_to_replace.keys():
+                    self.all_requests[request_key][
+                        "request"
+                    ] = self.all_requests[request_key]["request"].replace(
+                        variable, str(variables_to_replace[variable])
+                    )
 
-                    # Replace postprocessing with python method
+                # Replace postprocessing with python method
+                if "postprocessing" in self.all_requests[request_key]:
                     self.all_requests[request_key]["postprocessing"] = {
                         "Neo4j.setDangerousInboundOnGPOs": self.setDangerousInboundOnGPOs,
                     }.get(self.all_requests[request_key]["postprocessing"])
-            except json.JSONDecodeError as error:
-                logger.print_error(
-                    f"Error while parsing neo4j requests from requests.json : \n{error}"
-                )
-                sys.exit(-1)
-            except FileNotFoundError:
-                logger.print_error(
-                    f"Neo4j request file not found : {MODULES_DIRECTORY / 'requests.json'} no such file."
-                )
-                sys.exit(-1)
+        except json.JSONDecodeError as error:
+            logger.print_error(
+                f"Error while parsing neo4j requests from requests.json : \n{error}"
+            )
+            sys.exit(-1)
+        except FileNotFoundError:
+            logger.print_error(
+                f"Neo4j request file not found : {MODULES_DIRECTORY / 'requests.json'} no such file."
+            )
+            sys.exit(-1)
 
         if arguments.gpo_low:
             del self.all_requests["unpriv_users_to_GPO_init"]
