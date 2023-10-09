@@ -7,7 +7,7 @@ import json
 from hashlib import md5
 from pathlib import Path as pathlib
 
-from ad_miner.sources.modules import istarmap  # import to apply patch
+from ad_miner.sources.modules import istarmap  # import to apply patch # noqa
 import numpy as np
 import tqdm
 from neo4j import GraphDatabase
@@ -27,14 +27,19 @@ def pre_request_date(arguments):
         auth=(arguments.username, arguments.password),
         encrypted=False,
     )
-
-    with driver.session() as session:
-        with session.begin_transaction() as tx:
-            for record in tx.run(
-                "MATCH (a) WHERE a.lastlogon IS NOT NULL return toInteger(a.lastlogon) as last order by last desc LIMIT 1"
-            ):
-                date_lastlogon = record.data()
-    driver.close()
+    try:
+        with driver.session() as session:
+            with session.begin_transaction() as tx:
+                for record in tx.run(
+                    "MATCH (a) WHERE a.lastlogon IS NOT NULL return toInteger(a.lastlogon) as last order by last desc LIMIT 1"
+                ):
+                    date_lastlogon = record.data()
+        driver.close()
+    except Exception as e:
+        logger.print_error("Connection to neo4j database impossible.")
+        logger.print_error(e)
+        driver.close()
+        sys.exit(-1)
     return date_lastlogon["last"]
 
 
@@ -47,13 +52,13 @@ class Neo4j:
             for node in list_nodes:
                 try:
                     ip, port, nCore = node.split(":")
+                    self.cluster[ip + ":" + port] = int(nCore)
                 except ValueError as e:
-                    print(e)
                     logger.print_error(
                         "An error occured while parsing the cluster argument. The correct syntax is --cluster ip1:port1:nCores1,ip2:port2:nCores2,etc"
                     )
+                    logger.print_error(e)
                     sys.exit(-1)
-                self.cluster[ip + ":" + port] = int(nCore)
 
         extract_date = self.set_extract_date(str(extract_date_int))
 
@@ -84,7 +89,16 @@ class Neo4j:
                 # % (inbound_control_edges, recursive_level),
                 # % recursive_level
                 #
+                # $$extract_date$$
+                # $$password_renewal$$
+                # $$properties$$
+                # $$recursive_level$$
+                # $$inbound_control_edges$$
+                # $$PARAM1$$
+                # $$PARAM2$$
+                #
                 # TODO add comments in json
+                # TO TEST : with --gpo_low
                 self.all_requests = json.loads(
                     (MODULES_DIRECTORY / "requests.json").read_text(
                         encoding="utf-8"
@@ -99,12 +113,16 @@ class Neo4j:
                         self.all_requests[request_key]["method"],
                     )  # TODO maybe add a check for the request type ?
 
-            except (FileNotFoundError, json.JSONDecodeError) as error:
+            except json.JSONDecodeError as error:
                 logger.print_error(
-                    f"{MODULES_DIRECTORY}/requests.json: {error}"  # TODO handle error
+                    f"Error while parsing neo4j requests from requests.json : \n{error}"
                 )
                 sys.exit(-1)
-
+            except FileNotFoundError:
+                logger.print_error(
+                    f"Neo4j request file not found : {MODULES_DIRECTORY / 'requests.json'} no such file."
+                )
+                sys.exit(-1)
         if not arguments.gpo_low:
             # Deep version of GPO requests
             self.all_requests["unpriv_users_to_GPO_init"] = {
@@ -794,7 +812,8 @@ class Neo4j:
                     or "MERGE" in request["request"]
                     or "DELETE" in request["request"]
                 ):
-                    # Si c'est une requête d'écriture il faut la faire sur tous les noeuds du cluster
+                    # Si c'est une requête d'écriture il faut la faire
+                    # sur tous les noeuds du cluster
                     query = request["request"]
                     username = self.arguments.username
                     password = self.arguments.password
@@ -824,9 +843,8 @@ class Neo4j:
                     if output_type is Graph:
                         for record in tx.run(request["request"]):
                             result.append(record["p"])
-                            # print("other RESULT : ", result)
-                            # Quick and dirty way of handling multiple records (e.g., RETURN p, p2
-                            # TODO : possibly improve that ugly code
+                            # Quick and dirty way of handling multiple records (e.g., RETURN p, p2)
+                            # FIXME : remove try except pass
                             try:
                                 result.append(record["p2"])
                             except:
@@ -840,7 +858,6 @@ class Neo4j:
                             result = result.data()
 
         self.cache.createCacheEntry(request["filename"], result)
-        # self.cache.createCsvFileFromRequest(request["filename"], result, output_type)
         logger.print_time(
             timer_format(time.time() - start) + " - %d objects" % len(result)
         )
