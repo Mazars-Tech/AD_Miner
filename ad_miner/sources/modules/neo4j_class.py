@@ -1,5 +1,4 @@
 import datetime
-import gc
 import multiprocessing as mp
 import sys
 import time
@@ -47,6 +46,8 @@ class Neo4j:
     def __init__(self, arguments, extract_date_int):
         # remote computers that run requests with their number of core
         if len(arguments.cluster) > 0:
+            self.parallelRequest = self.parallelRequestOnCluster
+
             self.cluster = {}
             list_nodes = arguments.cluster.split(",")
             for node in list_nodes:
@@ -59,6 +60,8 @@ class Neo4j:
                     )
                     logger.print_error(e)
                     sys.exit(-1)
+        else:
+            self.parallelRequest = self.parallelRequestLegacy
 
         extract_date = self.set_extract_date(str(extract_date_int))
 
@@ -89,19 +92,19 @@ class Neo4j:
             )
             for request_key in self.all_requests.keys():
                 # Replace methods with python methods
-                self.all_requests[request_key]["method"] = {
-                    "Neo4j.requestGraph": self.requestGraph,
-                    "Neo4j.requestList": self.requestList,
-                    "Neo4j.requestDict": self.requestDict,
+                self.all_requests[request_key]["output_type"] = {
+                    "Graph": Graph,
+                    "list": list,
+                    "dict": dict,
                 }.get(
-                    self.all_requests[request_key]["method"],
+                    self.all_requests[request_key]["output_type"],
                 )  # TODO maybe add a check for the request type ?
                 # Replace variables with their values in requests
                 variables_to_replace = {
-                    "$extract_date": extract_date,
-                    "$password_renewal": self.password_renewal,
+                    "$extract_date": int(extract_date),
+                    "$password_renewal": int(self.password_renewal),
                     "$properties": properties,
-                    "$recursive_level": recursive_level,
+                    "$recursive_level": int(recursive_level),
                     "$inbound_control_edges": inbound_control_edges,
                 }
                 for variable in variables_to_replace.keys():
@@ -159,38 +162,11 @@ class Neo4j:
             logger.print_error(e)
             sys.exit(-1)
 
-        for request in self.all_requests:
-            print(request)
-            print(self.all_requests[request])
-            print()
-
     def close(self):
         self.driver.close()
 
-    def requestDict(self, request):
-        if len(self.arguments.cluster) > 0:
-            result = self.distributeRequestsOnRemote(self, request, dict)
-        else:
-            result = self.request(self, request, dict)
-        request["result"] = result
-
-    def requestList(self, request):
-        if len(self.arguments.cluster) > 0:
-            result = self.distributeRequestsOnRemote(self, request, list)
-        else:
-            result = self.request(self, request, list)
-        request["result"] = result
-
-    def requestGraph(self, request):
-        if len(self.arguments.cluster) > 0:
-            result = self.distributeRequestsOnRemote(self, request, Graph)
-        else:
-            result = self.request(self, request, Graph)
-        request["result"] = result
-
     @staticmethod
     def run(value, identifier, query, arguments, output_type):
-        start_time = time.time()
         q = query.replace("PARAM1", str(value)).replace(
             "PARAM2", str(identifier)
         )
@@ -224,7 +200,39 @@ class Neo4j:
                 logger.print_error(errorMessage)
                 logger.print_error(e)
 
-        gc.collect()
+        return result
+
+    @staticmethod
+    def process_request(self, request, output_type):
+        print(request)
+        if "scope_query" in request:
+            result = self.parallelRequest(self, request, output_type)
+        else:
+            result = self.simpleRequest(self, request, output_type)
+        request["result"] = result
+
+    @staticmethod
+    def simpleRequest(self, request, output_type):
+        print("simple")
+        print(output_type)
+        print()
+        result = None  # TODO fix
+        return result
+
+    @staticmethod
+    def parallelRequestOnCluster(self, request, output_type):
+        print("parallel cluster")
+        print(output_type)
+        print()
+        result = None  # TODO fix
+        return result
+
+    @staticmethod
+    def parallelRequestLegacy(self, request, output_type):
+        print("parallel legacy")
+        print(output_type)
+        print()
+        result = None  # TODO fix
         return result
 
     @staticmethod
@@ -243,8 +251,6 @@ class Neo4j:
                     # )
                 return result
         logger.print_debug("Requesting : %s" % request["name"])
-
-        start_time = time.time()
 
         # if output_type is Graph:
         result = []
@@ -295,13 +301,10 @@ class Neo4j:
                     if output_type is Graph:
                         for record in tx.run(request["request"]):
                             result.append(record["p"])
-                            # print("other RESULT : ", result)
-                            # Quick and dirty way of handling multiple records (e.g., RETURN p, p2
-                            # TODO : possibly improve that ugly code
-                            try:
+                            # Quick way to handle multiple records
+                            # (e.g., RETURN p, p2)
+                            if "p2" in record:
                                 result.append(record["p2"])
-                            except:
-                                pass
                         result = self.computePathObject(result)
                     else:
                         result = tx.run(request["request"])
@@ -319,7 +322,6 @@ class Neo4j:
         if "postProcessing" in request:
             request["postProcessing"](self, result)
 
-        gc.collect()
         return result
 
     @staticmethod
@@ -365,7 +367,7 @@ class Neo4j:
                     names += str(record["a.name"])
 
         driver.close()
-        hash = md5(names.encode()).hexdigest()
+        hash = md5(names.encode(), usedforsecurity=False).hexdigest()
         logger.print_debug("Hash for " + server + " is " + hash)
         return hash
 
@@ -463,7 +465,6 @@ class Neo4j:
                 logger.print_error(e)
 
         driver.close()  # TODO pas de base ?
-        gc.collect
         return result
 
     @staticmethod
@@ -482,13 +483,10 @@ class Neo4j:
                 if output_type is Graph:
                     for record in tx.run(query):
                         result.append(record["p"])
-                        # print("other RESULT : ", result)
-                        # Quick and dirty way of handling multiple records (e.g., RETURN p, p2
-                        # TODO : possibly improve that ugly code
-                        try:
+                        # Quick way to handle multiple records
+                        # (e.g., RETURN p, p2)
+                        if "p2" in record:
                             result.append(record["p2"])
-                        except:
-                            pass
                     result = Neo4j.computePathObject(result)
                 else:
                     result = tx.run(query)
@@ -533,7 +531,7 @@ class Neo4j:
                     scopeSize = tx.run(scopeQuery).value()[0]
                     part_number = self.arguments.nb_chunks
                     # It is assumed here that no one will set number of chunks to the default.
-                    # If left to default but cluster is used it is better to choosesomething
+                    # If left to default but cluster is used it is better to choose something
                     # like chunk = 20 x total number of cores in the cluster.
                     if part_number == mp.cpu_count():
                         part_number = 20 * max_parallel_requests
@@ -778,12 +776,10 @@ class Neo4j:
                     if output_type is Graph:
                         for record in tx.run(request["request"]):
                             result.append(record["p"])
-                            # Quick and dirty way of handling multiple records (e.g., RETURN p, p2)
-                            # FIXME : remove try except pass
-                            try:
+                            # Quick way to handle multiple records
+                            # (e.g., RETURN p, p2)
+                            if "p2" in record:
                                 result.append(record["p2"])
-                            except:
-                                pass
                         result = self.computePathObject(result)
                     else:
                         result = tx.run(request["request"])
@@ -799,8 +795,6 @@ class Neo4j:
 
         if "postProcessing" in request:
             request["postProcessing"](self, result)
-
-        gc.collect()
         return result
 
     @classmethod
