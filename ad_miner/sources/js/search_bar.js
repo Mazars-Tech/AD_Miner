@@ -5,7 +5,6 @@ Controls the search bar on the main page.
 // Hide and display the search bar
 function toggleSearch() {
     const searchBarDiv = document.getElementById("search-bar-div");
-    //searchBarDiv.style.display = (searchBarDiv.style.display === "block") ? "none" : "block";
     (searchBarDiv.classList.contains("search-bar-div-show")) ? searchBarDiv.classList.remove("search-bar-div-show") : searchBarDiv.classList.add("search-bar-div-show");
     searchBar.focus();
 }
@@ -47,7 +46,6 @@ function updateDropdown(filteredControls) {
         var name = control.name.replace(regex, '<span class="search-highlight">$&</span>');
         var title = control.title.replace(regex, '<span class="search-highlight">$&</span>');
 
-        "aa".replace()
         dropdownItem.innerHTML = `
         <div class="container">
             <div class="row">
