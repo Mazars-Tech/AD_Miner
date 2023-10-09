@@ -76,35 +76,17 @@ class Neo4j:
 
             try:
                 # TODO handle dynamic data inside requests :
-                # (extract_date, self.password_renewal)
-                # % extract_date,
-                # % (extract_date, extract_date)
-                #         % (
-                #     extract_date,
-                #     self.password_renewal,
-                #     extract_date,
-                #     extract_date,
-                # ),
-                # (properties, recursive_level),
-                # % (inbound_control_edges, recursive_level),
-                # % recursive_level
-                #
-                # $$extract_date$$
-                # $$password_renewal$$
-                # $$properties$$
-                # $$recursive_level$$
-                # $$inbound_control_edges$$
                 # $$PARAM1$$
                 # $$PARAM2$$
                 #
                 # TODO add comments in json
-                # TO TEST : with --gpo_low
                 self.all_requests = json.loads(
                     (MODULES_DIRECTORY / "requests.json").read_text(
                         encoding="utf-8"
                     )
                 )
                 for request_key in self.all_requests.keys():
+                    # Replace methods with python methods
                     self.all_requests[request_key]["method"] = {
                         "Neo4j.requestGraph": self.requestGraph,
                         "Neo4j.requestList": self.requestList,
@@ -112,7 +94,25 @@ class Neo4j:
                     }.get(
                         self.all_requests[request_key]["method"],
                     )  # TODO maybe add a check for the request type ?
+                    # Replace variables with their values in requests
+                    variables_to_replace = {
+                        "$extract_date": extract_date,
+                        "$password_renewal": self.password_renewal,
+                        "$properties": properties,
+                        "$recursive_level": recursive_level,
+                        "$inbound_control_edges": inbound_control_edges,
+                    }
+                    for variable in variables_to_replace.keys():
+                        self.all_requests[request_key][
+                            "request"
+                        ] = self.all_requests[request_key]["query"].replace(
+                            variable, variables_to_replace[variable]
+                        )
 
+                    # Replace postprocessing with python method
+                    self.all_requests[request_key]["postprocessing"] = {
+                        "Neo4j.setDangerousInboundOnGPOs": self.setDangerousInboundOnGPOs,
+                    }.get(self.all_requests[request_key]["postprocessing"])
             except json.JSONDecodeError as error:
                 logger.print_error(
                     f"Error while parsing neo4j requests from requests.json : \n{error}"
@@ -123,84 +123,16 @@ class Neo4j:
                     f"Neo4j request file not found : {MODULES_DIRECTORY / 'requests.json'} no such file."
                 )
                 sys.exit(-1)
-        if not arguments.gpo_low:
-            # Deep version of GPO requests
-            self.all_requests["unpriv_users_to_GPO_init"] = {
-                "name": "Initialization request for GPOs [WARNING: If this query is too slow, you can use --gpo_low]",
-                "request": 'MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS "MSOL_" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 '
-                "MATCH p = shortestPath((n)-[r:MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns*1..]->(g:GPO)) "
-                "WHERE NOT n=g AND NOT g.name IS NULL "
-                "RETURN p ",
-                "filename": "unpriv_users_to_GPO_init",
-                "method": self.requestGraph,
-                "scope_query": 'MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS "MSOL_" '
-                "RETURN count(n)",
-                "postProcessing": self.setDangerousInboundOnGPOs,
-            }
 
-            self.all_requests["unpriv_users_to_GPO_user_enforced"] = {
-                "name": "Compromisable GPOs to users (enforced)",
-                "request": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 "
-                "MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink {enforced:true}]->(container2)-[r2:Contains*1..]->(n) "
-                "RETURN p",
-                "filename": "unpriv_users_to_GPO_user_enforced",
-                "method": self.requestGraph,
-                "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL "
-                "RETURN count(n)",
-            }
+        if arguments.gpo_low:
+            del self.all_requests["unpriv_users_to_GPO_init"]
+            del self.all_requests["unpriv_users_to_GPO_user_enforced"]
+            del self.all_requests["unpriv_users_to_GPO_user_not_enforced"]
+            del self.all_requests["unpriv_users_to_GPO_computer_enforced"]
+            del self.all_requests["unpriv_users_to_GPO_computer_not_enforced"]
 
-            self.all_requests["unpriv_users_to_GPO_user_not_enforced"] = {
-                "name": "Compromisable GPOs to users (not enforced)",
-                "request": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 "
-                "MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) "
-                'WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = "OU") '
-                "RETURN p",
-                "filename": "unpriv_users_to_GPO_user_not_enforced",
-                "method": self.requestGraph,
-                "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL "
-                "RETURN count(n)",
-            }
-
-            self.all_requests["unpriv_users_to_GPO_computer_enforced"] = {
-                "name": "Compromisable GPOs to computers (enforced)",
-                "request": "MATCH (n:Computer) WITH n ORDER BY n.name WITH n SKIP PARAM1 LIMIT PARAM2 "
-                "MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink {enforced:true}]->(container2)-[r2:Contains*1..]->(n) "
-                "RETURN p",
-                "filename": "unpriv_users_to_GPO_computer_enforced",
-                "method": self.requestGraph,
-                "scope_query": "MATCH (n:Computer) " "RETURN count(n)",
-            }
-
-            self.all_requests["unpriv_users_to_GPO_computer_not_enforced"] = {
-                "name": "Compromisable GPOs to computers (not enforced)",
-                "request": "MATCH (n:Computer) WITH n ORDER BY n.name WITH n SKIP PARAM1 LIMIT PARAM2 "
-                "MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) "
-                'WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = "OU") '
-                "RETURN p",
-                "filename": "unpriv_users_to_GPO_computer_not_enforced",
-                "method": self.requestGraph,
-                "scope_query": "MATCH (n:Computer) " "RETURN count(n)",
-            }
-
-        else:
-            # Normal version of GPO request
-            self.all_requests["unpriv_users_to_GPO"] = {
-                "name": "Non privileged users to GPO",
-                "request": "MATCH (g:GPO) "
-                "WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 "
-                "OPTIONAL MATCH (g)-[r1:GPLink {enforced:false}]->(container1) "
-                "WITH g,container1 "
-                "OPTIONAL MATCH (g)-[r2:GPLink {enforced:true}]->(container2) "
-                "WITH g,container1,container2 "
-                "OPTIONAL MATCH p = (g)-[r1:GPLink]->(container1)-[r2:Contains*1..8]->(n1:Computer) "
-                'WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = "OU") '
-                "WITH g,p,container2,n1 "
-                "OPTIONAL MATCH p2 = (g)-[r1:GPLink]->(container2)-[r2:Contains*1..8]->(n2:Computer) "
-                "RETURN p",
-                "filename": "unpriv_users_to_GPO",
-                "method": self.requestGraph,
-                "scope_query": "MATCH (g:GPO) RETURN COUNT(g)",
-            }
+        else:  # Deep version of GPO requests
+            del self.all_requests["unpriv_users_to_GPO"]
 
         try:
             # Setup driver

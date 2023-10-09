@@ -314,7 +314,7 @@
     },
     "set_ghost_computer": {
         "name": "Set ghost_computer=TRUE to computers that did not login for more than 90 days",
-        "request": "MATCH (n:Computer) WHERE toInteger((1654639200 - n.lastlogontimestamp)/86400)>90 SET   n.ghost_computer=TRUE",
+        "request": "MATCH (n:Computer) WHERE toInteger(($extract_date - n.lastlogontimestamp)/86400)>$password_renewal SET   n.ghost_computer=TRUE",
         "filename": "set_ghost_computer",
         "method": "Neo4j.requestList"
     },
@@ -358,7 +358,7 @@
     },
     "nb_enabled_accounts": {
         "name": "Number of domain accounts enabled",
-        "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger((1654639200 - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
+        "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
         "filename": "nb_enabled_accounts",
         "method": "Neo4j.requestDict"
     },
@@ -382,7 +382,7 @@
     },
     "computers_not_connected_since": {
         "name": "Computers not connected since",
-        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger((1654639200 - c.lastlogontimestamp)/86400) AS days ORDER BY days DESC ",
+        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date - c.lastlogontimestamp)/86400) AS days ORDER BY days DESC ",
         "filename": "computers_not_connected_since",
         "method": "Neo4j.requestDict"
     },
@@ -394,19 +394,19 @@
     },
     "os": {
         "name": "Number of OS",
-        "request": "MATCH (c:Computer{enabled:true}) WHERE  NOT c.enabled IS NULL AND NOT c.operatingsystem IS NULL RETURN DISTINCT(c.operatingsystem) AS os, toInteger((1654639200 - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, c.domain AS domain ORDER BY c.operatingsystem",
+        "request": "MATCH (c:Computer{enabled:true}) WHERE  NOT c.enabled IS NULL AND NOT c.operatingsystem IS NULL RETURN DISTINCT(c.operatingsystem) AS os, toInteger(($extract_date - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, c.domain AS domain ORDER BY c.operatingsystem",
         "filename": "os",
         "method": "Neo4j.requestDict"
     },
     "krb_pwd_last_change": {
         "name": "Kerberos password last change in days",
-        "request": "MATCH(u:User) WHERE u.name STARTS WITH \"KRBTGT@\" RETURN u.domain as domain, u.name as name, toInteger((1654639200 - u.pwdlastset)/86400) as pass_last_change, toInteger((1654639200 - u.whencreated)/86400) AS accountCreationDate",
+        "request": "MATCH(u:User) WHERE u.name STARTS WITH \"KRBTGT@\" RETURN u.domain as domain, u.name as name, toInteger(($extract_date - u.pwdlastset)/86400) as pass_last_change, toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate",
         "filename": "krb_pwd_last_change",
         "method": "Neo4j.requestDict"
     },
     "nb_kerberoastable_accounts": {
         "name": "Number of Kerberoastable accounts",
-        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger((1654639200 - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger((1654639200 - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
+        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
         "filename": "nb_kerberoastable_accounts",
         "method": "Neo4j.requestDict"
     },
@@ -442,13 +442,13 @@
     },
     "dormant_accounts": {
         "name": "Dormant accounts",
-        "request": "MATCH (n:User{enabled:true}) WHERE toInteger((1654639200 - n.lastlogontimestamp)/86400)>90 RETURN n.domain as domain, n.name as name,toInteger((1654639200 - n.lastlogontimestamp)/86400) AS days, toInteger((1654639200 - n.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
+        "request": "MATCH (n:User{enabled:true}) WHERE toInteger(($extract_date - n.lastlogontimestamp)/86400)>$password_renewal RETURN n.domain as domain, n.name as name,toInteger(($extract_date - n.lastlogontimestamp)/86400) AS days, toInteger(($extract_date - n.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
         "filename": "dormant_accounts",
         "method": "Neo4j.requestDict"
     },
     "password_last_change": {
         "name": "Password last change in days",
-        "request": "MATCH (c:User {enabled:TRUE}) RETURN DISTINCT(c.name) AS user,toInteger((1654639200 - c.pwdlastset )/ 86400) AS days, toInteger((1654639200 - c.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
+        "request": "MATCH (c:User {enabled:TRUE}) RETURN DISTINCT(c.name) AS user,toInteger(($extract_date - c.pwdlastset )/ 86400) AS days, toInteger(($extract_date - c.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
         "filename": "password_last_change",
         "method": "Neo4j.requestDict"
     },
@@ -460,7 +460,7 @@
     },
     "get_users_password_not_required": {
         "name": "Number of accounts where password is not required",
-        "request": "MATCH (u:User{enabled:true,passwordnotreqd:true}) RETURN DISTINCT (u.domain) as domain, (u.name) AS user,toInteger((1654639200 - u.pwdlastset )/ 86400) AS pwdlastset,toInteger((1654639200 - u.lastlogontimestamp)/86400) AS lastlogon",
+        "request": "MATCH (u:User{enabled:true,passwordnotreqd:true}) RETURN DISTINCT (u.domain) as domain, (u.name) AS user,toInteger(($extract_date - u.pwdlastset )/ 86400) AS pwdlastset,toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon",
         "filename": "get_users_password_not_required",
         "method": "Neo4j.requestDict"
     },
@@ -478,13 +478,13 @@
     },
     "user_last_logon_in_days": {
         "name": "Last logon in days",
-        "request": "MATCH (n:User) WHERE n.enabled=TRUE RETURN DISTINCT(n.name),toInteger((1654639200 - n.lastlogontimestamp)/86400) AS days, n.name AS user,n.domain AS domain",
+        "request": "MATCH (n:User) WHERE n.enabled=TRUE RETURN DISTINCT(n.name),toInteger(($extract_date - n.lastlogontimestamp)/86400) AS days, n.name AS user,n.domain AS domain",
         "filename": "user_last_logon_in_days",
         "method": "Neo4j.requestDict"
     },
     "user_password_never_expires": {
         "name": "Password never expired",
-        "request": "MATCH (u:User{enabled:true})WHERE u.pwdneverexpires = true RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger((1654639200 - u.lastlogontimestamp)/86400) AS LastLogin, toInteger((1654639200 - u.pwdlastset )/ 86400) AS LastPasswChange,toInteger((1654639200 - u.whencreated)/86400) AS accountCreationDate",
+        "request": "MATCH (u:User{enabled:true})WHERE u.pwdneverexpires = true RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS LastLogin, toInteger(($extract_date - u.pwdlastset )/ 86400) AS LastPasswChange,toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate",
         "filename": "user_password_never_expires",
         "method": "Neo4j.requestDict"
     },
@@ -508,7 +508,7 @@
     },
     "objects_to_domain_admin": {
         "name": "Objects with path to DA",
-        "request": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..14]->(g:Group{is_dag:true})) WHERE m<>g SET m.has_path_to_da=true RETURN DISTINCT(p) as p",
+        "request": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties*1..$recursive_level]->(g:Group{is_dag:true})) WHERE m<>g SET m.has_path_to_da=true RETURN DISTINCT(p) as p",
         "filename": "objects_to_domain_admin",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL RETURN count(m)"
@@ -528,14 +528,14 @@
     },
     "users_admin_on_servers_1": {
         "name": "Users admin on servers n\u00b01",
-        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r:MemberOf*1..4]->(g:Group)-[r1:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
+        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r:MemberOf*1..4]->(g:Group)-[r1:$properties]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
         "filename": "users_admin_on_servers_1",
         "scope_query": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL RETURN count(n)",
         "method": "Neo4j.requestDict"
     },
     "users_admin_on_servers_2": {
         "name": "Users admin on servers n\u00b02",
-        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r1:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
+        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r1:$properties]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
         "filename": "users_admin_on_servers_2",
         "scope_query": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL RETURN count(n)",
         "method": "Neo4j.requestDict"
@@ -555,21 +555,21 @@
     },
     "objects_to_unconstrained_delegation": {
         "name": "Object with path to non-DC computers with unconstrained delegations ",
-        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..14]->(m:Computer{unconstraineddelegation:true,is_dc:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
+        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties*1..$recursive_level]->(m:Computer{unconstraineddelegation:true,is_dc:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
         "filename": "objects_to_unconstrained_delegation",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (n{path_candidate:true}) RETURN count(n)"
     },
     "users_to_unconstrained_delegation": {
         "name": "Objects with paths to users that have unconstrained delegations ",
-        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n:User{is_da:false,enabled:true})-[:MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns*1..14]->(m:User{unconstraineddelegation:true,enabled:true,sensitive:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
+        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n:User{is_da:false,enabled:true})-[:$inbound_control_edges*1..$recursive_level]->(m:User{unconstraineddelegation:true,enabled:true,sensitive:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
         "filename": "users_to_unconstrained_delegation",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (n{path_candidate:true}) RETURN count(n)"
     },
     "nb_computers_laps": {
         "name": "Number of computers with laps",
-        "request": "MATCH (c:Computer) WHERE NOT c.name is NULL and NOT c.haslaps IS NULL AND c.operatingsystem CONTAINS 'indows' RETURN DISTINCT(c.domain) AS domain, toInteger((1654639200 - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, toString(c.haslaps) AS LAPS",
+        "request": "MATCH (c:Computer) WHERE NOT c.name is NULL and NOT c.haslaps IS NULL AND c.operatingsystem CONTAINS 'indows' RETURN DISTINCT(c.domain) AS domain, toInteger(($extract_date - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, toString(c.haslaps) AS LAPS",
         "filename": "nb_computers_laps",
         "method": "Neo4j.requestDict"
     },
@@ -581,7 +581,7 @@
     },
     "objects_to_dcsync": {
         "name": "Objects to dcsync",
-        "request": "MATCH (n{path_candidate:true}) WHERE n.can_dcsync IS NULL AND NOT n.name IS NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..14]->(target{can_dcsync:TRUE})) WHERE n<>target RETURN distinct(p) AS p",
+        "request": "MATCH (n{path_candidate:true}) WHERE n.can_dcsync IS NULL AND NOT n.name IS NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties*1..$recursive_level]->(target{can_dcsync:TRUE})) WHERE n<>target RETURN distinct(p) AS p",
         "filename": "objects_to_dcsync",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (n{path_candidate:true}) WHERE n.can_dcsync IS NULL AND NOT n.name IS NULL RETURN count(n)"
@@ -594,7 +594,7 @@
     },
     "unpriv_to_dnsadmins": {
         "name": "Unprivileged users with path to DNSAdmins",
-        "request": "MATCH (u:User{path_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=(u)-[r:MemberOf*1..14]->(g:Group{is_dnsadmin:true}) RETURN distinct(p) AS p",
+        "request": "MATCH (u:User{path_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=(u)-[r:MemberOf*1..$recursive_level]->(g:Group{is_dnsadmin:true}) RETURN distinct(p) AS p",
         "filename": "unpriv_to_dnsadmins",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (u:User{path_candidate:true}) RETURN count(u)"
@@ -626,7 +626,7 @@
     },
     "graph_rbcd_to_da": {
         "name": "Builds RBCD targets to DA paths",
-        "request": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..14]->(g:Group{is_dag:true})) WHERE m<>g RETURN DISTINCT(p) as p",
+        "request": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties*1..$recursive_level]->(g:Group{is_dag:true})) WHERE m<>g RETURN DISTINCT(p) as p",
         "filename": "graph_rbcd_to_da",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL RETURN count(m)"
@@ -659,21 +659,21 @@
     },
     "objects_to_operators_member": {
         "name": "Unprivileged users with path to an Operator Member",
-        "request": "MATCH (m:User{path_candidate:true}) WHERE NOT m.name CONTAINS \"MSOL_\" WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..14]->(o:User{is_operator_member:true})) WHERE m<>o AND NOT m.name CONTAINS \"MSOL_\" AND ((o.is_da=true AND o.domain<>m.domain) OR (o.is_da=false AND o.domain=m.domain)) RETURN DISTINCT(p) as p",
+        "request": "MATCH (m:User{path_candidate:true}) WHERE NOT m.name CONTAINS \"MSOL_\" WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties*1..$recursive_level]->(o:User{is_operator_member:true})) WHERE m<>o AND NOT m.name CONTAINS \"MSOL_\" AND ((o.is_da=true AND o.domain<>m.domain) OR (o.is_da=false AND o.domain=m.domain)) RETURN DISTINCT(p) as p",
         "filename": "objects_to_operators_member",
         "method": "Neo4j.requestGraph", 
         "scope_query": "MATCH (m:User{path_candidate:true}) WHERE NOT m.name CONTAINS 'MSOL_' RETURN count(m)"
     },
     "vuln_permissions_adminsdholder": {
         "name": "Dangerous permissions on the adminSDHolder object",
-        "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..4]->(target1{is_adminsdholder:true})) WHERE n<>target1 AND NOT ANY(no in nodes(p) WHERE (no.is_da=true AND (no.domain=target1.domain OR target1.domain CONTAINS \".\" + no.domain))) RETURN distinct(p) AS p",
+        "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties*1..4]->(target1{is_adminsdholder:true})) WHERE n<>target1 AND NOT ANY(no in nodes(p) WHERE (no.is_da=true AND (no.domain=target1.domain OR target1.domain CONTAINS \".\" + no.domain))) RETURN distinct(p) AS p",
         "filename": "vuln_permissions_adminsdholder",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS 'MSOL_' RETURN count(n)"
     },
     "da_to_da": {
         "name": "Paths between two domain admins belonging to different domains",
-        "request": "MATCH p=allShortestPaths((g:Group{is_dag:true})-[r:MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets*1..14]->(gg:Group{is_dag:true})) WHERE g<>gg AND g.domain <> gg.domain RETURN p",
+        "request": "MATCH p=allShortestPaths((g:Group{is_dag:true})-[r:$properties*1..$recursive_level]->(gg:Group{is_dag:true})) WHERE g<>gg AND g.domain <> gg.domain RETURN p",
         "filename": "da_to_da",
         "method": "Neo4j.requestGraph"
     },
@@ -706,7 +706,8 @@
         "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns*1..]->(g:GPO)) WHERE NOT n=g AND NOT g.name IS NULL RETURN p ",
         "filename": "unpriv_users_to_GPO_init",
         "method": "Neo4j.requestGraph",
-        "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS \"MSOL_\" RETURN count(n)"
+        "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS \"MSOL_\" RETURN count(n)",
+        "postProcessing": "Neo4j.setDangerousInboundOnGPOs"
     },
     "unpriv_users_to_GPO_user_enforced": {
         "name": "Compromisable GPOs to users (enforced)",
@@ -735,5 +736,12 @@
         "filename": "unpriv_users_to_GPO_computer_not_enforced",
         "method": "Neo4j.requestGraph",
         "scope_query": "MATCH (n:Computer) RETURN count(n)"
+    },
+    "unpriv_users_to_GPO": {
+        "name": "Non privileged users to GPO",
+        "request": "MATCH (g:GPO) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 OPTIONAL MATCH (g)-[r1:GPLink {enforced:false}]->(container1) WITH g,container1 OPTIONAL MATCH (g)-[r2:GPLink {enforced:true}]->(container2) WITH g,container1,container2 OPTIONAL MATCH p = (g)-[r1:GPLink]->(container1)-[r2:Contains*1..8]->(n1:Computer) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = \"OU\") WITH g,p,container2,n1 OPTIONAL MATCH p2 = (g)-[r1:GPLink]->(container2)-[r2:Contains*1..8]->(n2:Computer) RETURN p",
+        "filename": "unpriv_users_to_GPO",
+        "method": "Neo4j.requestGraph",
+        "scope_query": "MATCH (g:GPO) RETURN COUNT(g)"
     }
 }
