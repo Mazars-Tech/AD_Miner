@@ -527,7 +527,7 @@ class Neo4j:
                 "nb_domain_collected": {
                     "name": "Count number of domains collected",
                     "request": "MATCH (m:Domain)-[r]->() "
-                    "RETURN distinct(m.domain)",
+                    "RETURN distinct(COALESCE(m.domain, m.name))",
                     "filename": "nb_domain_collected",
                     "method": self.requestList,
                 },
