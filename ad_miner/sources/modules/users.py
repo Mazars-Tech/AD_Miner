@@ -1436,7 +1436,11 @@ class Users:
     def genGroupAnomalyAcl(self, domain):
 
         if self.group_anomaly_acl is None:
-            return
+            page = Page(
+            self.arguments.cache_prefix, "group_anomaly_acl", "Group Anomaly ACL", "group_anomaly_acl"
+        )
+            page.render()
+            return 0
 
         formated_data_details = []
         formated_data = {}
