@@ -443,24 +443,25 @@ class Neo4j:
                     "filename": "set_groups_has_members",
                     "method": self.requestList,
                 },
-                "set_x_nbr_adm_machines": {
-                    "name": "Set the number of machines where Computers, Users, or Groups are admin (if too long, set recursivity to 3 into the query)",
-                    "request": "OPTIONAL MATCH (u:User) "
-                    "WITH COLLECT (DISTINCT u) AS u1 "
-                    "OPTIONAL MATCH (c:Computer) "
-                    "WITH COLLECT(DISTINCT c) + u1 AS o1 "
-                    "OPTIONAL MATCH (g:Group) "
-                    "WITH COLLECT(DISTINCT g) + o1 AS o2 "
-                    "UNWIND o2 AS o "
-                    "MATCH (o) WITH o ORDER BY o.name "
-                    "MATCH p=(o)-[:AdminTo*1..3]->(c:Computer) "
-                    "WITH count(p) as nbr_admin, o.name as username "
-                    "MATCH (o) "
-                    "WHERE o.name=username "
-                    "SET o.nbr_adm_machines=nbr_admin ",
-                    "filename": "set_x_nbr_adm_machines",
-                    "method": self.requestList,
-                },
+                # Not used anymore and possibly buggy
+                # "set_x_nbr_adm_machines": {
+                #     "name": "Set the number of machines where Computers, Users, or Groups are admin (if too long, set recursivity to 3 into the query)",
+                #     "request": "OPTIONAL MATCH (u:User) "
+                #     "WITH COLLECT (DISTINCT u) AS u1 "
+                #     "OPTIONAL MATCH (c:Computer) "
+                #     "WITH COLLECT(DISTINCT c) + u1 AS o1 "
+                #     "OPTIONAL MATCH (g:Group) "
+                #     "WITH COLLECT(DISTINCT g) + o1 AS o2 "
+                #     "UNWIND o2 AS o "
+                #     "MATCH (o) WITH o ORDER BY o.name "
+                #     "MATCH p=(o)-[:AdminTo*1..3]->(c:Computer) "
+                #     "WITH count(p) as nbr_admin, o.name as username "
+                #     "MATCH (o) "
+                #     "WHERE o.name=username "
+                #     "SET o.nbr_adm_machines=nbr_admin ",
+                #     "filename": "set_x_nbr_adm_machines",
+                #     "method": self.requestList,
+                # },
                 "set_gpo_links_count": {
                     "name": "Set the count of links/object where the GPO is applied",
                     "request": "MATCH p=(g:GPO)-[:GPLink]->(o) "
