@@ -5,7 +5,9 @@ Controls the search bar on the main page.
 // Hide and display the search bar
 function toggleSearch() {
     const searchBarDiv = document.getElementById("search-bar-div");
+    const searchItemDropdown = document.getElementById("search-dropdown");
     (searchBarDiv.classList.contains("search-bar-div-show")) ? searchBarDiv.classList.remove("search-bar-div-show") : searchBarDiv.classList.add("search-bar-div-show");
+    (searchItemDropdown.classList.contains("active")) ? searchItemDropdown.classList.remove("active") : searchItemDropdown.classList.add("active");
     searchBar.focus();
 }
 
