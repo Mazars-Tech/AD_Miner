@@ -1579,7 +1579,10 @@ class Domains:
             ous_with_da_by_admin[domain[0]] = []
 
         for path in self.objects_to_ou_handlers:
-            self.paths_to_ou_handlers[path.nodes[-1].domain].append(path)
+            try:
+                self.paths_to_ou_handlers[path.nodes[-1].domain].append(path)
+            except KeyError:
+                self.paths_to_ou_handlers[path.nodes[-1].domain] = [path]
             if (
                 path.nodes[0].labels != "OU"
                 and path.nodes[0].name
