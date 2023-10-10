@@ -15,7 +15,6 @@
     "set_path_candidate": "true",
     "set_groups_members_count": "true",
     "set_groups_has_members": "true",
-    "set_x_nbr_adm_machines": "true",
     "set_is_group_operator": "true",
     "set_is_operator_member": "true",
     "set_is_adminsdholder": "true",
