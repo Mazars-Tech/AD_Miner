@@ -194,18 +194,40 @@ class Neo4j:
         return result
 
     @staticmethod
-    def process_request(self, request, output_type):
+    def process_request(self, request_key):
+        if self.cache_enabled:  # If cache enable, try to retrieve from cache
+            result = self.cache.retrieveCacheEntry(request_key)
+            if result is not False:  # TODO why not just if result ?
+                if len(result):  # FIXME wtf
+                    logger.print_debug(
+                        "From cache : %s - %d objects"
+                        % (self.all_requests[request_key]["name"], len(result))
+                    )
+                return result
+
+        print(request_key)
+
+        request = self.all_requests[request_key]
         start = time.time()
         result = []
+
+        output_type = self.all_requests[request_key]["output_type"]
 
         if "scope_query" in request:
             result = self.parallelRequest(self, request, output_type)
         else:
             result = self.simpleRequest(self, request, output_type)
         request["result"] = result
+
+        self.cache.createCacheEntry(request_key, result)
         logger.print_time(
             timer_format(time.time() - start) + " - %d objects" % len(result)
         )
+
+        if "postProcessing" in request:
+            request["postProcessing"](self, result)
+
+        return result
 
     @staticmethod
     def simpleRequest(self, request, output_type):
@@ -224,19 +246,19 @@ class Neo4j:
 
     @staticmethod
     def request(self, request, output_type):
-        start = time.time()
-        if self.cache_enabled:
-            result = self.cache.retrieveCacheEntry(request["filename"])
-            if result != False:
-                if len(result):
-                    logger.print_debug(
-                        "From cache : %s - %d objects"
-                        % (request["name"], len(result))
-                    )
-                    # self.cache.createCsvFileFromRequest(
-                    #    request["filename"], result, output_type
-                    # )
-                return result
+        # start = time.time()
+        # if self.cache_enabled:
+        #     result = self.cache.retrieveCacheEntry(request["filename"])
+        #     if result != False:
+        #         if len(result):
+        #             logger.print_debug(
+        #                 "From cache : %s - %d objects"
+        #                 % (request["name"], len(result))
+        #             )
+        #             # self.cache.createCsvFileFromRequest(
+        #             #    request["filename"], result, output_type
+        #             # )
+        #         return result
         logger.print_debug("Requesting : %s" % request["name"])
 
         # if output_type is Graph:
@@ -300,16 +322,16 @@ class Neo4j:
                         else:
                             result = result.data()
 
-        self.cache.createCacheEntry(request["filename"], result)
-        # self.cache.createCsvFileFromRequest(request["filename"], result, output_type)
-        logger.print_time(
-            timer_format(time.time() - start) + " - %d objects" % len(result)
-        )
+        # self.cache.createCacheEntry(request["filename"], result)
+        # # self.cache.createCsvFileFromRequest(request["filename"], result, output_type)
+        # logger.print_time(
+        #     timer_format(time.time() - start) + " - %d objects" % len(result)
+        # )
 
-        if "postProcessing" in request:
-            request["postProcessing"](self, result)
+        # if "postProcessing" in request:
+        #     request["postProcessing"](self, result)
 
-        return result
+        # return result
 
     @staticmethod
     def setDangerousInboundOnGPOs(self, data):

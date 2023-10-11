@@ -55,15 +55,20 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
     nb_requests = len(neo4j.all_requests.keys())
     requests_count = 0
 
-    for key in neo4j.all_requests.keys():
+    for request_key in neo4j.all_requests.keys():
         requests_count = requests_count + 1
         print(f"[{requests_count}/{nb_requests}] ", end="")
-        req = neo4j.all_requests[key]
-        if not config_data.get(key) or config_data[key] == "true":
+        req = neo4j.all_requests[request_key]
+        if (
+            not config_data.get(request_key)
+            or config_data[request_key] == "true"
+        ):
             try:
-                req["result"] = None
-                neo4j.process_request(neo4j, req, req["output_type"])
-            except Exception as error:
+                # req["result"] = None # TODO ok de supp ?
+                neo4j.process_request(neo4j, request_key)
+            except (
+                Exception
+            ) as error:  # TODO maybe catch specific errors here ? And control C
                 logger.print_error(error)
                 logger.print_error(traceback.format_exc())
                 pass
