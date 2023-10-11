@@ -46,7 +46,8 @@ class Neo4j:
     def __init__(self, arguments, extract_date_int):
         # remote computers that run requests with their number of core
         if len(arguments.cluster) > 0:
-            self.parallelRequest = self.parallelRequestOnCluster
+            self.parallelRequest = self.parallelRequestCluster
+            self.parallelWriteRequest = self.parallelWriteReguestCluster
 
             self.cluster = {}
             list_nodes = arguments.cluster.split(",")
@@ -62,6 +63,7 @@ class Neo4j:
                     sys.exit(-1)
         else:
             self.parallelRequest = self.parallelRequestLegacy
+            self.parallelWriteRequest = self.parallelRequestLegacy
 
         extract_date = self.set_extract_date(str(extract_date_int))
 
@@ -157,13 +159,16 @@ class Neo4j:
         self.driver.close()
 
     @staticmethod
-    def run(value, identifier, query, arguments, output_type):
+    def executeParallelRequest(
+        value, identifier, query, arguments, output_type, server
+    ):
         q = query.replace("PARAM1", str(value)).replace(
             "PARAM2", str(identifier)
         )
         result = []
+        bolt = server if server.startswith("bolt://") else "bolt://" + server
         driver = GraphDatabase.driver(
-            arguments.bolt,
+            bolt,
             auth=(arguments.username, arguments.password),
             encrypted=False,
         )
@@ -185,10 +190,8 @@ class Neo4j:
                 result = Neo4j.computePathObject(result)
             except Exception as e:
                 logger.print_error(
-                    "An error occured during the transformation of a request result."
+                    "An error while computing path object of this query:\n" + q
                 )
-                errorMessage = "The exact query was:\n" + q
-                logger.print_error(errorMessage)
                 logger.print_error(e)
 
         return result
@@ -205,22 +208,42 @@ class Neo4j:
                     )
                 return result
 
-        print(request_key)
-
         request = self.all_requests[request_key]
+        logger.print_debug("Requesting : %s" % request["name"])
         start = time.time()
         result = []
 
-        output_type = self.all_requests[request_key]["output_type"]
-        # if "is_a_write_request" in request:
-        #     a = 1
-        #     logger.print_error("Be careful, distributed write request")
-        #     # FIXME : bug with SKIP LIMIT and distributed requests
-
         if "scope_query" in request:
-            result = self.parallelRequest(self, request, output_type)
-        else:
-            result = self.simpleRequest(self, request, output_type)
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    scopeQuery = request["scope_query"]
+                    scopeSize = tx.run(scopeQuery).value()[0]
+            part_number = int(self.arguments.nb_chunks)
+            part_number = min(scopeSize, part_number)
+            print(f"scope size : {str(scopeSize)} | nb chunks : {part_number}")
+            items = []
+            space = np.linspace(0, scopeSize, part_number + 1, dtype=int)
+            output_type = self.all_requests[request_key]["output_type"]
+
+            # Divide the request with SKIP & LIMIT
+            for i in range(len(space) - 1):
+                items.append(
+                    [
+                        space[i],
+                        space[i + 1] - space[i],
+                        request["request"],
+                        self.arguments,
+                        output_type,
+                    ]
+                )
+
+            if "is_a_write_request" in request:
+                result = self.parallelWriteRequest(self, items)
+            else:
+                result = self.parallelRequest(self, items)
+
+        else:  # Request is not parallelized
+            result = self.simpleRequest(self, request_key)
         request["result"] = result
 
         self.cache.createCacheEntry(request_key, result)
@@ -230,11 +253,12 @@ class Neo4j:
 
         if "postProcessing" in request:
             request["postProcessing"](self, result)
-
         return result
 
     @staticmethod
-    def simpleRequest(self, request, output_type):
+    def simpleRequest(self, request_key):
+        request = self.all_requests[request_key]
+        output_type = request["output_type"]
         result = []
         with self.driver.session() as session:
             with session.begin_transaction() as tx:
@@ -255,135 +279,156 @@ class Neo4j:
         return result
 
     @staticmethod
-    def parallelRequestOnCluster(self, request, output_type):
-        result = None  # TODO fix
-        return result
+    def parallelRequestCluster(self, items):
+        output_type = items[0][4]
+        # Total CPU units of all node of the cluster
+        max_parallel_requests = sum(self.cluster.values())
 
-    @staticmethod
-    def parallelRequestLegacy(self, request, output_type):
-        with self.driver.session() as session:  # FIXME can it be better
-            with session.begin_transaction() as tx:
-                scopeQuery = request["scope_query"]
-                scopeSize = tx.run(scopeQuery).value()[0]
-                part_number = int(self.arguments.nb_chunks)
-                nb_cores = int(self.arguments.nb_cores)
-                print(
-                    f"scope size : {str(scopeSize)} | nb chunks : {part_number} | nb cores : {nb_cores}"
-                )
-
-                part_number = min(
-                    scopeSize, part_number
-                )  # no more requests than scope size
-                items = []
-                space = np.linspace(0, scopeSize, part_number + 1, dtype=int)
-                for i in range(len(space) - 1):
-                    items.append(
-                        [
-                            space[i],
-                            space[i + 1] - space[i],
-                            request["request"],
-                            self.arguments,
-                            output_type,
-                        ]
-                    )
-
-                with mp.Pool(nb_cores) as pool:
-                    result = []
-                    for _ in tqdm.tqdm(
-                        pool.istarmap(self.run, items), total=len(items)
-                    ):
-                        result += _
-        return result
-
-    @staticmethod
-    def request(self, request, output_type):
-        # start = time.time()
-        # if self.cache_enabled:
-        #     result = self.cache.retrieveCacheEntry(request["filename"])
-        #     if result != False:
-        #         if len(result):
-        #             logger.print_debug(
-        #                 "From cache : %s - %d objects"
-        #                 % (request["name"], len(result))
-        #             )
-        #             # self.cache.createCsvFileFromRequest(
-        #             #    request["filename"], result, output_type
-        #             # )
-        #         return result
-        logger.print_debug("Requesting : %s" % request["name"])
-
-        # if output_type is Graph:
         result = []
-        with self.driver.session() as session:
-            with session.begin_transaction() as tx:
-                if "PARAM" in request["request"]:
-                    a = 0
-                    # scopeQuery = request["scope_query"]
-                    # scopeSize = tx.run(scopeQuery).value()[0]
-                    # part_number = int(self.arguments.nb_chunks)
-                    # nb_cores = int(self.arguments.nb_cores)
-                    # print(
-                    #     f"scope size : {str(scopeSize)} | nb chunks : {part_number} | nb cores : {nb_cores}"
-                    # )
+        requestList = items.copy()
 
-                    # part_number = min(
-                    #     scopeSize, part_number
-                    # )  # no more requests than scope size
-                    # items = []
-                    # space = np.linspace(
-                    #     0, scopeSize, part_number + 1, dtype=int
-                    # )
-                    # for i in range(len(space) - 1):
-                    #     items.append(
-                    #         [
-                    #             space[i],
-                    #             space[i + 1] - space[i],
-                    #             request["request"],
-                    #             self.arguments,
-                    #             output_type,
-                    #         ]
-                    #     )
+        pbar = tqdm.tqdm(
+            total=len(requestList), desc="Cluster participation:\n"
+        )
 
-                    # with mp.Pool(nb_cores) as pool:
-                    #     # results = pool.starmap(self.run, tqdm.tqdm(items, total=len(items)))
-                    #     # with open("temporary.txt", "a") as f:
-                    #     #     f.write("\n")
-                    #     #     f.write("-------------------------\n")
-                    #     #     f.write(f"{self.arguments.cache_prefix} : {request['name']} \n")
-                    #     result = []
-                    #     for _ in tqdm.tqdm(
-                    #         pool.istarmap(self.run, items), total=len(items)
-                    #     ):
-                    #         result += _
+        temp_results = []
 
-                    # result = self.computePathObject(result)
+        def process_completed_task(
+            number_of_retrieved_objects, task, active_jobs, jobs_done, pbar
+        ):
+            temporary_result = task.get()
+            # Update displayed number of retrieved objects
+            if output_type == list:
+                if len(temporary_result) > 0:
+                    for sublist in temporary_result:
+                        number_of_retrieved_objects += len(sublist)
+            elif output_type == dict or output_type == Graph:
+                number_of_retrieved_objects += len(temporary_result)
 
-                else:
-                    if output_type is Graph:
-                        for record in tx.run(request["request"]):
-                            result.append(record["p"])
-                            # Quick way to handle multiple records
-                            # (e.g., RETURN p, p2)
-                            if "p2" in record:
-                                result.append(record["p2"])
-                        result = self.computePathObject(result)
-                    else:
-                        result = tx.run(request["request"])
-                        if output_type is list:
-                            result = result.values()
-                        else:
-                            result = result.data()
+            temporary_result = None
 
-        # self.cache.createCacheEntry(request["filename"], result)
-        # # self.cache.createCsvFileFromRequest(request["filename"], result, output_type)
-        # logger.print_time(
-        #     timer_format(time.time() - start) + " - %d objects" % len(result)
-        # )
+            active_jobs[server].remove(task)
+            jobs_done[server] += 1
+            total_jobs_done = sum(jobs_done.values())
+            cluster_participation = ""
+            for server_running in jobs_done:
+                server_name = server_running.split(":")[0]
+                cluster_participation += (
+                    server_name
+                    + ": "
+                    + str(
+                        int(
+                            round(
+                                100
+                                * jobs_done[server_running]
+                                / total_jobs_done,
+                                0,
+                            )
+                        )
+                    )
+                    + "% "
+                )
+            pbar.set_description(
+                cluster_participation
+                + "| "
+                + str(number_of_retrieved_objects)
+                + " objects"
+            )
+            pbar.refresh()
+            pbar.update(1)
 
-        # if "postProcessing" in request:
-        #     request["postProcessing"](self, result)
+        with mp.Pool(processes=max_parallel_requests) as pool:
+            # Dict that keep track of which server is executing which requests
+            active_jobs = dict((server, []) for server in self.cluster)
 
-        # return result
+            # Dict that keep track of how many queries each server did
+            jobs_done = dict((server, 0) for server in self.cluster)
+
+            # Counter to keep track of how many objects have been retrieved
+            number_of_retrieved_objects = 0
+
+            while len(requestList) > 0:
+                time.sleep(0.01)
+
+                for server, max_jobs in self.cluster.items():
+                    if len(requestList) == 0:
+                        break
+                    for task in active_jobs[server]:
+                        if task.ready():
+                            process_completed_task(
+                                number_of_retrieved_objects,
+                                task,
+                                active_jobs,
+                                jobs_done,
+                                pbar,
+                            )
+
+                    if len(active_jobs[server]) < max_jobs:
+                        item = requestList.pop()
+                        (
+                            value,
+                            identifier,
+                            query,
+                            arguments,
+                            output_type,
+                        ) = item
+
+                        task = pool.apply_async(
+                            self.executeParallelRequest,
+                            (
+                                value,
+                                identifier,
+                                query,
+                                arguments,
+                                output_type,
+                                server,
+                            ),
+                        )
+                        temp_results.append(task)
+                        active_jobs[server].append(task)
+
+            # Waiting for every task to finish
+            # Not in the main loop for better efficiency
+
+            while not all(len(tasks) == 0 for tasks in active_jobs.values()):
+                time.sleep(0.01)
+                for server, max_jobs in self.cluster.items():
+                    for task in active_jobs[server]:
+                        if task.ready():
+                            process_completed_task(
+                                number_of_retrieved_objects,
+                                task,
+                                active_jobs,
+                                jobs_done,
+                                pbar,
+                            )
+            for r in temp_results:
+                result += r.get()
+        pbar.close()
+        return result
+
+    @staticmethod
+    def parallelRequestLegacy(self, items):
+        items = [  # Add bolt to items
+            (
+                value,
+                identifier,
+                query,
+                arguments,
+                output_type,
+                self.arguments.bolt,
+            )
+            for value, identifier, query, arguments, output_type in items
+        ]
+
+        with mp.Pool(mp.cpu_count()) as pool:
+            result = []
+            for _ in tqdm.tqdm(
+                pool.istarmap(self.executeParallelRequest, items),
+                total=len(items),
+            ):
+                result += _
+        return result
 
     @staticmethod
     def setDangerousInboundOnGPOs(self, data):
@@ -481,389 +526,37 @@ class Neo4j:
         )
 
     @staticmethod
-    def requestOnRemote(
-        value, identifier, query, arguments, output_type, server
-    ):
-        start_time = time.time()
-        q = query.replace("PARAM1", str(value)).replace(
-            "PARAM2", str(identifier)
-        )
+    def parallelWriteReguestCluster(self, items):
         result = []
-        bolt = "bolt://" + server
-        driver = GraphDatabase.driver(
-            bolt,
-            auth=(arguments.username, arguments.password),
-            encrypted=False,
-        )
 
-        with driver.session() as session:
-            with session.begin_transaction() as tx:
-                if output_type is Graph:
-                    for record in tx.run(q):
-                        result.append(record["p"])
+        all_items = []
+        # FIXME est-ce que c'est grave d'avoir des résultats en mutlitples ?
+        for server, max_jobs in self.cluster.items():
+            all_items += [
+                (value, identifier, query, arguments, output_type, server)
+                for value, identifier, query, arguments, output_type in items
+            ]
+        items = all_items
 
-                else:
-                    result = tx.run(q)
-                    if output_type is list:
-                        result = result.values()
-                    else:
-                        result = result.data()
-
-        if output_type is not dict:
-            try:
-                result = Neo4j.computePathObject(result)
-            except Exception as e:
-                logger.print_error(
-                    "An error occured during the transformation of a request result."
-                )
-                errorMessage = (
-                    "The database used is "
-                    + server
-                    + " and the exact query was:\n"
-                    + q
-                )
-                logger.print_error(errorMessage)
-                logger.print_error(e)
-
-        driver.close()  # TODO pas de base ?
-        return result
-
-    @staticmethod
-    def writeRequestOnRemote(query, output_type, server, username, password):
-        start_time = time.time()
-        result = []
-        bolt = "bolt://" + server
-        driver = GraphDatabase.driver(
-            bolt,
-            auth=(username, password),
-            encrypted=False,
-        )
-
-        with driver.session() as session:
-            with session.begin_transaction() as tx:
-                if output_type is Graph:
-                    for record in tx.run(query):
-                        result.append(record["p"])
-                        # Quick way to handle multiple records
-                        # (e.g., RETURN p, p2)
-                        if "p2" in record:
-                            result.append(record["p2"])
-                    result = Neo4j.computePathObject(result)
-                else:
-                    result = tx.run(query)
-                    if output_type is list:
-                        result = result.values()
-                    else:
-                        result = result.data()
-
-        driver.close()  # TODO pas de base ?
-        duration = round(time.time() - start_time, 2)
-        logger.print_debug(
-            "Write query executed to " + server + " in " + str(duration) + "s"
-        )
-        return result
-
-    @staticmethod
-    def distributeRequestsOnRemote(self, request, output_type):
-        cluster = self.cluster
-        # Total CPU units of all node of the cluster
-        max_parallel_requests = sum(cluster.values())
-
-        start = time.time()
-        # if self.cache_enabled:
-        #     result = self.cache.retrieveCacheEntry(request["filename"])
-        #     if result != False:
-        #         if len(result):
-        #             logger.print_debug(
-        #                 "From cache : %s - %d objects"
-        #                 % (request["name"], len(result))
-        #             )
-        #             # self.cache.createCsvFileFromRequest(
-        #             #    request["filename"], result, output_type
-        #             # )
-        #         return result
-        logger.print_debug("Requesting : %s" % request["name"])
-
-        result = []
-        with self.driver.session() as session:
-            with session.begin_transaction() as tx:
-                if "PARAM" in request["request"]:
-                    scopeQuery = request["scope_query"]
-                    scopeSize = tx.run(scopeQuery).value()[0]
-                    part_number = self.arguments.nb_chunks
-                    # It is assumed here that no one will set number of chunks to the default.
-                    # If left to default but cluster is used it is better to choose something
-                    # like chunk = 20 x total number of cores in the cluster.
-                    if part_number == mp.cpu_count():
-                        part_number = 20 * max_parallel_requests
-                    nb_cores = int(max_parallel_requests)
-                    print(
-                        f"scope size : {str(scopeSize)} | nb chunks : {part_number} | nb cores : {nb_cores}"
-                    )
-
-                    part_number = min(scopeSize, part_number)
-                    items = []
-                    space = np.linspace(
-                        0, scopeSize, part_number + 1, dtype=int
-                    )
-                    # Divide the requests with SKIP & LIMIT
-                    for i in range(len(space) - 1):
-                        items.append(
-                            [
-                                space[i],
-                                space[i + 1] - space[i],
-                                request["request"],
-                                self.arguments,
-                                output_type,
-                            ]
-                        )
-
-                    requestList = items.copy()
-
-                    pbar = tqdm.tqdm(
-                        total=len(requestList), desc="Cluster participation:\n"
-                    )
-
-                    temp_results = []
-
-                    with mp.Pool(processes=max_parallel_requests) as pool:
-                        # Dict that keep track of which server is executing which requests
-                        active_jobs = dict((server, []) for server in cluster)
-
-                        # Dict that keep track of how many queries each server did
-                        jobs_done = dict((server, 0) for server in cluster)
-
-                        # Counter to keep track of how many objects have been retrieved
-                        number_of_retrieved_objects = 0
-
-                        while len(requestList) > 0:
-                            time.sleep(0.01)
-
-                            for server, max_jobs in cluster.items():
-                                if len(requestList) == 0:
-                                    break
-                                for task in active_jobs[server]:
-                                    if (
-                                        task.ready()
-                                    ):  # Meaning that a task have been finished on a remote server
-                                        temporary_result = task.get()
-
-                                        if output_type == list:
-                                            if len(temporary_result) > 0:
-                                                for (
-                                                    sublist
-                                                ) in temporary_result:
-                                                    number_of_retrieved_objects += len(
-                                                        sublist
-                                                    )
-                                        elif (
-                                            output_type == dict
-                                            or output_type == Graph
-                                        ):
-                                            number_of_retrieved_objects += len(
-                                                temporary_result
-                                            )
-
-                                        temporary_result = None
-
-                                        active_jobs[server].remove(task)
-                                        task = None
-                                        jobs_done[server] += 1
-                                        total_jobs_done = sum(
-                                            jobs_done.values()
-                                        )
-                                        cluster_participation = ""
-                                        for server_running in jobs_done:
-                                            server_name = server_running.split(
-                                                ":"
-                                            )[0]
-                                            cluster_participation += (
-                                                server_name
-                                                + ": "
-                                                + str(
-                                                    int(
-                                                        round(
-                                                            100
-                                                            * jobs_done[
-                                                                server_running
-                                                            ]
-                                                            / total_jobs_done,
-                                                            0,
-                                                        )
-                                                    )
-                                                )
-                                                + "% "
-                                            )
-                                        pbar.set_description(
-                                            cluster_participation
-                                            + "| "
-                                            + str(number_of_retrieved_objects)
-                                            + " objects"
-                                        )
-                                        pbar.refresh()
-                                        pbar.update(1)
-
-                                if len(active_jobs[server]) < max_jobs:
-                                    item = requestList.pop()
-                                    (
-                                        value,
-                                        identifier,
-                                        query,
-                                        arguments,
-                                        output_type,
-                                    ) = item
-
-                                    task = pool.apply_async(
-                                        Neo4j.requestOnRemote,
-                                        (
-                                            value,
-                                            identifier,
-                                            query,
-                                            arguments,
-                                            output_type,
-                                            server,
-                                        ),
-                                    )
-                                    temp_results.append(task)
-                                    active_jobs[server].append(task)
-
-                        # Waiting for every task to finish
-                        # Not in the main loop for better efficiency
-
-                        while not all(
-                            len(tasks) == 0 for tasks in active_jobs.values()
-                        ):
-                            time.sleep(0.01)
-                            for server, max_jobs in cluster.items():
-                                for task in active_jobs[server]:
-                                    if (
-                                        task.ready()
-                                    ):  # Meaning that a task have been finished on a remote server
-                                        temporary_result = task.get()
-
-                                        if output_type == list:
-                                            if len(temporary_result) > 0:
-                                                for (
-                                                    sublist
-                                                ) in temporary_result:
-                                                    number_of_retrieved_objects += len(
-                                                        sublist
-                                                    )
-                                        elif (
-                                            output_type == dict
-                                            or output_type == Graph
-                                        ):
-                                            number_of_retrieved_objects += len(
-                                                temporary_result
-                                            )
-
-                                        temporary_result = None
-
-                                        active_jobs[server].remove(task)
-                                        task = None
-                                        jobs_done[server] += 1
-                                        total_jobs_done = sum(
-                                            jobs_done.values()
-                                        )
-                                        cluster_participation = ""
-                                        for server_running in jobs_done:
-                                            server_name = server_running.split(
-                                                ":"
-                                            )[0]
-                                            cluster_participation += (
-                                                server_name
-                                                + ": "
-                                                + str(
-                                                    int(
-                                                        round(
-                                                            100
-                                                            * jobs_done[
-                                                                server_running
-                                                            ]
-                                                            / total_jobs_done,
-                                                            0,
-                                                        )
-                                                    )
-                                                )
-                                                + "% "
-                                            )
-                                        pbar.set_description(
-                                            cluster_participation
-                                            + "| "
-                                            + str(number_of_retrieved_objects)
-                                            + " objects"
-                                        )
-                                        pbar.refresh()
-                                        pbar.update(1)
-
-                        for r in temp_results:
-                            result += r.get()
-
-                    pbar.close()
-
-                elif (
-                    "SET" in request["request"]
-                    or "MERGE" in request["request"]
-                    or "DELETE" in request["request"]
-                ):
-                    # Si c'est une requête d'écriture il faut la faire
-                    # sur tous les noeuds du cluster
-                    query = request["request"]
-                    username = self.arguments.username
-                    password = self.arguments.password
-                    results = []
-                    temp_results = []
-
-                    with mp.Pool(processes=self.arguments.nb_cores) as pool:
-                        for server in cluster.keys():
-                            task = pool.apply_async(
-                                Neo4j.writeRequestOnRemote,
-                                (
-                                    query,
-                                    output_type,
-                                    server,
-                                    username,
-                                    password,
-                                ),
-                            )
-                            temp_results.append(task)
-
-                        for task in temp_results:
-                            results.append(task.get())
-
-                    result = results[0]
-
-                else:
-                    a = 1
-                    # if output_type is Graph:
-                    #     for record in tx.run(request["request"]):
-                    #         result.append(record["p"])
-                    #         # Quick way to handle multiple records
-                    #         # (e.g., RETURN p, p2)
-                    #         if "p2" in record:
-                    #             result.append(record["p2"])
-                    #     result = self.computePathObject(result)
-                    # else:
-                    #     result = tx.run(request["request"])
-                    #     if output_type is list:
-                    #         result = result.values()
-                    #     else:
-                    #         result = result.data()
-
-        # self.cache.createCacheEntry(request["filename"], result)
-        logger.print_time(
-            timer_format(time.time() - start) + " - %d objects" % len(result)
-        )
-
-        if "postProcessing" in request:
-            request["postProcessing"](self, result)
+        with mp.Pool(sum(self.cluster.values())) as pool:
+            result = []
+            for _ in tqdm.tqdm(
+                pool.istarmap(self.executeParallelRequest, items),
+                total=len(items),
+            ):
+                result += _
+        # duration = round(time.time() - start_time, 2)
+        # logger.print_debug(
+        #     "Write query executed to " + server + " in " + str(duration) + "s"
+        # )
+        print("\n\nehehehh\n\n")
         return result
 
     @classmethod
     def computePathObject(cls, Paths):
         final_paths = []
         for path in Paths:
-            if not path is None:
+            if path is not None:
                 nodes = []
                 for relation in path.relationships:
                     for node in relation.nodes:
