@@ -111,10 +111,10 @@ class Neo4j:
                     )
 
                 # Replace postprocessing with python method
-                if "postprocessing" in self.all_requests[request_key]:
-                    self.all_requests[request_key]["postprocessing"] = {
+                if "postProcessing" in self.all_requests[request_key]:
+                    self.all_requests[request_key]["postProcessing"] = {
                         "Neo4j.setDangerousInboundOnGPOs": self.setDangerousInboundOnGPOs,
-                    }.get(self.all_requests[request_key]["postprocessing"])
+                    }.get(self.all_requests[request_key]["postProcessing"])
         except json.JSONDecodeError as error:
             logger.print_error(
                 f"Error while parsing neo4j requests from requests.json : \n{error}"
@@ -212,6 +212,10 @@ class Neo4j:
         result = []
 
         output_type = self.all_requests[request_key]["output_type"]
+        # if "is_a_write_request" in request:
+        #     a = 1
+        #     logger.print_error("Be careful, distributed write request")
+        #     # FIXME : bug with SKIP LIMIT and distributed requests
 
         if "scope_query" in request:
             result = self.parallelRequest(self, request, output_type)
@@ -231,7 +235,23 @@ class Neo4j:
 
     @staticmethod
     def simpleRequest(self, request, output_type):
-        result = None  # TODO fix
+        result = []
+        with self.driver.session() as session:
+            with session.begin_transaction() as tx:
+                if output_type is Graph:
+                    for record in tx.run(request["request"]):
+                        result.append(record["p"])
+                        # Quick way to handle multiple records
+                        # (e.g., RETURN p, p2)
+                        if "p2" in record:
+                            result.append(record["p2"])
+                    result = self.computePathObject(result)
+                else:
+                    result = tx.run(request["request"])
+                    if output_type is list:
+                        result = result.values()
+                    else:
+                        result = result.data()
         return result
 
     @staticmethod
@@ -241,7 +261,38 @@ class Neo4j:
 
     @staticmethod
     def parallelRequestLegacy(self, request, output_type):
-        result = None  # TODO fix
+        with self.driver.session() as session:  # FIXME can it be better
+            with session.begin_transaction() as tx:
+                scopeQuery = request["scope_query"]
+                scopeSize = tx.run(scopeQuery).value()[0]
+                part_number = int(self.arguments.nb_chunks)
+                nb_cores = int(self.arguments.nb_cores)
+                print(
+                    f"scope size : {str(scopeSize)} | nb chunks : {part_number} | nb cores : {nb_cores}"
+                )
+
+                part_number = min(
+                    scopeSize, part_number
+                )  # no more requests than scope size
+                items = []
+                space = np.linspace(0, scopeSize, part_number + 1, dtype=int)
+                for i in range(len(space) - 1):
+                    items.append(
+                        [
+                            space[i],
+                            space[i + 1] - space[i],
+                            request["request"],
+                            self.arguments,
+                            output_type,
+                        ]
+                    )
+
+                with mp.Pool(nb_cores) as pool:
+                    result = []
+                    for _ in tqdm.tqdm(
+                        pool.istarmap(self.run, items), total=len(items)
+                    ):
+                        result += _
         return result
 
     @staticmethod
@@ -266,43 +317,44 @@ class Neo4j:
         with self.driver.session() as session:
             with session.begin_transaction() as tx:
                 if "PARAM" in request["request"]:
-                    scopeQuery = request["scope_query"]
-                    scopeSize = tx.run(scopeQuery).value()[0]
-                    part_number = int(self.arguments.nb_chunks)
-                    nb_cores = int(self.arguments.nb_cores)
-                    print(
-                        f"scope size : {str(scopeSize)} | nb chunks : {part_number} | nb cores : {nb_cores}"
-                    )
+                    a = 0
+                    # scopeQuery = request["scope_query"]
+                    # scopeSize = tx.run(scopeQuery).value()[0]
+                    # part_number = int(self.arguments.nb_chunks)
+                    # nb_cores = int(self.arguments.nb_cores)
+                    # print(
+                    #     f"scope size : {str(scopeSize)} | nb chunks : {part_number} | nb cores : {nb_cores}"
+                    # )
 
-                    part_number = min(
-                        scopeSize, part_number
-                    )  # no more requests than scope size
-                    items = []
-                    space = np.linspace(
-                        0, scopeSize, part_number + 1, dtype=int
-                    )
-                    for i in range(len(space) - 1):
-                        items.append(
-                            [
-                                space[i],
-                                space[i + 1] - space[i],
-                                request["request"],
-                                self.arguments,
-                                output_type,
-                            ]
-                        )
+                    # part_number = min(
+                    #     scopeSize, part_number
+                    # )  # no more requests than scope size
+                    # items = []
+                    # space = np.linspace(
+                    #     0, scopeSize, part_number + 1, dtype=int
+                    # )
+                    # for i in range(len(space) - 1):
+                    #     items.append(
+                    #         [
+                    #             space[i],
+                    #             space[i + 1] - space[i],
+                    #             request["request"],
+                    #             self.arguments,
+                    #             output_type,
+                    #         ]
+                    #     )
 
-                    with mp.Pool(nb_cores) as pool:
-                        # results = pool.starmap(self.run, tqdm.tqdm(items, total=len(items)))
-                        # with open("temporary.txt", "a") as f:
-                        #     f.write("\n")
-                        #     f.write("-------------------------\n")
-                        #     f.write(f"{self.arguments.cache_prefix} : {request['name']} \n")
-                        result = []
-                        for _ in tqdm.tqdm(
-                            pool.istarmap(self.run, items), total=len(items)
-                        ):
-                            result += _
+                    # with mp.Pool(nb_cores) as pool:
+                    #     # results = pool.starmap(self.run, tqdm.tqdm(items, total=len(items)))
+                    #     # with open("temporary.txt", "a") as f:
+                    #     #     f.write("\n")
+                    #     #     f.write("-------------------------\n")
+                    #     #     f.write(f"{self.arguments.cache_prefix} : {request['name']} \n")
+                    #     result = []
+                    #     for _ in tqdm.tqdm(
+                    #         pool.istarmap(self.run, items), total=len(items)
+                    #     ):
+                    #         result += _
 
                     # result = self.computePathObject(result)
 
@@ -518,18 +570,18 @@ class Neo4j:
         max_parallel_requests = sum(cluster.values())
 
         start = time.time()
-        if self.cache_enabled:
-            result = self.cache.retrieveCacheEntry(request["filename"])
-            if result != False:
-                if len(result):
-                    logger.print_debug(
-                        "From cache : %s - %d objects"
-                        % (request["name"], len(result))
-                    )
-                    # self.cache.createCsvFileFromRequest(
-                    #    request["filename"], result, output_type
-                    # )
-                return result
+        # if self.cache_enabled:
+        #     result = self.cache.retrieveCacheEntry(request["filename"])
+        #     if result != False:
+        #         if len(result):
+        #             logger.print_debug(
+        #                 "From cache : %s - %d objects"
+        #                 % (request["name"], len(result))
+        #             )
+        #             # self.cache.createCsvFileFromRequest(
+        #             #    request["filename"], result, output_type
+        #             # )
+        #         return result
         logger.print_debug("Requesting : %s" % request["name"])
 
         result = []
@@ -782,22 +834,23 @@ class Neo4j:
                     result = results[0]
 
                 else:
-                    if output_type is Graph:
-                        for record in tx.run(request["request"]):
-                            result.append(record["p"])
-                            # Quick way to handle multiple records
-                            # (e.g., RETURN p, p2)
-                            if "p2" in record:
-                                result.append(record["p2"])
-                        result = self.computePathObject(result)
-                    else:
-                        result = tx.run(request["request"])
-                        if output_type is list:
-                            result = result.values()
-                        else:
-                            result = result.data()
+                    a = 1
+                    # if output_type is Graph:
+                    #     for record in tx.run(request["request"]):
+                    #         result.append(record["p"])
+                    #         # Quick way to handle multiple records
+                    #         # (e.g., RETURN p, p2)
+                    #         if "p2" in record:
+                    #             result.append(record["p2"])
+                    #     result = self.computePathObject(result)
+                    # else:
+                    #     result = tx.run(request["request"])
+                    #     if output_type is list:
+                    #         result = result.values()
+                    #     else:
+                    #         result = result.data()
 
-        self.cache.createCacheEntry(request["filename"], result)
+        # self.cache.createCacheEntry(request["filename"], result)
         logger.print_time(
             timer_format(time.time() - start) + " - %d objects" % len(result)
         )
