@@ -341,19 +341,9 @@
         "scope_query": "MATCH (u:User {enabled:true, is_da:false}) WITH count(u) AS user_count MATCH (g:Group {is_dag:false, is_da:false}) WITH user_count, count(g) AS group_count RETURN CASE WHEN user_count > group_count THEN user_count ELSE group_count END AS max_count",
         "output_type": "Graph"
     },
-    "nb_total_accounts": {
-        "name": "Number of domain accounts",
-        "request": "MATCH p=(u:User) RETURN DISTINCT(u.name) AS user",
-        "output_type": "dict"
-    },
     "nb_enabled_accounts": {
         "name": "Number of domain accounts enabled",
         "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
-        "output_type": "dict"
-    },
-    "nb_disabled_accounts": {
-        "name": "Number of domain accounts disabled",
-        "request": "MATCH p=(u:User{enabled:false} ) RETURN DISTINCT(u.name) AS user",
         "output_type": "dict"
     },
     "nb_groups": {
@@ -411,11 +401,6 @@
         "request": "MATCH (u:User)-[:AllowedToDelegate]->(c:Computer) WHERE u.name IS NOT NULL AND c.name IS NOT NULL RETURN u.name AS name, c.name AS computer,c.is_dc as to_DC ORDER BY name",
         "output_type": "dict"
     },
-    "nb_never_used_accounts": {
-        "name": "Number of enabled and never used accounts",
-        "request": "MATCH (n:User) WHERE n.lastlogontimestamp=-1.0 AND n.enabled=TRUE RETURN DISTINCT(n.name) ORDER BY n.name",
-        "output_type": "dict"
-    },
     "dormant_accounts": {
         "name": "Dormant accounts",
         "request": "MATCH (n:User{enabled:true}) WHERE toInteger(($extract_date - n.lastlogontimestamp)/86400)>$password_renewal RETURN n.domain as domain, n.name as name,toInteger(($extract_date - n.lastlogontimestamp)/86400) AS days, toInteger(($extract_date - n.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
@@ -436,34 +421,14 @@
         "request": "MATCH (u:User{enabled:true,passwordnotreqd:true}) RETURN DISTINCT (u.domain) as domain, (u.name) AS user,toInteger(($extract_date - u.pwdlastset )/ 86400) AS pwdlastset,toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon",
         "output_type": "dict"
     },
-    "nb_dormant_accounts_by_domain": {
-        "name": "Number of sleeping accounts per domain",
-        "request": "MATCH (n:User) WHERE n.lastlogontimestamp=-1.0 RETURN DISTINCT(n.domain), count(n.domain) ORDER BY count(n.domain) DESC",
-        "output_type": "dict"
-    },
     "objects_admincount": {
         "name": "N objects have AdminSDHolder",
         "request": "MATCH (n{enabled:True, admincount:True}) RETURN n.domain as domain, labels(n)[1] as type, n.name as name ",
         "output_type": "dict"
     },
-    "user_last_logon_in_days": {
-        "name": "Last logon in days",
-        "request": "MATCH (n:User) WHERE n.enabled=TRUE RETURN DISTINCT(n.name),toInteger(($extract_date - n.lastlogontimestamp)/86400) AS days, n.name AS user,n.domain AS domain",
-        "output_type": "dict"
-    },
     "user_password_never_expires": {
         "name": "Password never expired",
         "request": "MATCH (u:User{enabled:true})WHERE u.pwdneverexpires = true RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS LastLogin, toInteger(($extract_date - u.pwdlastset )/ 86400) AS LastPasswChange,toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate",
-        "output_type": "dict"
-    },
-    "users_domain_breakdown": {
-        "name": "Domain accounts breakdown",
-        "request": "MATCH p=(u:User{enabled:true}) RETURN DISTINCT(u.domain) AS domain,COUNT(u.name) AS user ORDER BY u.domain",
-        "output_type": "dict"
-    },
-    "computers_domain_breakdown": {
-        "name": "Domain computers breakdown",
-        "request": "MATCH p=(u:Computer{enabled:true}) RETURN DISTINCT(u.domain) AS domain,COUNT(u.name) AS computer ORDER BY u.domain ",
         "output_type": "dict"
     },
     "computers_members_high_privilege": {
