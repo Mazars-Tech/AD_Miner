@@ -46,6 +46,7 @@ class Neo4j:
     def __init__(self, arguments, extract_date_int):
         # remote computers that run requests with their number of core
         if len(arguments.cluster) > 0:
+            arguments.nb_chunks = 0
             self.parallelRequest = self.parallelRequestCluster
             self.parallelWriteRequest = self.parallelWriteReguestCluster
 
@@ -55,6 +56,7 @@ class Neo4j:
                 try:
                     ip, port, nCore = node.split(":")
                     self.cluster[ip + ":" + port] = int(nCore)
+                    arguments.nb_chunks += 20 * int(nCore)
                 except ValueError as e:
                     logger.print_error(
                         "An error occured while parsing the cluster argument. The correct syntax is --cluster ip1:port1:nCores1,ip2:port2:nCores2,etc"
@@ -127,7 +129,7 @@ class Neo4j:
                 f"Neo4j request file not found : {MODULES_DIRECTORY / 'requests.json'} no such file."
             )
             sys.exit(-1)
-
+        # TODO add comment in json to keep track of which requests are gpo low
         if arguments.gpo_low:
             del self.all_requests["unpriv_users_to_GPO_init"]
             del self.all_requests["unpriv_users_to_GPO_user_enforced"]
@@ -201,11 +203,11 @@ class Neo4j:
         if self.cache_enabled:  # If cache enable, try to retrieve from cache
             result = self.cache.retrieveCacheEntry(request_key)
             if result is not False:  # TODO why not just if result ?
-                if len(result):  # FIXME wtf
-                    logger.print_debug(
-                        "From cache : %s - %d objects"
-                        % (self.all_requests[request_key]["name"], len(result))
-                    )
+                logger.print_debug(
+                    "From cache : %s - %d objects"
+                    % (self.all_requests[request_key]["name"], len(result))
+                )
+                self.all_requests[request_key]["result"] = result
                 return result
 
         request = self.all_requests[request_key]
@@ -244,7 +246,6 @@ class Neo4j:
 
         else:  # Request is not parallelized
             result = self.simpleRequest(self, request_key)
-        request["result"] = result
 
         self.cache.createCacheEntry(request_key, result)
         logger.print_time(
@@ -253,6 +254,7 @@ class Neo4j:
 
         if "postProcessing" in request:
             request["postProcessing"](self, result)
+        request["result"] = result
         return result
 
     @staticmethod
@@ -280,6 +282,8 @@ class Neo4j:
 
     @staticmethod
     def parallelRequestCluster(self, items):
+        if len(items) == 0:
+            return []
         output_type = items[0][4]
         # Total CPU units of all node of the cluster
         max_parallel_requests = sum(self.cluster.values())
@@ -293,7 +297,7 @@ class Neo4j:
 
         temp_results = []
 
-        def process_completed_task(
+        def process_completed_task(  # FIXME there is a problem with the number of objects in the pbar
             number_of_retrieved_objects, task, active_jobs, jobs_done, pbar
         ):
             temporary_result = task.get()
@@ -528,28 +532,90 @@ class Neo4j:
     @staticmethod
     def parallelWriteReguestCluster(self, items):
         result = []
+        # FIXME add a beautiful message saying when a server has finished writing and fix the fucking n of result
+        if len(items) == 0:
+            return result
 
-        all_items = []
-        # FIXME est-ce que c'est grave d'avoir des résultats en mutlitples ?
-        for server, max_jobs in self.cluster.items():
-            all_items += [
+        output_type = items[0][4]
+
+        small_requests_to_do = {
+            server: [
                 (value, identifier, query, arguments, output_type, server)
                 for value, identifier, query, arguments, output_type in items
             ]
-        items = all_items
+            for server in self.cluster.keys()
+        }
 
-        with mp.Pool(sum(self.cluster.values())) as pool:
-            result = []
-            for _ in tqdm.tqdm(
-                pool.istarmap(self.executeParallelRequest, items),
-                total=len(items),
-            ):
-                result += _
-        # duration = round(time.time() - start_time, 2)
-        # logger.print_debug(
-        #     "Write query executed to " + server + " in " + str(duration) + "s"
-        # )
-        print("\n\nehehehh\n\n")
+        pbar = tqdm.tqdm(
+            total=sum(len(lst) for lst in small_requests_to_do.values()),
+            desc="Executing write query to all cluster nodes",
+        )
+
+        # Total CPU units of all node of the cluster
+        max_parallel_requests = sum(self.cluster.values())
+
+        temp_results = []
+
+        with mp.Pool(processes=max_parallel_requests) as pool:
+            # Dict that keep track of which server is executing which requests
+            active_jobs = dict((server, []) for server in self.cluster)
+
+            while sum(len(lst) for lst in small_requests_to_do.values()) > 0:
+                time.sleep(0.01)
+
+                for server, max_jobs in self.cluster.items():
+                    if (
+                        sum(len(lst) for lst in small_requests_to_do.values())
+                        == 0
+                    ):
+                        break
+                    for task in active_jobs[server]:
+                        if task.ready():
+                            active_jobs[server].remove(task)
+                            pbar.update(1)
+
+                    if (
+                        len(active_jobs[server]) < max_jobs
+                        and len(small_requests_to_do[server]) > 0
+                    ):
+                        item = small_requests_to_do[server].pop()
+                        (
+                            value,
+                            identifier,
+                            query,
+                            arguments,
+                            output_type,
+                            server,
+                        ) = item
+
+                        task = pool.apply_async(
+                            self.executeParallelRequest,
+                            (
+                                value,
+                                identifier,
+                                query,
+                                arguments,
+                                output_type,
+                                server,
+                            ),
+                        )
+                        temp_results.append(task)
+                        active_jobs[server].append(task)
+
+            # Waiting for every task to finish
+            # Not in the main loop for better efficiency
+
+            while not all(len(tasks) == 0 for tasks in active_jobs.values()):
+                time.sleep(0.01)
+                for server, max_jobs in self.cluster.items():
+                    for task in active_jobs[server]:
+                        if task.ready():
+                            active_jobs[server].remove(task)
+                            pbar.update(1)
+
+            for r in temp_results:
+                result += r.get()
+        pbar.close()
         return result
 
     @classmethod
