@@ -93,37 +93,48 @@
         "name": "Set da=TRUE to users that are domain admins or administrators or enterprise admin",
         "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_da=TRUE, c.da_types=[]",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_da_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
         "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-526\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_dag": {
         "name": "Set da=TRUE to groups that are domain admins or administrators or enterprise admin",
         "request": "MATCH (c:Group)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_da=TRUE",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+
     },
     "set_dag_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
         "request": "MATCH (c:Group)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-526\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_dagg": {
         "name": "Set da=TRUE to groups that are domain admins or administrators or enterprise admin",
         "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET g.is_da=TRUE",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+
     },
     "set_dagg_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
         "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-526\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET g.da_types = g.da_types + da_type",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_daggg": {
         "name": "Set dag=TRUE to the exact domain admin group (end with 512)",
@@ -153,7 +164,9 @@
         "name": "Set is_group_operator to Operator Groups (cf: ACCOUNT OPERATORS, SERVER OPERATORS, BACKUP OPERATORS, PRINT OPERATORS)",
         "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-551\" OR g.objectid ENDS WITH \"-549\" OR g.objectid ENDS WITH \"-548\" OR g.objectid ENDS WITH \"-550\" SET g.is_group_operator=True SET g.is_group_account_operator = CASE WHEN g.objectid ENDS WITH \"-548\" THEN true END, g.is_group_backup_operator = CASE WHEN g.objectid ENDS WITH \"-551\" THEN true END, g.is_group_server_operator = CASE WHEN g.objectid ENDS WITH \"-549\" THEN true END, g.is_group_print_operator = CASE WHEN g.objectid ENDS WITH \"-550\" THEN true END ",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "BACKUP OPERATORS ENDS WITH = S-1-5-32-551 | ACCOUNT OPERATORS ENDS WITH =  S-1-5-32-548",
+        "_comment_2": "SERVER OPERATORS ENDS WITH = S-1-5-32-549 | PRINT OPERATORS ENDS WITH   = S-1-5-32-550"
     },
     "set_is_operator_member": {
         "name": "Set is_operator_member to objects member of Operator Groups (cf: ACCOUNT OPERATORS, SERVER OPERATORS, BACKUP OPERATORS, PRINT OPERATORS)",
@@ -213,17 +226,12 @@
         "request": "MATCH  (g:Group) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 MATCH (u:User)-[:MemberOf*1..5]->(g) WHERE NOT u.name IS NULL AND NOT g.name IS NULL WITH g AS g1, count(u) AS memberscount SET g1.members_count=memberscount",
         "output_type": "list",
         "scope_query": "MATCH (g:Group) RETURN count(g)",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "Recursivity = 5 seems the good match for ratio results/time when searching MemberOf*1..X when using our servers (else 3)"
     },
     "set_groups_has_members": {
         "name": "Set has_member=True to groups with member, else false ",
         "request": "MATCH (g:Group) SET g.has_members=(CASE WHEN g.members_count>0 THEN TRUE ELSE FALSE END) ",
-        "output_type": "list",
-        "is_a_write_request": "true"
-    },
-    "set_x_nbr_adm_machines": {
-        "name": "Set the number of machines where Computers, Users, or Groups are admin (if too long, set recursivity to 3 into the query)",
-        "request": "OPTIONAL MATCH (u:User) WITH COLLECT (DISTINCT u) AS u1 OPTIONAL MATCH (c:Computer) WITH COLLECT(DISTINCT c) + u1 AS o1 OPTIONAL MATCH (g:Group) WITH COLLECT(DISTINCT g) + o1 AS o2 UNWIND o2 AS o MATCH (o) WITH o ORDER BY o.name MATCH p=(o)-[:AdminTo*1..3]->(c:Computer) WITH count(p) as nbr_admin, o.name as username MATCH (o) WHERE o.name=username SET o.nbr_adm_machines=nbr_admin ",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -249,7 +257,8 @@
         "name": "Set groups which are direct admins of computers",
         "request": "MATCH (g:Group)-[r:AdminTo]->(c:Computer) SET g.is_admin=true RETURN DISTINCT g",
         "output_type": "list",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "_comment": "This block of requests aims at optimizing the path requests by tagging interesting nodes"
     },
     "set_groups_indirect_admin_1": {
         "name": "1 - Set groups which are indirect admins of computers, ie. admins of admin groups (see precedent request)",
@@ -424,7 +433,8 @@
     "objects_admincount": {
         "name": "N objects have AdminSDHolder",
         "request": "MATCH (n{enabled:True, admincount:True}) RETURN n.domain as domain, labels(n)[1] as type, n.name as name ",
-        "output_type": "dict"
+        "output_type": "dict",
+        "_comment": "FIXME: the UNION is messing up the AS and breaks the grid 'UNION MATCH (n{admincount:true}) RETURN n.domain as domain, labels(n)[1] as type, n.name as name',"
     },
     "user_password_never_expires": {
         "name": "Password never expired",
@@ -570,13 +580,15 @@
         "name": "Unprivileged users with path to an Operator Member",
         "request": "MATCH (m:User{path_candidate:true}) WHERE NOT m.name CONTAINS \"MSOL_\" WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties*1..$recursive_level]->(o:User{is_operator_member:true})) WHERE m<>o AND NOT m.name CONTAINS \"MSOL_\" AND ((o.is_da=true AND o.domain<>m.domain) OR (o.is_da=false AND o.domain=m.domain)) RETURN DISTINCT(p) as p",
         "output_type": "Graph", 
-        "scope_query": "MATCH (m:User{path_candidate:true}) WHERE NOT m.name CONTAINS 'MSOL_' RETURN count(m)"
+        "scope_query": "MATCH (m:User{path_candidate:true}) WHERE NOT m.name CONTAINS 'MSOL_' RETURN count(m)",
+        "_comment": "TODO: table with type, account name, is_da (star) and the number of path towards it"
     },
     "vuln_permissions_adminsdholder": {
         "name": "Dangerous permissions on the adminSDHolder object",
         "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties*1..4]->(target1{is_adminsdholder:true})) WHERE n<>target1 AND NOT ANY(no in nodes(p) WHERE (no.is_da=true AND (no.domain=target1.domain OR target1.domain CONTAINS \".\" + no.domain))) RETURN distinct(p) AS p",
         "output_type": "Graph",
-        "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS 'MSOL_' RETURN count(n)"
+        "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS 'MSOL_' RETURN count(n)",
+        "_comment": "TODO : table with les adminsdholder + path with => X objects to SDHolder"
     },
     "da_to_da": {
         "name": "Paths between two domain admins belonging to different domains",
@@ -608,36 +620,42 @@
         "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns*1..]->(g:GPO)) WHERE NOT n=g AND NOT g.name IS NULL RETURN p ",
         "output_type": "Graph",
         "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name IS NULL AND NOT n.name CONTAINS \"MSOL_\" RETURN count(n)",
-        "postProcessing": "Neo4j.setDangerousInboundOnGPOs"
+        "postProcessing": "Neo4j.setDangerousInboundOnGPOs",
+        "_comment": "This is a request for the --gpo_low option"
     },
     "unpriv_users_to_GPO_user_enforced": {
         "name": "Compromisable GPOs to users (enforced)",
         "request": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink {enforced:true}]->(container2)-[r2:Contains*1..]->(n) RETURN p",
         "output_type": "Graph",
-        "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL RETURN count(n)"
+        "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL RETURN count(n)",
+        "_comment": "This is a request for the --gpo_low option"
     },
     "unpriv_users_to_GPO_user_not_enforced": {
         "name": "Compromisable GPOs to users (not enforced)",
         "request": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = \"OU\") RETURN p",
         "output_type": "Graph",
-        "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL RETURN count(n)"
+        "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL RETURN count(n)",
+        "_comment": "This is a request for the --gpo_low option"
     },
     "unpriv_users_to_GPO_computer_enforced": {
         "name": "Compromisable GPOs to computers (enforced)",
         "request": "MATCH (n:Computer) WITH n ORDER BY n.name WITH n SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink {enforced:true}]->(container2)-[r2:Contains*1..]->(n) RETURN p",
         "output_type": "Graph",
-        "scope_query": "MATCH (n:Computer) RETURN count(n)"
+        "scope_query": "MATCH (n:Computer) RETURN count(n)",
+        "_comment": "This is a request for the --gpo_low option"
     },
     "unpriv_users_to_GPO_computer_not_enforced": {
         "name": "Compromisable GPOs to computers (not enforced)",
         "request": "MATCH (n:Computer) WITH n ORDER BY n.name WITH n SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = \"OU\") RETURN p",
         "output_type": "Graph",
-        "scope_query": "MATCH (n:Computer) RETURN count(n)"
+        "scope_query": "MATCH (n:Computer) RETURN count(n)",
+        "_comment": "This is a request for the --gpo_low option"
     },
     "unpriv_users_to_GPO": {
         "name": "Non privileged users to GPO",
         "request": "MATCH (g:GPO) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 OPTIONAL MATCH (g)-[r1:GPLink {enforced:false}]->(container1) WITH g,container1 OPTIONAL MATCH (g)-[r2:GPLink {enforced:true}]->(container2) WITH g,container1,container2 OPTIONAL MATCH p = (g)-[r1:GPLink]->(container1)-[r2:Contains*1..8]->(n1:Computer) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND LABELS(x) = \"OU\") WITH g,p,container2,n1 OPTIONAL MATCH p2 = (g)-[r1:GPLink]->(container2)-[r2:Contains*1..8]->(n2:Computer) RETURN p",
         "output_type": "Graph",
-        "scope_query": "MATCH (g:GPO) RETURN COUNT(g)"
+        "scope_query": "MATCH (g:GPO) RETURN COUNT(g)",
+        "_comment": "this is the normal version of the GPO request"
     }
 }

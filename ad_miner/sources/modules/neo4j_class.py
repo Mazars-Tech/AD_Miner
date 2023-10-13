@@ -65,6 +65,8 @@ class Neo4j:
                     logger.print_error(e)
                     sys.exit(-1)
             if len(self.cluster) == 1:
+                # No need to use distributed write requests
+                # if there is only one computer
                 self.writeRequest = self.simpleRequest
                 self.parallelWriteRequest = self.parallelRequestCluster
 
@@ -90,7 +92,6 @@ class Neo4j:
         inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns"
 
         try:
-            # TODO add comments in json
             self.all_requests = json.loads(
                 (MODULES_DIRECTORY / "requests.json").read_text(
                     encoding="utf-8"
@@ -135,7 +136,6 @@ class Neo4j:
                 f"Neo4j request file not found : {MODULES_DIRECTORY / 'requests.json'} no such file."
             )
             sys.exit(-1)
-        # TODO add comment in json to keep track of which requests are gpo low
         if arguments.gpo_low:
             del self.all_requests["unpriv_users_to_GPO_init"]
             del self.all_requests["unpriv_users_to_GPO_user_enforced"]
@@ -170,6 +170,8 @@ class Neo4j:
     def executeParallelRequest(
         value, identifier, query, arguments, output_type, server
     ):
+        """This function is used in multiprocessing pools
+        to execute multiple query parts in parallel"""
         q = query.replace("PARAM1", str(value)).replace(
             "PARAM2", str(identifier)
         )
@@ -211,7 +213,7 @@ class Neo4j:
     def process_request(self, request_key):
         if self.cache_enabled:  # If cache enable, try to retrieve from cache
             result = self.cache.retrieveCacheEntry(request_key)
-            if result is not False:  # TODO why not just if result ?
+            if result is not False:  # Sometimes result = []
                 logger.print_debug(
                     "From cache : %s - %d objects"
                     % (self.all_requests[request_key]["name"], len(result))
@@ -293,6 +295,8 @@ class Neo4j:
 
     @staticmethod
     def ClusterWriteRequest(self, request_key):
+        """This function ensure that simple write
+        queries are executed to all nodes of a cluster"""
         starting_time = time.time()
         cluster_state = {server: False for server in self.cluster.keys()}
         query = self.all_requests[request_key]["request"]
@@ -334,6 +338,8 @@ class Neo4j:
 
     @staticmethod
     def parallelRequestCluster(self, items):
+        """parallelRequestCluster is able to distribute parts of a
+        complex request to multiple computers"""
         if len(items) == 0:
             return []
         output_type = items[0][4]
@@ -349,7 +355,7 @@ class Neo4j:
 
         temp_results = []
 
-        def process_completed_task(  # FIXME there is a problem with the number of objects in the pbar
+        def process_completed_task(
             number_of_retrieved_objects, task, active_jobs, jobs_done, pbar
         ):
             temporary_result = task.get()
@@ -470,6 +476,8 @@ class Neo4j:
 
     @staticmethod
     def parallelRequestLegacy(self, items):
+        """parallelRequestLegacy is the default way of slicing requests
+        in smaller requests to parallelize it"""
         items = [  # Add bolt to items
             (
                 value,
@@ -516,6 +524,8 @@ class Neo4j:
 
     @staticmethod
     def requestNamesAndHash(server, username, password):
+        """requestNamesAndHash returns the md5 hash of the
+        concatenation of all nodes names and is used by verify_integrity()"""
         q = "MATCH (a) RETURN ID(a),a.name"
         bolt = "bolt://" + server
 
@@ -540,7 +550,8 @@ class Neo4j:
     @staticmethod
     def verify_integrity(self):
         """
-        Hash the names of all nodes to verify that the same database is on every node.
+        Hash the names of all nodes to avoid obvious errors
+        (like trying to use two completely different neo4j databases)
         """
         if len(self.cluster) == 1:
             return
@@ -589,6 +600,8 @@ class Neo4j:
 
     @staticmethod
     def parallelWriteRequestCluster(self, items):
+        """parallelWriteRequestCluster ensures that a parallelised write
+        request is done to each neo4j database"""
         starting_time = time.time()
         result = []
         if len(items) == 0:
@@ -704,6 +717,8 @@ class Neo4j:
 
     @classmethod
     def computePathObject(cls, Paths):
+        """computePathObject allows object to be serialized and should
+        be used when output_type == Graph"""
         final_paths = []
         for path in Paths:
             if path is not None:
