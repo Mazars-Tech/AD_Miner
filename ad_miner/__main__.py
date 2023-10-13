@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 import time
 import traceback
-import os
+import signal
 
 # Local library imports
 from ad_miner.sources.modules import logger, main_page, utils
@@ -23,6 +23,15 @@ from ad_miner.sources.modules.users import Users
 
 # Constants
 SOURCES_DIRECTORY = Path(__file__).parent / "sources"
+
+
+# Catch ctrl-c correctly
+def handler(signum, frame):
+    logger.print_error("Ctrl-c pressed. Exiting...")
+    exit(1)
+
+
+signal.signal(signal.SIGINT, handler)
 
 
 # Do all the requests (if cached, retrieve from cache, else store in cache)
@@ -150,7 +159,7 @@ def main() -> None:
     neo4j = Neo4j(arguments, extract_date)
 
     if arguments.cluster:
-        neo4j.verify_integrity(neo4j, neo4j.cluster)
+        neo4j.verify_integrity(neo4j)
 
     populate_data_and_cache(neo4j)
 

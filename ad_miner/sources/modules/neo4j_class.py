@@ -48,7 +48,8 @@ class Neo4j:
         if len(arguments.cluster) > 0:
             arguments.nb_chunks = 0
             self.parallelRequest = self.parallelRequestCluster
-            self.parallelWriteRequest = self.parallelWriteReguestCluster
+            self.parallelWriteRequest = self.parallelWriteRequestCluster
+            self.writeRequest = self.ClusterWriteRequest
 
             self.cluster = {}
             list_nodes = arguments.cluster.split(",")
@@ -63,9 +64,14 @@ class Neo4j:
                     )
                     logger.print_error(e)
                     sys.exit(-1)
+            if len(self.cluster) == 1:
+                self.writeRequest = self.simpleRequest
+                self.parallelWriteRequest = self.parallelRequestCluster
+
         else:
             self.parallelRequest = self.parallelRequestLegacy
             self.parallelWriteRequest = self.parallelRequestLegacy
+            self.writeRequest = self.simpleRequest
 
         extract_date = self.set_extract_date(str(extract_date_int))
 
@@ -98,7 +104,7 @@ class Neo4j:
                     "dict": dict,
                 }.get(
                     self.all_requests[request_key]["output_type"],
-                )  # TODO maybe add a check for the request type ?
+                )
                 # Replace variables with their values in requests
                 variables_to_replace = {
                     "$extract_date": int(extract_date),
@@ -179,22 +185,25 @@ class Neo4j:
                 if output_type is Graph:
                     for record in tx.run(q):
                         result.append(record["p"])
+                        # Quick way to handle multiple records
+                        # (e.g., RETURN p, p2)
+                        if "p2" in record:
+                            result.append(record["p2"])
+                    try:
+                        result = Neo4j.computePathObject(result)
+                    except Exception as e:
+                        logger.print_error(
+                            "An error while computing path object of this query:\n"
+                            + q
+                        )
+                        logger.print_error(e)
 
                 else:
                     result = tx.run(q)
                     if output_type is list:
                         result = result.values()
-                    else:
+                    else:  # then it should be dict ?
                         result = result.data()
-
-        if output_type is not dict:
-            try:
-                result = Neo4j.computePathObject(result)
-            except Exception as e:
-                logger.print_error(
-                    "An error while computing path object of this query:\n" + q
-                )
-                logger.print_error(e)
 
         return result
 
@@ -244,7 +253,9 @@ class Neo4j:
             else:
                 result = self.parallelRequest(self, items)
 
-        else:  # Request is not parallelized
+        elif "is_a_write_request" in request:  # Not parallelized write request
+            result = self.writeRequest(self, request_key)
+        else:  # Simple not parallelized read request
             result = self.simpleRequest(self, request_key)
 
         self.cache.createCacheEntry(request_key, result)
@@ -278,6 +289,47 @@ class Neo4j:
                         result = result.values()
                     else:
                         result = result.data()
+        return result
+
+    @staticmethod
+    def ClusterWriteRequest(self, request_key):
+        starting_time = time.time()
+        cluster_state = {server: False for server in self.cluster.keys()}
+        query = self.all_requests[request_key]["request"]
+        items = [  # Create all requests to do
+            (
+                -1,
+                -1,
+                query,
+                self.arguments,
+                self.all_requests[request_key]["output_type"],
+                server,
+            )
+            for server in self.cluster.keys()
+        ]
+
+        with mp.Pool(len(self.cluster)) as pool:
+            result = []
+            tasks = {}
+            for item in items:
+                tasks[item[5]] = pool.apply_async(
+                    self.executeParallelRequest, item
+                )
+            while not all(task.ready() for task in tasks.values()):
+                time.sleep(0.01)
+                for server in tasks.keys():
+                    if tasks[server].ready() and not cluster_state[server]:
+                        cluster_state[server] = True
+                        logger.print_success(
+                            "Write query executed by "
+                            + server
+                            + " in "
+                            + str(round(time.time() - starting_time, 2))
+                            + "s."
+                        )
+            temp_results = [task.get() for task in tasks.values()]
+            result = temp_results[0]
+            # Same request executed on every node, we only need the result once
         return result
 
     @staticmethod
@@ -340,6 +392,7 @@ class Neo4j:
             )
             pbar.refresh()
             pbar.update(1)
+            return number_of_retrieved_objects
 
         with mp.Pool(processes=max_parallel_requests) as pool:
             # Dict that keep track of which server is executing which requests
@@ -359,12 +412,14 @@ class Neo4j:
                         break
                     for task in active_jobs[server]:
                         if task.ready():
-                            process_completed_task(
-                                number_of_retrieved_objects,
-                                task,
-                                active_jobs,
-                                jobs_done,
-                                pbar,
+                            number_of_retrieved_objects = (
+                                process_completed_task(
+                                    number_of_retrieved_objects,
+                                    task,
+                                    active_jobs,
+                                    jobs_done,
+                                    pbar,
+                                )
                             )
 
                     if len(active_jobs[server]) < max_jobs:
@@ -399,12 +454,14 @@ class Neo4j:
                 for server, max_jobs in self.cluster.items():
                     for task in active_jobs[server]:
                         if task.ready():
-                            process_completed_task(
-                                number_of_retrieved_objects,
-                                task,
-                                active_jobs,
-                                jobs_done,
-                                pbar,
+                            number_of_retrieved_objects = (
+                                process_completed_task(
+                                    number_of_retrieved_objects,
+                                    task,
+                                    active_jobs,
+                                    jobs_done,
+                                    pbar,
+                                )
                             )
             for r in temp_results:
                 result += r.get()
@@ -445,7 +502,6 @@ class Neo4j:
             + str(ids)
             + " SET g.dangerous_inbound=TRUE"
         )
-        # print(q)
         with self.driver.session() as session:
             with session.begin_transaction() as tx:
                 tx.run(q)
@@ -482,10 +538,12 @@ class Neo4j:
         return hash
 
     @staticmethod
-    def verify_integrity(self, cluster):
+    def verify_integrity(self):
         """
         Hash the names of all nodes to verify that the same database is on every node.
         """
+        if len(self.cluster) == 1:
+            return
         startig_time = time.time()
         logger.print_debug("Starting integrity check")
         hashes = []
@@ -494,7 +552,7 @@ class Neo4j:
         password = self.arguments.password
 
         with mp.Pool(processes=self.arguments.nb_cores) as pool:
-            for server in cluster.keys():
+            for server in self.cluster.keys():
                 task = pool.apply_async(
                     Neo4j.requestNamesAndHash,
                     (
@@ -530,9 +588,9 @@ class Neo4j:
         )
 
     @staticmethod
-    def parallelWriteReguestCluster(self, items):
+    def parallelWriteRequestCluster(self, items):
+        starting_time = time.time()
         result = []
-        # FIXME add a beautiful message saying when a server has finished writing and fix the fucking n of result
         if len(items) == 0:
             return result
 
@@ -545,6 +603,7 @@ class Neo4j:
             ]
             for server in self.cluster.keys()
         }
+        cluster_state = {server: False for server in self.cluster.keys()}
 
         pbar = tqdm.tqdm(
             total=sum(len(lst) for lst in small_requests_to_do.values()),
@@ -573,7 +632,19 @@ class Neo4j:
                         if task.ready():
                             active_jobs[server].remove(task)
                             pbar.update(1)
-
+                    if (
+                        len(small_requests_to_do[server]) == 0
+                        and len(active_jobs[server]) == 0
+                        and not cluster_state[server]
+                    ):
+                        cluster_state[server] = True
+                        logger.print_success(
+                            "Write request executed by "
+                            + server
+                            + " in "
+                            + str(round(time.time() - starting_time, 2))
+                            + "s."
+                        )
                     if (
                         len(active_jobs[server]) < max_jobs
                         and len(small_requests_to_do[server]) > 0
@@ -599,7 +670,8 @@ class Neo4j:
                                 server,
                             ),
                         )
-                        temp_results.append(task)
+                        if server == next(iter(self.cluster)):
+                            temp_results.append(task)
                         active_jobs[server].append(task)
 
             # Waiting for every task to finish
@@ -612,7 +684,19 @@ class Neo4j:
                         if task.ready():
                             active_jobs[server].remove(task)
                             pbar.update(1)
-
+                    if (
+                        len(small_requests_to_do[server]) == 0
+                        and len(active_jobs[server]) == 0
+                        and not cluster_state[server]
+                    ):
+                        cluster_state[server] = True
+                        logger.print_success(
+                            "Write request executed to "
+                            + server
+                            + " in "
+                            + str(round(time.time() - starting_time, 2))
+                            + "s."
+                        )
             for r in temp_results:
                 result += r.get()
         pbar.close()
