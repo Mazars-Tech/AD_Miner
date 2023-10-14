@@ -2,7 +2,7 @@
 name = "AD_Miner"
 version = "0.2.1"
 description = "AD Miner is an Active Directory audit tool that leverages cypher queries to crunch data from the Bloodhound graph database to uncover security weaknesses."
-authors = [ "Thomas Girard", "Jean-Michel Besnard", "Alexandre Lac" ]
+authors = [ "Thomas Girard", "Jean-Michel Besnard", "Alexandre Lac" , "Andreu Jonathan" ]
 license = "GPL-3.0"
 dev-dependencies = { }
 
