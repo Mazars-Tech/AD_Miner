@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 import time
 import traceback
-import os
+import signal
 
 # Local library imports
 from ad_miner.sources.modules import logger, main_page, utils
@@ -22,7 +22,16 @@ from ad_miner.sources.modules.users import Users
 
 
 # Constants
-SOURCES_DIRECTORY = Path(__file__).parent / 'sources'
+SOURCES_DIRECTORY = Path(__file__).parent / "sources"
+
+
+# Catch ctrl-c correctly
+def handler(signum, frame):
+    logger.print_error("Ctrl-c pressed. Exiting...")
+    exit(1)
+
+
+signal.signal(signal.SIGINT, handler)
 
 
 # Do all the requests (if cached, retrieve from cache, else store in cache)
@@ -43,12 +52,11 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
         json.JSONDecodeError: If there is an issue parsing the JSON in config.json.
     """
 
-
-    config_file_path = SOURCES_DIRECTORY / 'modules' / 'config.json'
+    config_file_path = SOURCES_DIRECTORY / "modules" / "config.json"
 
     try:
-        with config_file_path.open('r', encoding='utf-8') as config_file:
-            config_data = json.load(config_file)['requests']
+        with config_file_path.open("r", encoding="utf-8") as config_file:
+            config_data = json.load(config_file)["requests"]
     except (FileNotFoundError, json.JSONDecodeError) as error:
         logger.print_error(f"Error while parsing {config_file_path}: {error}")
         return
@@ -56,15 +64,20 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
     nb_requests = len(neo4j.all_requests.keys())
     requests_count = 0
 
-    for key in neo4j.all_requests.keys():
+    for request_key in neo4j.all_requests.keys():
         requests_count = requests_count + 1
         print(f"[{requests_count}/{nb_requests}] ", end="")
-        req = neo4j.all_requests[key]
-        if not config_data.get(key) or config_data[key] == "true":
+        req = neo4j.all_requests[request_key]
+        if (
+            not config_data.get(request_key)
+            or config_data[request_key] == "true"
+        ):
             try:
-                req["result"] = None
-                req["method"](req)
-            except Exception as error:
+                # req["result"] = None # TODO ok de supp ?
+                neo4j.process_request(neo4j, request_key)
+            except (
+                Exception
+            ) as error:  # TODO maybe catch specific errors here ? And control C
                 logger.print_error(error)
                 logger.print_error(traceback.format_exc())
                 pass
@@ -92,24 +105,23 @@ def prepare_render(arguments) -> None:
     (folder_name / "html").mkdir()
 
     # Create redirect index.html
-    (folder_name / "index.html").write_text("<script>window.location.href = './html/index.html'</script>")
+    (folder_name / "index.html").write_text(
+        "<script>window.location.href = './html/index.html'</script>"
+    )
 
     # Copy assets
     subpaths = {
         "css": SOURCES_DIRECTORY / "html" / "bootstrap" / "css",
         "js": SOURCES_DIRECTORY / "html" / "bootstrap" / "js",
         "icons": SOURCES_DIRECTORY / "html" / "bootstrap" / "icons",
-        "assets": SOURCES_DIRECTORY / "html" / "assets"
+        "assets": SOURCES_DIRECTORY / "html" / "assets",
     }
 
     for sub, src_path in subpaths.items():
         shutil.copytree(src_path, folder_name / sub)
 
-
     for js_file in (SOURCES_DIRECTORY / "js").iterdir():
         shutil.copy2(js_file, folder_name / "js")
-
-
 
 
 def main() -> None:
@@ -120,8 +132,10 @@ def main() -> None:
     if arguments.cluster:
         main_server = arguments.bolt.replace("bolt://", "")
         if main_server not in arguments.cluster:
-            error_message = (f"The main server (-b {arguments.bolt}) should be "
-                             f"part of the cluster you specified (--cluster {arguments.cluster}).")
+            error_message = (
+                f"The main server (-b {arguments.bolt}) should be "
+                f"part of the cluster you specified (--cluster {arguments.cluster})."
+            )
             logger.print_error(error_message)
             return
 
@@ -129,8 +143,12 @@ def main() -> None:
 
     try:
         extract_date_timestamp = pre_request_date(arguments)
-        extract_date = datetime.datetime.fromtimestamp(extract_date_timestamp).strftime("%Y%m%d")
-    except Exception as e:  # Ideally, replace `Exception` with the specific exception you're catching.
+        extract_date = datetime.datetime.fromtimestamp(
+            extract_date_timestamp
+        ).strftime("%Y%m%d")
+    except (
+        Exception
+    ) as e:  # Ideally, replace `Exception` with the specific exception you're catching.
         logger.print_error(f"Error with pre_request_date: {e}")
         extract_date_timestamp = datetime.date.today()
         extract_date = extract_date_timestamp.strftime("%Y%m%d")
@@ -141,7 +159,7 @@ def main() -> None:
     neo4j = Neo4j(arguments, extract_date)
 
     if arguments.cluster:
-        neo4j.verify_integrity(neo4j, neo4j.cluster)
+        neo4j.verify_integrity(neo4j)
 
     populate_data_and_cache(neo4j)
 
@@ -169,12 +187,22 @@ def main() -> None:
             break
     logger.print_success(f"Global grade : {global_grade}")
     dico_name_description = main_page.render(
-        arguments, neo4j, domains, computers, users, objects, rating_dic, extract_date
+        arguments,
+        neo4j,
+        domains,
+        computers,
+        users,
+        objects,
+        rating_dic,
+        extract_date,
     )
 
     neo4j.close()
 
-    logger.print_success(f"Program finished in {utils.timer_format(time.time() - start)}!")
+    logger.print_success(
+        f"Program finished in {utils.timer_format(time.time() - start)}!"
+    )
+
 
 if __name__ == "__main__":
     main()
