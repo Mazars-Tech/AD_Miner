@@ -231,6 +231,12 @@ def create_dico_data(
 
     return dico_data
 
+#Elem 1 singular, Elem2 plural
+def manage_plural(elem, text):
+    if elem > 1:
+        return text[1]
+    return text[0]
+
 
 def render(
     arguments, neo4j, domains, computers, users, objects, data_rating, extract_date
@@ -365,285 +371,69 @@ def render(
     data["minor_risk_list"] = data_rating[3]
     data["handled_risk_list"] = data_rating[4] + data_rating[5]
 
-    # This part has to be the worst code I've ever produced : need factorisation
-    c_permissions = 0
-    c_passwords = 0
-    c_kerberos = 0
+    global_risk_controls = {
+        "immediate_risk":  {"code" :"D", "colors": "245, 75, 75", "i_class": 'bi bi-exclamation-diamond-fill', "div_class": "danger", "panel_key": "list_cards_dangerous_issues", "risk_name": "Critical"},
+        "potential_risk":  {"code" :"C", "colors": "245, 177, 75", "i_class": 'bi bi-exclamation-triangle-fill', "div_class": "orange", "panel_key": "list_cards_alert_issues", "risk_name": "Major"},
+        "minor_risk":      {"code" :"B", "colors": "255, 221, 0", "i_class": 'bi bi-dash-circle-fill', "div_class": "yellow", "panel_key": "list_cards_minor_alert_issues", "risk_name": "Minor"},
+        "handled_risk":    {"code" :"A", "colors": "91, 180, 32", "i_class": 'bi bi-check-circle-fill', "div_class": "success", "panel_key": "", "risk_name": ""}
+    }
     data["permissions_data"] = []
     data["passwords_data"] = []
     data["kerberos_data"] = []
-    for control in data["handled_risk_list"]:
-        if control in dico_category["permission"]:
-            c_permissions += 1
-        elif control in dico_category["passwords"]:
-            c_passwords += 1
-        elif control in dico_category["kerberos"]:
-            c_kerberos += 1
-    if c_permissions > 1:
-        data["permissions_graph_text"] = "vulnerabilities"
-    else:
-        data["permissions_graph_text"] = "vulnerability"
-    if c_permissions > 0:
-        data["permissions_letter_grade"] = "A"
-        data["permissions_letter_color"] = "91, 180, 32"
-        data[
-            "permissions_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 3px;"></i>
-                <span>{c_permissions}</span> {data["permissions_graph_text"]}
-            </p>"""
-    data["permissions_data"] = [c_permissions] + data["permissions_data"]
-
-    if c_passwords > 1:
-        data["passwords_graph_text"] = "vulnerabilities"
-    else:
-        data["passwords_graph_text"] = "vulnerability"
-    if c_passwords > 0:
-        data["passwords_letter_grade"] = "A"
-        data["passwords_letter_color"] = "91, 180, 32"
-        data[
-            "passwords_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 3px;"></i>
-                <span>{c_passwords}</span> {data["passwords_graph_text"]}
-            </p>"""
-    data["passwords_data"] = [c_passwords] + data["passwords_data"]
-
-    if c_kerberos > 1:
-        data["kerberos_graph_text"] = "vulnerabilities"
-    else:
-        data["kerberos_graph_text"] = "vulnerability"
-    if c_kerberos > 0:
-        data["kerberos_letter_grade"] = "A"
-        data["kerberos_letter_color"] = "91, 180, 32"
-        data[
-            "kerberos_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 3px;"></i>
-                <span>{c_kerberos}</span> {data["kerberos_graph_text"]}
-            </p>"""
-    data["kerberos_data"] = [c_kerberos] + data["kerberos_data"]
-
-    c_permissions = 0
-    c_passwords = 0
-    c_kerberos = 0
-    for control in data["minor_risk_list"]:
-        if control in dico_category["permission"]:
-            c_permissions += 1
-        elif control in dico_category["passwords"]:
-            c_passwords += 1
-        elif control in dico_category["kerberos"]:
-            c_kerberos += 1
-    if c_permissions > 1:
-        data["permissions_graph_text"] = "vulnerabilities"
-    else:
-        data["permissions_graph_text"] = "vulnerability"
-    if c_permissions > 0:
-        data["permissions_letter_grade"] = "B"
-        data["permissions_letter_color"] = "255, 221, 0"
-        data[
-            "permissions_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 3px;"></i>
-                <span>{c_permissions}</span> minor {data["permissions_graph_text"]}
-            </p>"""
-    data["permissions_data"] = [c_permissions] + data["permissions_data"]
-
-    if c_passwords > 1:
-        data["passwords_graph_text"] = "vulnerabilities"
-    else:
-        data["passwords_graph_text"] = "vulnerability"
-    if c_passwords > 0:
-        data["passwords_letter_grade"] = "B"
-        data["passwords_letter_color"] = "255, 221, 0"
-        data[
-            "passwords_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 3px;"></i>
-                <span>{c_passwords}</span> minor {data["passwords_graph_text"]}
-            </p>"""
-    data["passwords_data"] = [c_passwords] + data["passwords_data"]
-
-    if c_kerberos > 1:
-        data["kerberos_graph_text"] = "vulnerabilities"
-    else:
-        data["kerberos_graph_text"] = "vulnerability"
-    if c_kerberos > 0:
-        data["kerberos_letter_grade"] = "B"
-        data["kerberos_letter_color"] = "255, 221, 0"
-        data[
-            "kerberos_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 3px;"></i>
-                <span>{c_kerberos}</span> minor {data["kerberos_graph_text"]}
-            </p>"""
-    data["kerberos_data"] = [c_kerberos] + data["kerberos_data"]
-
-    c_permissions = 0
-    c_passwords = 0
-    c_kerberos = 0
-    for control in data["potential_risk_list"]:
-        if control in dico_category["permission"]:
-            c_permissions += 1
-        elif control in dico_category["passwords"]:
-            c_passwords += 1
-        elif control in dico_category["kerberos"]:
-            c_kerberos += 1
-    if c_permissions > 1:
-        data["permissions_graph_text"] = "vulnerabilities"
-    else:
-        data["permissions_graph_text"] = "vulnerability"
-    if c_permissions > 0:
-        data["permissions_letter_grade"] = "C"
-        data["permissions_letter_color"] = "245, 177, 75"
-        data[
-            "permissions_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 3px;"></i>
-                <span>{c_permissions}</span> major {data["permissions_graph_text"]}
-            </p>"""
-    data["permissions_data"] = [c_permissions] + data["permissions_data"]
-
-    if c_passwords > 1:
-        data["passwords_graph_text"] = "vulnerabilities"
-    else:
-        data["passwords_graph_text"] = "vulnerability"
-    if c_passwords > 0:
-        data["passwords_letter_grade"] = "C"
-        data["passwords_letter_color"] = "245, 177, 75"
-        data[
-            "passwords_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 3px;"></i>
-                <span>{c_passwords}</span> major {data["passwords_graph_text"]}
-            </p>"""
-    data["passwords_data"] = [c_passwords] + data["passwords_data"]
-
-    if c_kerberos > 1:
-        data["kerberos_graph_text"] = "vulnerabilities"
-    else:
-        data["kerberos_graph_text"] = "vulnerability"
-    if c_kerberos > 0:
-        data["kerberos_letter_grade"] = "C"
-        data["kerberos_letter_color"] = "245, 177, 75"
-        data[
-            "kerberos_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 3px;"></i>
-                <span>{c_kerberos}</span> major {data["kerberos_graph_text"]}
-            </p>"""
-    data["kerberos_data"] = [c_kerberos] + data["kerberos_data"]
-
-    c_permissions = 0
-    c_passwords = 0
-    c_kerberos = 0
-    for control in data["immediate_risk_list"]:
-        if control in dico_category["permission"]:
-            c_permissions += 1
-        elif control in dico_category["passwords"]:
-            c_passwords += 1
-        elif control in dico_category["kerberos"]:
-            c_kerberos += 1
-    if c_permissions > 1:
-        data["permissions_graph_text"] = "vulnerabilities"
-    else:
-        data["permissions_graph_text"] = "vulnerability"
-    if c_permissions > 0:
-        data["permissions_letter_grade"] = "D"
-        data["permissions_letter_color"] = "245, 75, 75"
-        data[
-            "permissions_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 3px;"></i>
-                <span>{c_permissions}</span> critical {data["permissions_graph_text"]}
-            </p>"""
-    data["permissions_data"] = [c_permissions] + data["permissions_data"]
-
-    if c_passwords > 1:
-        data["passwords_graph_text"] = "vulnerabilities"
-    else:
-        data["passwords_graph_text"] = "vulnerability"
-    if c_passwords > 0:
-        data["passwords_letter_grade"] = "D"
-        data["passwords_letter_color"] = "245, 75, 75"
-        data[
-            "passwords_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 3px;"></i>
-                <span>{c_passwords}</span> critical {data["passwords_graph_text"]}
-            </p>"""
-    data["passwords_data"] = [c_passwords] + data["passwords_data"]
-
-    if c_kerberos > 1:
-        data["kerberos_graph_text"] = "vulnerabilities"
-    else:
-        data["kerberos_graph_text"] = "vulnerability"
-    if c_kerberos > 0:
-        data["kerberos_letter_grade"] = "D"
-        data["kerberos_letter_color"] = "245, 75, 75"
-        data[
-            "kerberos_graph_summary"
-        ] = f"""
-            <p><i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 3px;"></i>
-                <span>{c_kerberos}</span> critical {data["kerberos_graph_text"]}
-            </p>"""
-    data["kerberos_data"] = [c_kerberos] + data["kerberos_data"]
-
-    if data["immediate_risk"] > 0:
-        data[
-            "global_rating"
-        ] = """
-            <div class="alert alert-danger d-flex align-items-center global-rating" role="alert">
-                    <i class="bi bi-exclamation-diamond-fill rating-icon"></i>
-                    <div class="rating-text">
-                    CRITICAL
+    data["global_rating"] = ""
+    for risk_control in global_risk_controls:
+        categories = {"permissions": 0, "passwords": 0, "kerberos": 0}
+        for control in data[f"{risk_control}_list"]:
+            if control in dico_category["permission"]:
+                categories["permissions"] += 1
+            elif control in dico_category["passwords"]:
+                categories["passwords"] += 1
+            elif control in dico_category["kerberos"]:
+                categories["kerberos"] += 1
+        for category in categories:
+            if categories[category] > 0 and f"{category}_letter_grade" not in data:
+                data[f"{category}_letter_grade"] = global_risk_controls[risk_control]["code"]
+                data[f"{category}_letter_color"] = global_risk_controls[risk_control]["colors"]
+                data[
+                    f"{category}_graph_summary"
+                ] = f"""
+                    <p><i class="{global_risk_controls[risk_control]["i_class"]}" style="color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;"></i>
+                        <span>{categories[category]}</span> {global_risk_controls[risk_control]["risk_name"]} {manage_plural(categories[category], ("Vulnerability", "Vulnerabilities"))}
+                    </p>"""
+            data[f"{category}_data"].append(categories[category])
+        
+        #Setting global risk info
+        if not data["global_rating"] and data[risk_control] > 0:
+            data["global_rating"] = f"""
+                <div class="alert alert-{global_risk_controls[risk_control]["div_class"]} d-flex align-items-center global-rating" role="alert">
+                        <i class="{global_risk_controls[risk_control]["i_class"]} rating-icon"></i>
+                        <div class="rating-text">
+                        {global_risk_controls[risk_control]["risk_name"].upper()}
+                        </div>
                     </div>
-                </div>
-        """
-        data["main_letter_grade"] = "D"
-        data["main_letter_color"] = "245, 75, 75"
+            """
+            data["main_letter_grade"] = global_risk_controls[risk_control]["code"]
+            data["main_letter_color"] = global_risk_controls[risk_control]["colors"]
 
-    elif data["potential_risk"] > 0:
-        data[
-            "global_rating"
-        ] = """
-            <div class="alert alert-orange d-flex align-items-center global-rating" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill rating-icon"></i>
-                    <div class="rating-text">
-                    HIGH
-                    </div>
-                </div>
-        """
-        data["main_letter_grade"] = "C"
-        data["main_letter_color"] = "245, 177, 75"
-
-    elif data["minor_risk"] > 0:
-        data[
-            "global_rating"
-        ] = """
-            <div class="alert alert-yellow d-flex align-items-center global-rating" role="alert">
-                    <i class="bi bi-dash-circle-fill rating-icon"></i>
-                    <div class="rating-text">
-                    LIMITED
-                    </div>
-                </div>
-        """
-        data["main_letter_grade"] = "B"
-        data["main_letter_color"] = "255, 221, 0"
-
-    else:
-        data[
-            "global_rating"
-        ] = """
-            <div class="alert alert-success d-flex align-items-center global-rating" role="alert">
-                    <i class="bi bi-check-circle-fill rating-icon"></i>
-                    <div class="rating-text">
-                    SECURED
-                    </div>
-                </div>
-        """
-        data["main_letter_grade"] = "A"
-        data["main_letter_color"] = "91, 180, 32"
+        # Creating cards of the right panel
+        if (global_risk_controls[risk_control]["panel_key"]):
+            data[global_risk_controls[risk_control]["panel_key"]] = ""
+            red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
+            for issue in data[f"{risk_control}_list"]:
+                data[
+                    global_risk_controls[risk_control]["panel_key"]
+                ] += f"""
+                    <a href="{issue}.html">
+                        <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{red_status}">
+                            <div class="card-body">
+                                <h6 class="card-title">{dico_name_title[issue]}</h6>
+                            </div>
+                            <span class="position-absolute top-0 start-100 translate-middle p-2 border border-light rounded-circle"
+                            style="background-color: rgb({global_risk_controls[risk_control]["colors"]});">
+                            </span>
+                            </div>
+                    </a>
+                """
 
     data["main_graph_data"] = list(
         map(
@@ -653,80 +443,10 @@ def render(
         )
     )
 
-    # cards of the right panel
-    data["list_cards_dangerous_issues"] = ""
-    red_status = "<i class='bi bi-exclamation-diamond-fill' style='color: rgb(245, 75, 75); margin-right: 3px;'></i> Immediate risk"
-    for issue in data["immediate_risk_list"]:
-        data[
-            "list_cards_dangerous_issues"
-        ] += f"""
-            <a href="{issue}.html">
-                <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{red_status}">
-                    <div class="card-body">
-                        <h6 class="card-title">{dico_name_title[issue]}</h6>
-                    </div>
-                    <span class="position-absolute top-0 start-100 translate-middle p-2 border border-light rounded-circle"
-                    style="background-color: rgb(245, 75, 75);">
-                    </span>
-                    </div>
-            </a>
-        """
-
-    data["list_cards_alert_issues"] = ""
-    orange_status = "<i class='bi bi-exclamation-triangle-fill' style='color: rgb(245, 177, 75); margin-right: 3px;'></i> Potential risk"
-    for issue in data["potential_risk_list"]:
-        data[
-            "list_cards_alert_issues"
-        ] += f"""
-            <a href="{issue}.html">
-                <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{orange_status}">
-                    <div class="card-body">
-                        <h6 class="card-title">{dico_name_title[issue]}</h6>
-                    </div>
-                    <span class="position-absolute top-0 start-100 translate-middle p-2 border border-light rounded-circle"
-                    style="background-color: rgb(245, 177, 75);">
-                    </span>
-                    </div>
-            </a>
-        """
-
-    data["list_cards_minor_alert_issues"] = ""
-    yellow_status = "<i class='bi bi-dash-circle-fill' style='color: rgb(255, 221, 0); margin-right: 3px;'></i> Minor risk"
-    for issue in data["minor_risk_list"]:
-        data[
-            "list_cards_minor_alert_issues"
-        ] += f"""
-            <a href="{issue}.html">
-                <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{yellow_status}">
-                    <div class="card-body">
-                        <h6 class="card-title">{dico_name_title[issue]}</h6>
-                    </div>
-                    <span class="position-absolute top-0 start-100 translate-middle p-2 border border-light rounded-circle"
-                    style="background-color: rgb(255, 221, 0);">
-                    </span>
-                    </div>
-            </a>
-        """
-
-    # Vulnerability or vulnerabilities ? :D
-    if data["immediate_risk"] > 1:
-        data["vuln_text_immediate_risk"] = "vulnerabilities"
-        data["issue_or_issues"] = "issues"
-    else:
-        data["vuln_text_immediate_risk"] = "vulnerability"
-        data["issue_or_issues"] = "issue"
-
-    if data["potential_risk"] > 1:
-        data["vuln_text_major_risk"] = "vulnerabilities"
-        data["alert_or_alerts"] = "Alerts"
-    else:
-        data["vuln_text_major_risk"] = "vulnerability"
-        data["alert_or_alerts"] = "Alert"
-
-    if data["minor_risk"] > 1:
-        data["minor_alert_or_alerts"] = "Minor issues"
-    else:
-        data["minor_alert_or_alerts"] = "Minor issue"
+    data["issue_or_issues"] = manage_plural(data["immediate_risk"], ("issue", "issues"))
+    data["vuln_text_major_risk"] = manage_plural(data["potential_risk"], ("vulnerability", "vulnerabilities"))
+    data["alert_or_alerts"] = manage_plural(data["potential_risk"], ("Alert", "Alerts"))
+    data["minor_alert_or_alerts"] = manage_plural(data["minor_risk"], ("Minor issue", "Minor issues"))
 
     with open("./render_%s/html/index.html" % arguments.cache_prefix, "w") as page_f:
         with (TEMPLATES_DIRECTORY / "main_header.html").open(mode='r') as header_f:
