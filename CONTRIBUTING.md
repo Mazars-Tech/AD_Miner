@@ -179,7 +179,7 @@ Dashboard that allows you to see:
 
 - function `pathHighlight(selectedNode)`
 
- It is a Breadth-first search (https://en.wikipedia.org/wiki/Breadth-first_search) of the graph to find a path with the minimum of nodes towards the end of the graph. The function takes as input a node and returns an array containing the id of the nodes of an optimal path towards the end. The function takes as input a node and returns an array containing the id of the nodes of the optimal path towards the end. If multiple optimal paths are possible, the function returns the first one it finds.
+ It is a Breadth-first search (https://en.wikipedia.org/wiki/Breadth-first_search) of the graph to find a path with the minimum of nodes towards the end of the graph. The function takes a node as input and returns an array containing the IDs of the nodes forming an optimal path towards the end. If multiple optimal paths are possible, the function returns the first one it finds.
 
 
 

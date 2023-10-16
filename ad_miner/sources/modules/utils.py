@@ -12,18 +12,22 @@ current_date = today.strftime("%Y%m%d")
 MODULES_DIRECTORY = Path(__file__).parent
 
 
-DESCRIPTION_MAP = json.loads((MODULES_DIRECTORY / "description.json").read_text(encoding='utf-8'))
-CONFIG_MAP = json.loads((MODULES_DIRECTORY / "config.json").read_text(encoding='utf-8'))
-HTML_DIRECTORY = Path(__file__).parent.parent / 'html'
-JS_DIRECTORY = Path(__file__).parent.parent / 'js'
+DESCRIPTION_MAP = json.loads(
+    (MODULES_DIRECTORY / "description.json").read_text(encoding="utf-8")
+)
+CONFIG_MAP = json.loads(
+    (MODULES_DIRECTORY / "config.json").read_text(encoding="utf-8")
+)
+HTML_DIRECTORY = Path(__file__).parent.parent / "html"
+JS_DIRECTORY = Path(__file__).parent.parent / "js"
 
-TEMPLATES_DIRECTORY = HTML_DIRECTORY / 'templates'
+TEMPLATES_DIRECTORY = HTML_DIRECTORY / "templates"
 
 
 def args():
     parser = argparse.ArgumentParser(
         prog="AD-miner",
-        description="Active Directory audit tool that leverages cypher queries to crunch data from the Bloodhound graph database to uncover security weaknesses."
+        description="Active Directory audit tool that leverages cypher queries to crunch data from the Bloodhound graph database to uncover security weaknesses.",
     )
     parser.add_argument(
         "-b",
@@ -59,7 +63,11 @@ def args():
         help="Password renewal policy in days. Default: 90",
     )
     parser.add_argument(
-        "-a", "--azure", default=False, help="Use Azure relations", action="store_true"
+        "-a",
+        "--azure",
+        default=False,
+        help="Use Azure relations",
+        action="store_true",
     )
     parser.add_argument(
         "-c",
@@ -69,7 +77,11 @@ def args():
         action="store_true",
     )
     parser.add_argument(
-        "-l", "--level", type=str, default="14", help="Recursive level for path queries"
+        "-l",
+        "--level",
+        type=str,
+        default="14",
+        help="Recursive level for path queries",
     )
     parser.add_argument(
         "-cf",
@@ -89,8 +101,8 @@ def args():
         "-ch",
         "--nb_chunks",
         type=int,
-        default=mp.cpu_count(),
-        help="Number of chunks for parallel neo4j requests. Default : number of CPU",
+        default=20 * mp.cpu_count(),
+        help="Number of chunks for parallel neo4j requests. Default : 20 * number of CPU",
     )
     parser.add_argument(
         "-co",
