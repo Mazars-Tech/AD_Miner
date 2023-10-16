@@ -102,7 +102,7 @@ def args():
         "--nb_chunks",
         type=int,
         default=20 * mp.cpu_count(),
-        help="Number of chunks for parallel neo4j requests. Default : number of CPU",
+        help="Number of chunks for parallel neo4j requests. Default : 20 * number of CPU",
     )
     parser.add_argument(
         "-co",
