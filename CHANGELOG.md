@@ -1,3 +1,23 @@
+# [0.3.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.2.1...v0.3.0) (2023-10-11)
+
+
+### Bug Fixes
+
+* add failsaves for domains missing ([b356841](https://github.com/Mazars-Tech/AD_Miner/commit/b35684168987aa6a528594aa9e3cc48c356b5bb7))
+* comment request and remove entry in config ([1f6f2cf](https://github.com/Mazars-Tech/AD_Miner/commit/1f6f2cf965f1cf042db2df0f976e8af5f2e93fbe))
+* group anomaly acl bug ([7bf0d64](https://github.com/Mazars-Tech/AD_Miner/commit/7bf0d64203b476845001108e069147727861606f))
+* hide list when closing search bar ([52d1e85](https://github.com/Mazars-Tech/AD_Miner/commit/52d1e85e4603c7201f3a25008e2e6103d25ffc7c))
+* remove old comment ([bbd3c21](https://github.com/Mazars-Tech/AD_Miner/commit/bbd3c21f8aca77476074db1a4c38453a464b8b2f))
+* remove unused request that could cause some crash ([b2b734a](https://github.com/Mazars-Tech/AD_Miner/commit/b2b734aaf0649ac1c6df2a700b044614627c9e47))
+
+
+### Features
+
+* add animation, auto-focus and highlight ([12580b2](https://github.com/Mazars-Tech/AD_Miner/commit/12580b2eebff273e6602dab1ef77cb06a22cb6d4))
+* search bar on main page ([f50b539](https://github.com/Mazars-Tech/AD_Miner/commit/f50b539284b712f703dcbfd89f1644d9ab109779))
+
+
+
 ## [0.2.1](https://github.com/Mazars-Tech/AD_Miner/compare/v0.2.0...v0.2.1) (2023-10-05)
 
 
@@ -39,16 +59,6 @@
 
 * bug if 'temporary.txt' does not exist ([2ed8326](https://github.com/Mazars-Tech/AD_Miner/commit/2ed83262b0fd9dd820001045e5cd9a549af293ad))
 * small bug in evolution ([7b75a3d](https://github.com/Mazars-Tech/AD_Miner/commit/7b75a3d406b05612e622d6935d87fadbecbf2bd9))
-
-
-
-## [0.1.1](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.0...v0.1.1) (2023-10-02)
-
-
-### Bug Fixes
-
-* fix days format ([b8227f9](https://github.com/Mazars-Tech/AD_Miner/commit/b8227f9fa738a5f06f1874e1c52871b868653857))
-* removing duplicate /scripts ([8f5d2cd](https://github.com/Mazars-Tech/AD_Miner/commit/8f5d2cdc954dfc321cf250ba505b4072ca4e33bd))
 
 
 
