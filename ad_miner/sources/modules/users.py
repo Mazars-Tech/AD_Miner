@@ -1476,7 +1476,7 @@ class Users:
                         if "No data to show" not in u['List of computers']:
                             count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
                             tmp_dict["Computers admin"] = grid_data_stringify({
-                                "link": quote(str(u['Path to computers'].split("href='", 1)[-1].split("'", 1)[0])),
+                                "link": u['Path to computers'].split("href='", 1)[-1].split("'", 1)[0],
                                 "value": f"Admin of {count} computer{'s' if count > 1 else ''}",
                                 "before_link": f"<i class='bi bi-pc-display-horizontal {str(count).zfill(6)}'></i>"
                             })
