@@ -73,17 +73,16 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
             or config_data[request_key] == "true"
         ):
             try:
-                # req["result"] = None # TODO ok de supp ?
                 neo4j.process_request(neo4j, request_key)
-            except (
-                Exception
-            ) as error:  # TODO maybe catch specific errors here ? And control C
+            except Exception as error:  # FIXME specify exception
                 logger.print_error(error)
                 logger.print_error(traceback.format_exc())
                 pass
         else:
             req["result"] = None
-            logger.print_time("Skipping request : %s    (config.json)" % key)
+            logger.print_time(
+                "Skipping request : %s    (config.json)" % request_key
+            )
 
     logger.print_success("Requests finished !")
 
@@ -146,9 +145,7 @@ def main() -> None:
         extract_date = datetime.datetime.fromtimestamp(
             extract_date_timestamp
         ).strftime("%Y%m%d")
-    except (
-        Exception
-    ) as e:  # Ideally, replace `Exception` with the specific exception you're catching.
+    except Exception as e:  # FIXME specify exception
         logger.print_error(f"Error with pre_request_date: {e}")
         extract_date_timestamp = datetime.date.today()
         extract_date = extract_date_timestamp.strftime("%Y%m%d")
@@ -165,7 +162,8 @@ def main() -> None:
 
     # Generate all secondary pages
 
-    # Each of the objects (domains, computers, users, objects) pulls the data of the corresponding requests from the neo4j object
+    # Each of the objects (domains, computers, users, objects) pulls the data
+    # of the corresponding requests from the neo4j object
     # example : computers.list_total_computers contains the list of computers, pulled from neo4j
     # The data will be used when :
     # - Generating the main page ()
