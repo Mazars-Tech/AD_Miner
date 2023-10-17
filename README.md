@@ -74,7 +74,7 @@ Also, views by categories 'permissions,' 'passwords,' 'kerberos' also allow you 
 
 ## Discord ##
 
-You can join the AD Miner Discord : https://discord.gg/DmfK5dG7
+You can join the AD Miner Discord : https://discord.com/invite/5Hpj4Gs5SS
 
 Feel free to share any thoughts, feedback or issue that you can come up with regarding AD Miner as it's still evolving 🛠️
 
