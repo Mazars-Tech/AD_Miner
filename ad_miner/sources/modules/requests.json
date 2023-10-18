@@ -13,7 +13,7 @@
     },
     "delete_unresolved": {
         "name": "Delete objects for which SID could not resolved",
-        "request": "MATCH (n) WHERE NOT EXISTS(n.domain) OR NOT EXISTS(n.name) DETACH DELETE n",
+        "request": "MATCH (n) WHERE (NOT EXISTS(n.domain) AND NOT (n:Domain)) OR NOT EXISTS(n.name) DETACH DELETE n",
         "output_type": "list",
         "is_a_write_request": "true"
     },
