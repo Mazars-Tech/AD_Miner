@@ -1755,7 +1755,15 @@ class Domains:
             pathLengthss.append({"FROM / TO": '<i class="bi bi-globe2"></i> ' + domain, domain: "-"})
         for path in paths:
             # headers and pathLengths share the same index and it is cheaper to use headers here
-            rowIndex = headers.index(path.nodes[0].name.split('@')[1])
+            try:
+                rowIndex = headers.index(path.nodes[0].name.split('@')[1])
+            except ValueError:
+                # Dirty fix in case there is a domain missing
+                unknown_domain = path.nodes[0].name.split('@')[1]
+                headers.append(unknown_domain)
+                graphDatas[unknown_domain] = {}
+                pathLengthss.append({"FROM / TO": '<i class="bi bi-globe2"></i> ' + unknown_domain, unknown_domain: "-"})
+                rowIndex = headers.index(unknown_domain)
 
             # change value of the cell
             try:

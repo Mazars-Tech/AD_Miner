@@ -1,3 +1,23 @@
+# [0.4.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.3.0...v0.4.0) (2023-10-16)
+
+
+### Bug Fixes
+
+* bad request initialization with specific flags ([f2148d8](https://github.com/Mazars-Tech/AD_Miner/commit/f2148d875bcc6b71d963fb38de6cf2db9b203a17))
+* bug with url encoding ([60df905](https://github.com/Mazars-Tech/AD_Miner/commit/60df905106a9d24125b3a324907ea248d01b8180))
+
+
+### Features
+
+* ctrl-c catching, new method for parallel write queries & potential bug fix ([d3990f4](https://github.com/Mazars-Tech/AD_Miner/commit/d3990f4b531bc51dbc508f8985a9b266187c47dd))
+
+
+### Performance Improvements
+
+* remove 7 useless requests ([f04e1e6](https://github.com/Mazars-Tech/AD_Miner/commit/f04e1e6f3f10fe0d0cc4f846e21210d99c9ca660))
+
+
+
 # [0.3.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.2.1...v0.3.0) (2023-10-11)
 
 
@@ -49,16 +69,6 @@
 * delete index_old that was unnecessary ([df86379](https://github.com/Mazars-Tech/AD_Miner/commit/df863790e003e9776cac1502bd3680ca68b54faa))
 * remove temporary.txt + occurence of gpo_deep ([ff1ebea](https://github.com/Mazars-Tech/AD_Miner/commit/ff1ebea4cd124274393b4ff844c8e22674183afb))
 * replace gpo_deep by default gpo ([806b820](https://github.com/Mazars-Tech/AD_Miner/commit/806b82025edbbe03b980d31076bbf1f748df8aa6))
-
-
-
-## [0.1.2](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.1...v0.1.2) (2023-10-03)
-
-
-### Bug Fixes
-
-* bug if 'temporary.txt' does not exist ([2ed8326](https://github.com/Mazars-Tech/AD_Miner/commit/2ed83262b0fd9dd820001045e5cd9a549af293ad))
-* small bug in evolution ([7b75a3d](https://github.com/Mazars-Tech/AD_Miner/commit/7b75a3d406b05612e622d6935d87fadbecbf2bd9))
 
 
 
