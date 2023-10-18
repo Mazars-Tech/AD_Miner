@@ -1243,7 +1243,7 @@ class Domains:
         for domain in self.domains:
             domain = domain[0]
             nb_user = len(
-                [element for element in users if element["domain"] == domain])
+                [element for element in users if " " + domain in element["domain"]]) # Inclusion because of the icon. Space to check that it's the full domain name.
             nb_computer = len(
                 [element for element in computers if element["domain"] == domain]
             )

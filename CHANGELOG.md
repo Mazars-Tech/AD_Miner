@@ -1,3 +1,14 @@
+## [0.4.1](https://github.com/Mazars-Tech/AD_Miner/compare/v0.4.0...v0.4.1) (2023-10-18)
+
+
+### Bug Fixes
+
+* code typo crash AD Miner when disabling a request in config.json ([fdfd77a](https://github.com/Mazars-Tech/AD_Miner/commit/fdfd77aabd920ce473e58c136a96fe2f0d08ee5c))
+* discord invitation link is now permanent ([2ff56b3](https://github.com/Mazars-Tech/AD_Miner/commit/2ff56b34303696009d233abc3937367679e0ad01))
+* quick fail safe for da to da in case domains were not collected ([06e67ae](https://github.com/Mazars-Tech/AD_Miner/commit/06e67aea90f54e4aebc4736b33e5f7f2c70e0ce4))
+
+
+
 # [0.4.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.3.0...v0.4.0) (2023-10-16)
 
 
@@ -58,17 +69,6 @@
 ### Features
 
 * add warning message normal gpo may be slow ([b80dd3a](https://github.com/Mazars-Tech/AD_Miner/commit/b80dd3ac93864a43c0deb0ec864b566976245a47))
-
-
-
-## [0.1.3](https://github.com/Mazars-Tech/AD_Miner/compare/v0.1.2...v0.1.3) (2023-10-04)
-
-
-### Bug Fixes
-
-* delete index_old that was unnecessary ([df86379](https://github.com/Mazars-Tech/AD_Miner/commit/df863790e003e9776cac1502bd3680ca68b54faa))
-* remove temporary.txt + occurence of gpo_deep ([ff1ebea](https://github.com/Mazars-Tech/AD_Miner/commit/ff1ebea4cd124274393b4ff844c8e22674183afb))
-* replace gpo_deep by default gpo ([806b820](https://github.com/Mazars-Tech/AD_Miner/commit/806b82025edbbe03b980d31076bbf1f748df8aa6))
 
 
 
