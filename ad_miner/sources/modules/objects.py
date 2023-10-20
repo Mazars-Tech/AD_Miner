@@ -1,4 +1,3 @@
-import random
 import time
 
 from ad_miner.sources.modules import logger
@@ -21,6 +20,8 @@ class Objects:
 
         self.objects_to_dcsync = neo4j.all_requests["objects_to_dcsync"]["result"]
         self.dcsync_list = neo4j.all_requests["dcsync_list"]["result"]
+
+        self.dcsync_paths = neo4j.all_requests["set_dcsync1"]["result"] + neo4j.all_requests["set_dcsync2"]["result"]
 
         self.users_nb_domain_admins = neo4j.all_requests["nb_domain_admins"]["result"]
 
@@ -49,6 +50,7 @@ class Objects:
 
         data = []
         for n in self.can_dcsync_nodes:
+            # Graph path to DCSync
             page = Page(
                 self.arguments.cache_prefix,
                 f"path_to_{n.name}_with_dcsync",
@@ -57,20 +59,30 @@ class Objects:
             )
             graph = Graph()
 
-            paths = []
+            paths_left = []
             for path in self.objects_to_dcsync:
                 if path.nodes[-1].name == n.name:
-                    paths.append(path)
+                    paths_left.append(path)
 
-            # TODO : vérifier que le droit DCSync correspond TOUJOURS à un DCSync sur le domaine d'appartenance du noeud
-            # 		-> Si ce n'est pas la cas alors il faut adapter la ligne suivante (n.domain)
-            n.relation_type = "DCSync"
-            end = Node(f"{random.randint(1,10000):06}", "Domain", n.domain, n.domain, "")
-            #rel = Relation(int(str(n.id) + "00" + str(n.id)), [n, end], "DCSync")
-            path = Path([n, end])
-            paths.append(path)
+            graph.setPaths(paths_left)
+            page.addComponent(graph)
+            page.render()
 
-            graph.setPaths(paths)
+            # Graph DCSync detail
+            page = Page(
+                self.arguments.cache_prefix,
+                f"dcsync_from_{n.name}",
+                f"DCSync detail for {n.name}",
+                "can_dcsync_graph",
+            )
+            graph = Graph()
+
+            paths_right = []
+            for path in self.dcsync_paths:
+                if path.nodes[0].name == n.name:
+                    paths_right.append(path)
+
+            graph.setPaths(paths_right)
             page.addComponent(graph)
             page.render()
 
@@ -86,7 +98,7 @@ class Objects:
             else:
                 name_icon = type_icon
 
-            sortClass = str(len(paths)).zfill(6)
+            sortClass = str(len(paths_left)).zfill(6)
             data.append(
                 {
                     "domain": '<i class="bi bi-globe2"></i> ' + n.domain,
@@ -94,7 +106,12 @@ class Objects:
                     "name": name_icon + ' ' + n.name,
                     "path to account": grid_data_stringify({
                         "link": "path_to_%s_with_dcsync.html" % quote(str(n.name)),
-                        "value": f"{len(paths)} paths <i class='bi bi-box-arrow-up-right'></i>",
+                        "value": f"{len(paths_left)} paths <i class='bi bi-box-arrow-up-right'></i>",
+                        "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
+                    }),
+                    "path to dcsync": grid_data_stringify({
+                        "link": "dcsync_from_%s.html" % quote(str(n.name)),
+                        "value": f"DCSync path <i class='bi bi-box-arrow-up-right'></i>",
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     }),
                 }
@@ -107,7 +124,7 @@ class Objects:
             "can_dcsync",
         )
         grid = Grid("DCsync objects")
-        headers = ["domain", "type", "name", "path to account"]
+        headers = ["domain", "type", "name", "path to account", "path to dcsync"]
         grid.setheaders(headers)
         grid.setData(data)
         page.addComponent(grid)
