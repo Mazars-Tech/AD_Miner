@@ -171,7 +171,7 @@ def main() -> None:
     domains = Domains(arguments, neo4j)
     computers = Computers(arguments, neo4j, domains)
     users = Users(arguments, neo4j, domains)
-    objects = Objects(arguments, neo4j)
+    objects = Objects(arguments, neo4j, domains, computers, users)
 
     # Generate the main page
     logger.print_success("Temporary vulnerabilities rating :")

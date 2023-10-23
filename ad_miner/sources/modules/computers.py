@@ -313,7 +313,7 @@ class Computers:
         computers_admin_to_list = generic_computing.getListAdminTo(
             self.list_computers_admin_computers, "source_computer", "target_computer"
         )
-        computers_admin_data_grid = []
+        self.computers_admin_data_grid = []
         for admin_computer, computers_list in computers_admin_to_list.items():
             if admin_computer is not None and computers_list is not None:
                 num_path, nb_domains = self.domain.findAndCreatePathToDaFromComputersList(admin_computer, computers_list)
@@ -337,8 +337,8 @@ class Computers:
                 else:
                     tmp_line["Paths to domain admin"] = "-"
 
-                computers_admin_data_grid.append(tmp_line)
-        computers_admin_data_grid.sort(
+                self.computers_admin_data_grid.append(tmp_line)
+        self.computers_admin_data_grid.sort(
             key=lambda x: x["Computers count"], reverse=True
         )
 
@@ -351,7 +351,7 @@ class Computers:
         )
         grid = Grid("Computers admins of other computers")
         grid.setheaders(["Computer Admin", "Computers count", "Paths to domain admin"])
-        grid.setData(json.dumps(computers_admin_data_grid))
+        grid.setData(json.dumps(self.computers_admin_data_grid))
         page.addComponent(grid)
         page.render()
 
