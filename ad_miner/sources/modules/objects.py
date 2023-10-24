@@ -234,11 +234,11 @@ class Objects:
                     if sens == "right":
                         dictOfGPO[nameOfGPO][headers[4]] += 1
                         dictOfGPO[nameOfGPO]["right_path"].append(path)
-                        dictOfGPO[nameOfGPO]["end_list"].append(end.name)
+                        dictOfGPO[nameOfGPO]["end_list"].append((end.name, end.labels))
                     elif sens == "left":
                         dictOfGPO[nameOfGPO][headers[1]] += 1
                         dictOfGPO[nameOfGPO]["left_path"].append(path)
-                        dictOfGPO[nameOfGPO]["entry_list"].append(start.name)
+                        dictOfGPO[nameOfGPO]["entry_list"].append((start.name, start.labels))
                     else:
                         continue
                 except KeyError:
@@ -251,7 +251,7 @@ class Objects:
                             "right_path": [path],
                             "id": idOfGPO,
                             "entry_list": [],
-                            "end_list": [end.name],
+                            "end_list": [(end.name, end.labels)],
                         }
                     elif sens == "left":
                         dictOfGPO[nameOfGPO] = {
@@ -261,7 +261,7 @@ class Objects:
                             "left_path": [path],
                             "right_path": [],
                             "id": idOfGPO,
-                            "entry_list": [start.name],
+                            "entry_list": [(start.name, start.labels)],
                             "end_list": [],
                         }
                     else:
@@ -272,9 +272,9 @@ class Objects:
             output = []
 
             # Extract all computers admin of computers
-            computers_with_admin_rights = [d["Computer Admin"].split('</i> ')[-1] for d in self.computers.computers_admin_data_grid]
+            self.computers_with_admin_rights = [d["Computer Admin"].split('</i> ')[-1] for d in self.computers.computers_admin_data_grid]
             # Extract all users admin of computers
-            users_with_admin_rights = [d["User"].split('</i> ')[-1] for d in self.users.users_admin_of_computers]
+            self.users_with_admin_rights = [d["User"].split('</i> ')[-1] for d in self.users.users_admin_of_computers]
 
             for _, dict in dictOfGPO.items():
                 self.domain.number_of_gpo += 1
@@ -298,7 +298,7 @@ class Objects:
                         if path.nodes[i].name in self.domain.admin_list:
                             interest = 3
                             break
-                        if path.nodes[i].name in users_with_admin_rights or path.nodes[i].name in computers_with_admin_rights:
+                        if path.nodes[i].name in self.users_with_admin_rights or path.nodes[i].name in self.computers_with_admin_rights:
                             interest = max(2, interest)
                 
                 
@@ -337,7 +337,21 @@ class Objects:
         def formatSmallGrid(list, gpo_name):
             output = []
             for n in list:
-                output.append({gpo_name: n})
+                if n[1] == "Computer":
+                    icon = '<i class="bi bi-pc-display"></i> '
+                elif n[1] == "User":
+                    icon = '<i class="bi bi-person-fill"></i> '
+                elif n[1] == "Domain":
+                    icon = '<i class="bi bi-house-fill"></i> '
+                else:
+                    icon = '<i class="bi bi-question-circle-fill"></i> '
+                
+                if n[0] in self.computers_with_admin_rights or n[0] in self.users_with_admin_rights:
+                    icon = icon + '<i class="bi bi-gem" title="This object has administration rights" style="color:grey;"></i> '
+                if n[0] in self.domain.admin_list:
+                    icon = '<i class="bi bi-gem" title="This user is domain admin" style="color:deepskyblue;"></i> '
+
+                output.append({gpo_name: icon + n[0]})
             return output
 
         headers = [
