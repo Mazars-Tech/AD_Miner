@@ -416,9 +416,9 @@ class Domains:
 
         data = []
         for c in self.computers_not_connected_since_60:
-            data.append({"name": '<i class="bi bi-pc-display"></i> ' + c["name"], "Last logon": days_format(c["days"])})
+            data.append({"name": '<i class="bi bi-pc-display"></i> ' + c["name"], "Last logon": days_format(c["days"]),"Last password set":days_format(c["pwdlastset"]),"Enabled":str(c["enabled"])})
         grid = Grid("Computers not connected since")
-        grid.setheaders(["name", "Last logon"])
+        grid.setheaders(["name", "Last logon","Last password set","Enabled"])
         grid.setData(data)
         page.addComponent(grid)
         page.render()

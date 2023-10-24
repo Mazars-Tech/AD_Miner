@@ -367,7 +367,7 @@
     },
     "computers_not_connected_since": {
         "name": "Computers not connected since",
-        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date - c.lastlogontimestamp)/86400) AS days ORDER BY days DESC ",
+        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date - c.lastlogontimestamp)/86400) as days, toInteger(($extract_date - c.pwdlastset)/86400) as pwdlastset, c.enabled as enabled ORDER BY days DESC ",
         "output_type": "dict"
     },
     "nb_domain_admins": {
