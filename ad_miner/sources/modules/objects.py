@@ -301,12 +301,19 @@ class Objects:
                         if path.nodes[i].name in self.users_with_admin_rights or path.nodes[i].name in self.computers_with_admin_rights:
                             interest = max(2, interest)
                 
+                # Color for stars
+                if interest == 3:
+                    color = "red"
+                elif interest == 2:
+                    color = "orange"
+                else:
+                    color = "green"
                 
-                icon = f"<span class='{interest}'></span><i class='bi bi-star-fill'></i>"*interest + "<i class='bi bi-star'></i>"*(3-interest)
+                icon = f"<span class='{interest}'></span><i class='bi bi-star-fill' style='color: {color}'></i>"*interest + f"<i class='bi bi-star' style='color: {color}'></i>"*(3-interest)
 
                 output.append(
                     {
-                        headers[0]: dict[headers[0]],
+                        headers[0]: '<i class="bi bi-journal-text"></i> ' + dict[headers[0]],
                         headers[1]: f'<i class="bi bi-shuffle {str(dict[headers[1]]).zfill(6)}"></i> ' + str(dict[headers[1]]),
                         headers[2]: {
                             "link": "users_GPO_access-%s-left-graph.html"
