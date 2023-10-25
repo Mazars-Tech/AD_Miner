@@ -56,14 +56,20 @@ Options:
     --evolution             Evolution over time : location of json data files. ex : '../../tests/'
     --cluster               Nodes of the cluster to run parallel neo4j queries. ex : host1:port1:nCore1,host2:port2:nCore2,...
 
+In the graph pages, you can right-click on the graph nodes to cluster them or to open the cluster.
+
+<p align="center">
+    <img src="doc/img/right_click.png" style="height:150px">
+</p>
+
 ## Evolution ##
 
-If you have multiple AD-Miner reports over time, you can easily track the evolution with the `--evolution` argument: each AD-Miner report generates a JSON data file alongside the `index.html file`. You just need to gather these different JSON files into a single folder and specify the path to that folder after the `--evolution` argument.
+If you have multiple AD-Miner reports over time, you can easily track the evolution with the `--evolution` argument: each AD-Miner report generates a JSON data file alongside the `index.html` file. You just need to gather these different JSON files into a single folder and specify the path to that folder after the `--evolution` argument.
 
 A tab called 'Evolution over time'  then appears on the main page.
 
 <p align="center">
-    <img src="doc/img/evolution2.png" style="height:350px">
+    <img src="doc/img/evolution2.png" style="height:400px">
 </p>
 
 Also, views by categories 'permissions,' 'passwords,' 'kerberos' also allow you to track changes over time.
