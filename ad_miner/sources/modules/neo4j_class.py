@@ -43,7 +43,7 @@ def pre_request(arguments):
     try:
         extract_date = datetime.datetime.fromtimestamp(date_lastlogon["last"]).strftime("%Y%m%d")
     except UnboundLocalError as e:
-        logger.print_time("No LastLogon, the date of the report will be today's date")
+        logger.print_warning("No LastLogon, the date of the report will be today's date")
         extract_date_timestamp = datetime.date.today()
         extract_date = extract_date_timestamp.strftime("%Y%m%d")
 
@@ -285,7 +285,7 @@ class Neo4j:
             result = self.simpleRequest(self, request_key)
 
         self.cache.createCacheEntry(request_key, result)
-        logger.print_time(
+        logger.print_warning(
             timer_format(time.time() - start) + " - %d objects" % len(result)
         )
 
@@ -616,7 +616,7 @@ class Neo4j:
 
         stopping_time = time.time()
 
-        logger.print_time(
+        logger.print_warning(
             "Integrity check took "
             + str(round(stopping_time - startig_time, 2))
             + "s"

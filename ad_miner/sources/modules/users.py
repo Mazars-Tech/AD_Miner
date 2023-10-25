@@ -235,7 +235,7 @@ class Users:
         self.genHasSIDHistory()
         self.number_group_ACL_anomaly = self.genGroupAnomalyAcl(domain)
 
-        logger.print_time(timer_format(time.time() - self.start))
+        logger.print_warning(timer_format(time.time() - self.start))
 
     # List of Servers with the most user compromise paths (and if to handle empty cases)
     def genComputersWithMostAdminsPage(self):

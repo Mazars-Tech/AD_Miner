@@ -80,7 +80,7 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
                 pass
         else:
             req["result"] = None
-            logger.print_time(
+            logger.print_warning(
                 "Skipping request : %s    (config.json)" % request_key
             )
 

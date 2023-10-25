@@ -22,7 +22,7 @@ def print_error(info):
     print("%s[!]%s%s" % (bcolors.FAIL, info, bcolors.ENDC))
 
 
-def print_time(info):
+def print_warning(info):
     print("%s[-]%s%s" % (bcolors.WARNING, info, bcolors.ENDC))
 
 
