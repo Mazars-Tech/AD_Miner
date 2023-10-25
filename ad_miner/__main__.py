@@ -140,10 +140,21 @@ def main() -> None:
 
     prepare_render(arguments)
 
-    extract_date, number_objects = pre_request(arguments)
+    extract_date, total_objects, number_relations = pre_request(arguments)
+
+    number_objects = sum([type_label["number_type"] for type_label in total_objects])
+
     if number_objects == 0:
         logger.print_error("Empty neo4j database : you need to fill it with Sharphound (https://github.com/BloodHoundAD/SharpHound), or BloodHound.py (https://github.com/dirkjanm/BloodHound.py) or RustHound (https://github.com/NH-RED-TEAM/RustHound)")
         sys.exit(-1)
+
+    string_information_database = ""
+
+    for type_label in total_objects:
+        string_information_database += f"{type_label['labels(x)'][0]} : {type_label['number_type']} | "
+
+    string_information_database += f"Relations : {number_relations}"
+    logger.print_magenta(string_information_database)
 
     if arguments.extract_date:
         extract_date = arguments.extract_date

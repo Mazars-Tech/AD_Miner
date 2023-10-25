@@ -49,14 +49,20 @@ def pre_request(arguments):
 
     with driver.session() as session:
         with session.begin_transaction() as tx:
+            total_objects = []
             for record in tx.run(
-                "MATCH (x) return count(x)"
+                "MATCH (x) return labels(x), count(labels(x)) AS number_type"
             ):
-                number_objects = record.data()["count(x)"]
+                total_objects.append(record.data())
+
+            for record in tx.run(
+                "MATCH ()-[r]->() RETURN count(r) AS total_relations"
+            ):
+                number_relations = record.data()["total_relations"]
 
     driver.close()
     
-    return extract_date, number_objects
+    return extract_date, total_objects, number_relations
 
 
 
