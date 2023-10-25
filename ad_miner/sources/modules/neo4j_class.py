@@ -20,7 +20,7 @@ from ad_miner.sources.modules.utils import timer_format
 MODULES_DIRECTORY = pathlib(__file__).parent
 
 
-def pre_request_date(arguments):
+def pre_request(arguments):
     driver = GraphDatabase.driver(
         arguments.bolt,
         auth=(arguments.username, arguments.password),
@@ -32,14 +32,32 @@ def pre_request_date(arguments):
                 for record in tx.run(
                     "MATCH (a) WHERE a.lastlogon IS NOT NULL return toInteger(a.lastlogon) as last order by last desc LIMIT 1"
                 ):
-                    date_lastlogon = record.data()
+                    date_lastlogon = record.data()  
         driver.close()
     except Exception as e:
         logger.print_error("Connection to neo4j database impossible.")
         logger.print_error(e)
         driver.close()
         sys.exit(-1)
-    return date_lastlogon["last"]
+
+    try:
+        extract_date = datetime.datetime.fromtimestamp(date_lastlogon["last"]).strftime("%Y%m%d")
+    except UnboundLocalError as e:
+        logger.print_time("No LastLogon, the date of the report will be today's date")
+        extract_date_timestamp = datetime.date.today()
+        extract_date = extract_date_timestamp.strftime("%Y%m%d")
+
+    with driver.session() as session:
+        with session.begin_transaction() as tx:
+            for record in tx.run(
+                "MATCH (x) return count(x)"
+            ):
+                number_objects = record.data()["count(x)"]
+
+    driver.close()
+    
+    return extract_date, number_objects
+
 
 
 class Neo4j:

@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
 # Built-in imports
-import datetime
 import json
 import shutil
 from pathlib import Path
 import time
 import traceback
 import signal
+import sys
 
 # Local library imports
 from ad_miner.sources.modules import logger, main_page, utils
 from ad_miner.sources.modules.computers import Computers
 from ad_miner.sources.modules.domains import Domains
-from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request_date
+from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request
 from ad_miner.sources.modules.objects import Objects
 from ad_miner.sources.modules.rating import rating
 from ad_miner.sources.modules.users import Users
@@ -140,15 +140,10 @@ def main() -> None:
 
     prepare_render(arguments)
 
-    try:
-        extract_date_timestamp = pre_request_date(arguments)
-        extract_date = datetime.datetime.fromtimestamp(
-            extract_date_timestamp
-        ).strftime("%Y%m%d")
-    except Exception as e:  # FIXME specify exception
-        logger.print_error(f"Error with pre_request_date: {e}")
-        extract_date_timestamp = datetime.date.today()
-        extract_date = extract_date_timestamp.strftime("%Y%m%d")
+    extract_date, number_objects = pre_request(arguments)
+    if number_objects == 0:
+        logger.print_error("Empty neo4j database : you need to fill it with Sharphound (https://github.com/BloodHoundAD/SharpHound), or BloodHound.py (https://github.com/dirkjanm/BloodHound.py) or RustHound (https://github.com/NH-RED-TEAM/RustHound)")
+        sys.exit(-1)
 
     if arguments.extract_date:
         extract_date = arguments.extract_date
