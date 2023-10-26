@@ -562,16 +562,19 @@ class Computers:
 
         for line in computer_list:
             os = line["os"]
-            if "Windows" in line["os"] or "windows" in line["os"]:
+            if "windows" in os.lower():
+                os = os.lower()
                 os = os.replace("\xa0", " ")
                 os = os.replace("®", "")
-                os = os.replace(" Server", "")
-                os = os.replace(" Storage", "")
-                os = os.replace(" 2008 R2", " 2008R2")
-                os = os.replace(" 2012 R2", " 2012R2")
-                ver = re.match(r"^Windows ([.a-zA-Z0-9]+)\s", os, re.M | re.I)
+                os = os.replace(" server", "")
+                os = os.replace(" storage", "")
+                os = os.replace(" 2008 r2", " 2008R2")
+                os = os.replace(" 2012 r2", " 2012R2")
+                ver = re.match(r"^windows ([.a-zA-Z0-9]+)\s", os, re.M | re.I)
                 if ver:
-                    os = "Windows " + ver.group(1)
+                    os = "Windows " + ver.group(1).upper()
+                else:
+                    os = os.replace("windows", "Windows")
             else:
                 os = os[0:16] + "[..]"
 
