@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
 # Built-in imports
-import datetime
 import json
 import shutil
 from pathlib import Path
 import time
 import traceback
 import signal
+import sys
 
 # Local library imports
 from ad_miner.sources.modules import logger, main_page, utils
 from ad_miner.sources.modules.computers import Computers
 from ad_miner.sources.modules.domains import Domains
-from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request_date
+from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request
 from ad_miner.sources.modules.objects import Objects
 from ad_miner.sources.modules.rating import rating
 from ad_miner.sources.modules.users import Users
@@ -80,7 +80,7 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
                 pass
         else:
             req["result"] = None
-            logger.print_time(
+            logger.print_warning(
                 "Skipping request : %s    (config.json)" % request_key
             )
 
@@ -140,15 +140,22 @@ def main() -> None:
 
     prepare_render(arguments)
 
-    try:
-        extract_date_timestamp = pre_request_date(arguments)
-        extract_date = datetime.datetime.fromtimestamp(
-            extract_date_timestamp
-        ).strftime("%Y%m%d")
-    except Exception as e:  # FIXME specify exception
-        logger.print_error(f"Error with pre_request_date: {e}")
-        extract_date_timestamp = datetime.date.today()
-        extract_date = extract_date_timestamp.strftime("%Y%m%d")
+    extract_date, total_objects, number_relations = pre_request(arguments)
+
+    number_objects = sum([type_label["number_type"] for type_label in total_objects])
+
+    if number_objects == 0:
+        logger.print_error("Empty neo4j database : you need to collect data with Sharphound (https://github.com/BloodHoundAD/SharpHound), BloodHound.py (https://github.com/dirkjanm/BloodHound.py) or RustHound (https://github.com/NH-RED-TEAM/RustHound)")
+        logger.print_error("And then you can fill your neo4j database with Bloodhound (https://github.com/BloodHoundAD/BloodHound)")
+        sys.exit(-1)
+
+    string_information_database = ""
+
+    for type_label in total_objects:
+        string_information_database += f"{type_label['labels(x)'][0]} : {type_label['number_type']} | "
+
+    string_information_database += f"Relations : {number_relations}"
+    logger.print_magenta(string_information_database)
 
     if arguments.extract_date:
         extract_date = arguments.extract_date

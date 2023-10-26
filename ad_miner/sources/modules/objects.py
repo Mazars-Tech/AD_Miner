@@ -48,7 +48,7 @@ class Objects:
             # Generate all the objects-related pages
 
             self.genNodesDCsyncPage()
-        logger.print_time(timer_format(time.time() - self.start))
+        logger.print_warning(timer_format(time.time() - self.start))
 
         # Nodes that can dcsync
 

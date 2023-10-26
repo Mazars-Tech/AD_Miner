@@ -247,7 +247,7 @@ class Domains:
         self.genEmptyGroups()
         self.genEmptyOUs()
 
-        logger.print_time(timer_format(time.time() - start))
+        logger.print_warning(timer_format(time.time() - start))
 
         # All groups
 

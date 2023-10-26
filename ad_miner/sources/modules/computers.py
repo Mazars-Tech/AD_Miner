@@ -119,7 +119,7 @@ class Computers:
                 )
             )
 
-        logger.print_time(timer_format(time.time() - self.start))
+        logger.print_warning(timer_format(time.time() - self.start))
 
     def generate_stat_laps(self):
         if len(self.list_total_computers) != 0:
