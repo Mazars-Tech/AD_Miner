@@ -184,6 +184,16 @@
                     >Computers</a
                   >
                 </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link stats-link text-primary"
+                    data-bs-toggle="tab"
+                    id="stats-tab-title-overview"
+                    href="#os"
+                    aria-selected="true"
+                    ><i class="bi bi-windows stats-link-icon"></i>OS</a
+                  >
+                </li>
               </ul>
             </div>
 
@@ -348,6 +358,15 @@
                   <h5 class="card-title stats-title">Computers distribution</h5>
                   <div>
                     <canvas id="chart-computers" class="chart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="os_distribution" role="tabpanel">
+                <div class="card-body" id="stats-tab-computers">
+                  <h5 class="card-title stats-title">OS distribution</h5>
+                  <div>
+                    <canvas id="chart-os" class="chart"></canvas>
                   </div>
                 </div>
               </div>
@@ -1477,6 +1496,51 @@
           datasets: [
             {
               label: 'Computers',
+              data: `{{computers_per_domain}}`,
+              backgroundColor: [
+                'rgb(27, 67, 50)',
+                'rgb(45, 106, 79)',
+                'rgb(64, 145, 108)',
+                'rgb(82, 183, 136)',
+                'rgb(116, 198, 157)',
+                'rgb(149, 213, 178)',
+                'rgb(183, 228, 199)',
+                'rgb(216, 243, 220)',
+              ],
+              hoverOffset: 4,
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          plugins: {
+            center_text_doughnut: false,
+            shadow_plugin: false,
+            legend: {
+              position: 'bottom',
+              align: 'start',
+              labels: {
+                boxWidth: 20,
+                font: {
+                  size: 10,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // OS stats chart
+      const ctxOS = document.querySelector('#chart-os');
+      new Chart(ctxOS, {
+        type: 'doughnut',
+        data: {
+          labels: `{{domain_names}}`,
+          datasets: [
+            {
+              label: 'OS',
               data: `{{computers_per_domain}}`,
               backgroundColor: [
                 'rgb(27, 67, 50)',
