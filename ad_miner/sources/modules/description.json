@@ -215,26 +215,26 @@
   "non-dc_with_unconstrained_delegations": {
     "title": "Accounts with unconstrained delegations",
     "description": "These accounts are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
   "graph_path_objects_to_unconstrained_delegation": {
     "description": "Path to accounts that are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
   "non-dc_users_with_unconstrained_delegations": {
     "title": "Users with unconstrained delegations",
     "description": "These user accounts are allowed to connect to any service with the identity of another user who connected to them. It only concerns users that are not sensitive.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
   "graph_path_objects_to_unconstrained_delegation_users": {
     "description": "Path to user accounts that are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 

@@ -26,7 +26,6 @@ dico_category = {
         "kerberoastables",
         "as_rep",
         "non-dc_with_unconstrained_delegations",
-        "non-dc_users_with_unconstrained_delegations",
         "users_constrained_delegations",
         "krb_last_change",
         "graph_list_objects_rbcd",
