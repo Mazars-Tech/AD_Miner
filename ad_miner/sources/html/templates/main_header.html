@@ -188,8 +188,8 @@
                   <a
                     class="nav-link stats-link text-primary"
                     data-bs-toggle="tab"
-                    id="stats-tab-title-overview"
-                    href="#os"
+                    id="stats-tab-title-os"
+                    href="#os_distribution"
                     aria-selected="true"
                     ><i class="bi bi-windows stats-link-icon"></i>OS</a
                   >
@@ -363,7 +363,7 @@
               </div>
 
               <div class="tab-pane fade" id="os_distribution" role="tabpanel">
-                <div class="card-body" id="stats-tab-computers">
+                <div class="card-body" id="stats-tab-os">
                   <h5 class="card-title stats-title">OS distribution</h5>
                   <div>
                     <canvas id="chart-os" class="chart"></canvas>
@@ -1537,21 +1537,12 @@
       new Chart(ctxOS, {
         type: 'doughnut',
         data: {
-          labels: `{{domain_names}}`,
+          labels: `{{os_labels}}`,
           datasets: [
             {
               label: 'OS',
-              data: `{{computers_per_domain}}`,
-              backgroundColor: [
-                'rgb(27, 67, 50)',
-                'rgb(45, 106, 79)',
-                'rgb(64, 145, 108)',
-                'rgb(82, 183, 136)',
-                'rgb(116, 198, 157)',
-                'rgb(149, 213, 178)',
-                'rgb(183, 228, 199)',
-                'rgb(216, 243, 220)',
-              ],
+              data: `{{os_repartition}}`,
+              backgroundColor: `{{os_colors}}`,
               hoverOffset: 4,
             },
           ],

@@ -44,6 +44,20 @@ def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
     data["computers_per_domain"] = [
         k[2] for k in domains.getUserComputersCountPerDomain()
     ]
+    OS_repartition = sorted(computers.all_os.items(), key=lambda x: x[1], reverse=True)
+    data["os_labels"] = [os_rep[0] for os_rep in OS_repartition]
+    data["os_repartition"] = [os_rep[1] for os_rep in OS_repartition]
+
+    base_colors = ['rgb(255, 123, 0)', 'rgb(255, 149, 0)', 'rgb(255, 170, 0)', 'rgb(255, 195, 0)', 'rgb(255, 221, 0)']
+    i = 0
+    data["os_colors"] = []
+    for os in data["os_labels"]:
+        if os in computers.obsolete_os_list:
+            data["os_colors"].append('rgb(139, 0, 0)')
+        else:
+            data["os_colors"].append(base_colors[i])
+            i = (i + 1) % len(base_colors)
+
 
     return data
 
