@@ -544,12 +544,12 @@ class Computers:
         return final_dict
 
     # Create os obsolete list
-    @staticmethod
-    def manageComputersOs(computer_list):
+    def manageComputersOs(self, computer_list):
         if computer_list is None:
             return None
+        self.all_os = {}
         computers_os_obsolete = []
-        obsolete_os_list = [
+        self.obsolete_os_list = [
             "Windows XP",
             "Windows 7",
             "Windows 2000",
@@ -576,7 +576,7 @@ class Computers:
                 else:
                     os = os.replace("windows", "Windows")
             else:
-                os = os[0:16] + "[..]"
+                os = os
 
             # Cleaner way to do a try/except for dictionaries is to use get() :
             lastLogon = line.get("lastLogon", "Not specified")
@@ -587,7 +587,27 @@ class Computers:
                 "Last logon in days": lastLogon,
             }
 
-            if os in obsolete_os_list:
+            # Stats for OS repartition
+            def addToOS(key):
+                if self.all_os.get(key):
+                    self.all_os[key] += 1
+                else:
+                    self.all_os[key] = 1
+            
+            if "windows" in os.lower():
+                addToOS(os)
+            elif "linux" in os.lower() or "ubuntu" in os.lower():
+                addToOS("Linux")
+            elif "mac" in os.lower():
+                addToOS("MacOS")
+            elif "android" in os.lower():
+                addToOS("Android")
+            elif "ios" in os.lower():
+                addToOS("iOS")
+            else:
+                addToOS("Other")
+
+            if os in self.obsolete_os_list:
                 computers_os_obsolete.append(final_line)
         return computers_os_obsolete
 
