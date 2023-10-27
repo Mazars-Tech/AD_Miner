@@ -33,9 +33,6 @@ def rating(users, domains, computers, objects, arguments):
     d[
         presence_of(computers.list_computers_unconstrained_delegations, criticity=2)
     ].append("non-dc_with_unconstrained_delegations")
-    d[presence_of(computers.list_users_unconstrained_delegations, criticity=2)].append(
-        "non-dc_users_with_unconstrained_delegations"
-    )
     d[constrainedDelegation(computers.users_constrained_delegations)].append(
         "users_constrained_delegations"
     )

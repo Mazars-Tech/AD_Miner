@@ -195,9 +195,6 @@ def create_dico_data(
         "non-dc_with_unconstrained_delegations": len(
             computers.computers_non_dc_unconstrained_delegations
         ) if computers.computers_non_dc_unconstrained_delegations else 0,
-        "non-dc_users_with_unconstrained_delegations": len(
-            computers.users_non_dc_unconstrained_delegations
-        ) if computers.users_non_dc_unconstrained_delegations else 0,
         "users_constrained_delegations": len(computers.users_constrained_delegations) if computers.users_constrained_delegations else 0,
         "krb_last_change": max(
             [dict["pass_last_change"] for dict in users.users_krb_pwd_last_set]
@@ -331,7 +328,6 @@ def render(
         "kerberoastables": f"{dico_data['value']['kerberoastables']} kerberoastable accounts",
         "as_rep": f"{dico_data['value']['as_rep']} accounts are AS-REP-roastable",
         "non-dc_with_unconstrained_delegations": f"{dico_data['value']['non-dc_with_unconstrained_delegations']} non-DC with unconstrained delegations",
-        "non-dc_users_with_unconstrained_delegations": f"{dico_data['value']['non-dc_users_with_unconstrained_delegations']} users with unconstrained delegations",
         "users_constrained_delegations": f"{dico_data['value']['users_constrained_delegations']} users with constrained delegations",
         "krb_last_change": f"krbtgt not updated in > {dico_data['value']['krb_last_change']} days",
         "users_admin_of_computers": f"{dico_data['value']['users_admin_of_computers']} users with admin privs.",
