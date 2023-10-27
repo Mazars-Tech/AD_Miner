@@ -494,5 +494,11 @@
     "description": "SID History (Security Identifier History) is a feature that allows a user or group to retain access to resources that they had permissions for in a different domain. This feature is particularly useful in scenarios involving domain migrations, domain trust relationships, or domain reorganizations.",
     "risk": " If an attacker gains control of an account with SID History entries, they may be able to use those historical SIDs to gain unauthorized access to resources in old domains. This is particularly concerning if the attacker can exploit vulnerabilities or weak security practices in the old domain.",
     "poa": "Regularly review and clean up SID History entries for users and groups that no longer require access to resources in old domains."
+  },
+  "cross_domain_admin_privileges":{
+    "title":"List of users that have powerful cross-domain privileges.",
+    "description": "Users privileges are not limited to their domains. Sometimes some users may have direct or non-direct local admin or even domain admin privilege on a foreign domain.",
+    "risk": "Cross-domain privileges are quite dangerous and will help attackers to pivot to other domains if they manage to compromise a domain",
+    "poa": "Review these privileges, this list should be as little as possible."
   }
 }
