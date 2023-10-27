@@ -53,7 +53,8 @@ dico_category = {
         "da_to_da",
         "dangerous_paths",
         "group_anomaly_acl",
-        "has_sid_history"
+        "has_sid_history",
+        "cross_domain_admin_privileges"
     ],
 }
 

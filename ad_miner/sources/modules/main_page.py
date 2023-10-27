@@ -238,7 +238,8 @@ def create_dico_data(
         "group_anomaly_acl": users.number_group_ACL_anomaly,
         "empty_groups": len(domains.empty_groups),
         "empty_ous": len(domains.empty_ous),
-        "has_sid_history": len(users.has_sid_history)
+        "has_sid_history": len(users.has_sid_history),
+        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts
     }
 
     dico_data["color_category"] = dico_rating_color
@@ -367,7 +368,8 @@ def render(
         "group_anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
-        "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History"
+        "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
+        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -566,7 +568,7 @@ def render(
             ],
             "permission": [
                 [19, 65],
-                [10, 30],
+                [8, 28],
                 [25, 20],
                 [28, 60],
                 [5, 50],
@@ -579,12 +581,13 @@ def render(
                 [5, 38],
                 [7, 58],
                 [27, 36],
-                [20, 30],
+                [22, 29],
                 [13, 53],
                 [26, 48],
                 [30, 25],
                 [30, 68],
-                [16, 72]
+                [16, 72],
+                [15,33]
             ],
         }
 

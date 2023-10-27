@@ -657,5 +657,15 @@
         "output_type": "Graph",
         "scope_query": "MATCH (g:GPO) RETURN COUNT(g)",
         "_comment": "this is the normal version of the GPO request"
+    },
+    "cross_domain_local_admins":{
+        "name": "Users that are local admins cross-domain",
+        "request": "MATCH p1=(u{enabled:true})-[r:MemberOf*1..4]->(g:Group{is_admin:true})-[rr:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain WITH collect(distinct p1) as paths OPTIONAL MATCH q=(u{enabled:true})-[r:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain WITH paths + collect(distinct q) as allPaths UNWIND allPaths as p RETURN DISTINCT p",
+        "output_type": "Graph"
+    },
+    "cross_domain_domain_admins":{
+        "name": "Users that are domain admins cross-domain",
+        "request": "MATCH p=(u{enabled:true})-[r:MemberOf*1..4]->(g:Group{is_da:true}) WHERE u.domain <> g.domain AND NOT g.domain CONTAINS u.domain return p",
+        "output_type": "Graph"
     }
 }

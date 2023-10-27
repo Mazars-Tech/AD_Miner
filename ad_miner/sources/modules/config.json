@@ -96,6 +96,7 @@
     "da_to_da": "true",
     "users_password_not_required": "true",
     "get_empty_groups": "true",
-    "has_sid_history": "true"
+    "has_sid_history": "true",
+    "cross_domain":"true"
   }
 }
