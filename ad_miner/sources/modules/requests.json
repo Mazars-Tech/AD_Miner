@@ -91,50 +91,50 @@
     },
     "set_da": {
         "name": "Set da=TRUE to users that are domain admins or administrators or enterprise admin",
-        "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_da=TRUE, c.da_types=[]",
+        "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_da=TRUE, c.da_types=[]",
         "output_type": "list",
         "is_a_write_request": "true",
-        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_da_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
-        "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-526\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
+        "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Schema Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-525\" THEN \"Protected Users\" WHEN g.objectid ENDS WITH \"-526\" THEN \"_ Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Enterprise Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
         "output_type": "list",
         "is_a_write_request": "true",
         "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
-        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_dag": {
         "name": "Set da=TRUE to groups that are domain admins or administrators or enterprise admin",
-        "request": "MATCH (c:Group)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_da=TRUE",
+        "request": "MATCH (c:Group)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_da=TRUE",
         "output_type": "list",
         "is_a_write_request": "true",
-        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
 
     },
     "set_dag_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
-        "request": "MATCH (c:Group)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-526\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
+        "request": "MATCH (c:Group)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Schema Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-525\" THEN \"Protected Users\" WHEN g.objectid ENDS WITH \"-526\" THEN \"_ Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Enterprise Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
         "output_type": "list",
         "is_a_write_request": "true",
         "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
-        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_dagg": {
         "name": "Set da=TRUE to groups that are domain admins or administrators or enterprise admin",
-        "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET g.is_da=TRUE",
+        "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET g.is_da=TRUE",
         "output_type": "list",
         "is_a_write_request": "true",
-        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
 
     },
     "set_dagg_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
-        "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-526\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET g.da_types = g.da_types + da_type",
+        "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Schema Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-525\" THEN \"Protected Users\" WHEN g.objectid ENDS WITH \"-526\" THEN \"_ Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Enterprise Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET g.da_types = g.da_types + da_type",
         "output_type": "list",
         "is_a_write_request": "true",
         "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
-        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_daggg": {
         "name": "Set dag=TRUE to the exact domain admin group (end with 512)",
