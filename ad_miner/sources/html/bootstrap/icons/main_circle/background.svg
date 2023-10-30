@@ -7,9 +7,9 @@
 <path d="M187.574 710.425C331.06 854.483 575.529 855.899 720.425 710.425" stroke="#232A31" stroke-opacity="0.1"/>
 <path d="M720.425 710.425C864.483 566.94 865.899 322.47 720.425 177.575" stroke="#232A31" stroke-opacity="0.1"/>
 <path d="M720.425 177.575C575.531 32.1018 331.06 33.5169 187.574 177.575" stroke="#232A31" stroke-opacity="0.1"/>
-<path d="M125 262L331 374" stroke="#232A31" stroke-opacity="0.1"/>
-<path d="M783 262L577 373" stroke="#232A31" stroke-opacity="0.1"/>
-<path d="M454 819L454 585" stroke="#232A31" stroke-opacity="0.1"/>
+<path d="M829 457L594 457" stroke="#232A31" stroke-opacity="0.1"/>
+<path d="M452 818L453 586" stroke="#232A31" stroke-opacity="0.1"/>
+<path d="M314 457L80 457" stroke="#232A31" stroke-opacity="0.1"/>
 <g filter="url(#filter0_dif_19_1030)">
 <path d="M844 444C844 659.391 669.391 834 454 834C238.609 834 64 659.391 64 444C64 228.609 238.609 54 454 54C669.391 54 844 228.609 844 444Z" fill="white" fill-opacity="0.01" shape-rendering="crispEdges"/>
 </g>
