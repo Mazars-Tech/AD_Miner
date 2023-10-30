@@ -97,6 +97,11 @@
     "users_password_not_required": "true",
     "get_empty_groups": "true",
     "has_sid_history": "true",
-    "cross_domain":"true"
+    "cross_domain":"true",
+    "primaryGroupID_lower_than_1000": "true",
+    "pre_windows_2000_compatible_access_group": "true",
+    "guest_account_enabled": "true",
+    "privileged_accounts_outside_Protected_Users": "true",
+    "up_to_date_admincount": "true"
   }
 }

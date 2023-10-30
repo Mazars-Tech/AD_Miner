@@ -1,5 +1,6 @@
 {
   "template": {
+    "title": "",
     "description": "",
     "interpretation": "",
     "risk": "",
@@ -489,7 +490,7 @@
     "risk": "As unused OUs still retain their privilege but are less monitored, an attacker could exploit one of these to gain further access to the information system.",
     "poa": "Review these OUs and check wether they should have lesser privilege or be deleted."
   },
-    "has_sid_history": {
+  "has_sid_history": {
     "title": "Objects who can exploit SID History",
     "description": "SID History (Security Identifier History) is a feature that allows a user or group to retain access to resources that they had permissions for in a different domain. This feature is particularly useful in scenarios involving domain migrations, domain trust relationships, or domain reorganizations.",
     "risk": " If an attacker gains control of an account with SID History entries, they may be able to use those historical SIDs to gain unauthorized access to resources in old domains. This is particularly concerning if the attacker can exploit vulnerabilities or weak security practices in the old domain.",
@@ -500,5 +501,35 @@
     "description": "Users privileges are not limited to their domains. Sometimes some users may have direct or non-direct local admin or even domain admin privilege on a foreign domain.",
     "risk": "Cross-domain privileges are quite dangerous and will help attackers to pivot to other domains if they manage to compromise a domain",
     "poa": "Review these privileges, this list should be as little as possible."
+  },
+  "primaryGroupID_lower_than_1000": {
+    "title": "List of user with PrimaryGroupID lower than 1000",
+    "description": "Some users or computers have a primaryGroupId attribute outside the recommended default values. PrimaryGroupId values below 1000 are often preferred.",
+    "risk": "In Active Directory, the primaryGroupId attribute of a user or machine account implicitly assigns this account to a group, even if this group is not listed in the user's memberOf attribute. Membership of a group via this attribute does not appear in the list of group members in certain interfaces. This attribute can be used to hide an account's membership of a group.",
+    "poa": "We recommend that you reset the primaryGroupId attributes of the users or computers concerned to their default values."
+  },
+  "pre_windows_2000_compatible_access_group": {
+    "title": "List of unauthenticated users in \"Pre-Windows 2000 Compatible Access\" group",
+    "description": "Unauthenticated accounts in the \"Pre-Windows 2000 Compatible Access\" group.",
+    "risk": "Membership of the \"Pre-Windows 2000 Compatible Access\" group allows to enumerate elements of the Active Directory.",
+    "poa": "The Pre-Windows 2000 Compatible Access group must contain only \"Authenticated Users\"."
+  },
+  "guest_account_enabled": {
+    "title": "List of enabled guests accounts",
+    "description": "One or more guests accounts are activated.",
+    "risk": "The Guest account allows unauthenticated network users to log in as Guest without a password. These unauthorised users can access all resources accessible to the Guest account on the network. This feature means that any shared objects or folders with permissions that allow access to the Guest account, the Domain Guests group, the Guests group, or the Everyone group are accessible on the network, which can lead to data exposure or corruption.",
+    "poa": "The guest account should be disabled."
+  },
+  "privileged_accounts_outside_Protected_Users": {
+    "title": "List of privileged account outside the protected users group.",
+    "description": "Some privileged accounts are not protected by the Protected Users group.",
+    "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
+    "poa": "Privileged accounts must be part of the Protected Users group."
+  },
+  "up_to_date_admincount": {
+    "title": "List of account that are not up-to-date with \"adminCount\"",
+    "description": "These accounts either have an \"adminCount\" attribute set without current privileged group membership, or are privileged accounts missing the \"adminCount\" attribute.",
+    "risk": "Potential security oversight leading to unauthorized access, privilege misrepresentation, or unintended privilege escalation.",
+    "poa": "Consistently audit and rectify any discrepancies in the `adminCount` attribute settings for all accounts, ensuring it aligns with actual privilege levels."
   }
 }
