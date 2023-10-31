@@ -395,13 +395,16 @@ class Domains:
         for da in self.users_nb_domain_admins:
             da["domain"] = '<i class="bi bi-globe2"></i> ' + da["domain"]
             da["name"] = '<i class="bi bi-gem"></i> ' + da["name"]
-            da["enterprise / schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
             da["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["(Enterprise) key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["builtin administrators"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
+            da["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            da["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            da["protected users"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Protected Users" in da["admin type"] else '<i class="bi bi-square"></i>'
+            da["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            da["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            da["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
 
         grid = Grid("Domain admins")
-        grid.setheaders(["domain", "name", "enterprise / schema admin", "domain admin", "(Enterprise) key admin", "builtin administrators"])
+        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "protected users", "key admin", "enterprise key admin", "builtin admin"])
         grid.setData(self.users_nb_domain_admins)
         page.addComponent(grid)
         page.render()
