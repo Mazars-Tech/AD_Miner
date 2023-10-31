@@ -208,6 +208,9 @@ class Users:
 
         self.guest_accounts = neo4j.all_requests["guest_accounts"]["result"]
 
+        self.unpriviledged_users_with_admincount = neo4j.all_requests["unpriviledged_users_with_admincount"]["result"]
+        self.users_nb_domain_admins = neo4j.all_requests["nb_domain_admins"]["result"]
+
         # Generate all the users-related pages
         self.genComputersWithMostAdminsPage()
         self.genServersCompromisablePage()
@@ -237,6 +240,7 @@ class Users:
         self.genHasSIDHistory()
         self.number_group_ACL_anomaly = self.genGroupAnomalyAcl(domain)
         self.genGuestUsers()
+        self.genUpToDateAdmincount()
 
         logger.print_warning(timer_format(time.time() - self.start))
 
@@ -1601,6 +1605,50 @@ class Users:
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + domain}
             tmp_data["name"] = '<i class="bi bi-person-fill"></i> ' + account_name
             tmp_data["enabled"] = "Enabled" if is_enabled else "Disabled"
+            data.append(tmp_data)
+
+        grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+    def genUpToDateAdmincount(self):
+        page = Page(
+            self.arguments.cache_prefix,
+            "up_to_date_admincount",
+            "Priviledged accounts and admincount",
+            "up_to_date_admincount",
+        )
+        grid = Grid("Priviledged accounts and admincount")
+        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "protected users", "key admin", "enterprise key admin", "builtin admin", "admincount"])
+
+        data = []
+
+        for dic in self.users_nb_domain_admins:
+            if dic["admincount"]:
+                continue
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dic["domain"]}
+            tmp_data["name"] = '<i class="bi bi-gem"></i> ' + dic["name"]
+            tmp_data["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["protected users"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Protected Users" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in dic["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["admincount"] = '<i class="bi bi-square"></i>'
+            data.append(tmp_data)
+
+        for name, domain, da_type in self.unpriviledged_users_with_admincount:
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + domain}
+            tmp_data["name"] = '<i class="bi bi-person-fill"></i> ' + name
+            tmp_data["domain admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["schema admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["enterprise admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["protected users"] = '<i class="bi bi-square"></i>'
+            tmp_data["key admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["enterprise key admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["builtin admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["admincount"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
             data.append(tmp_data)
 
         grid.setData(data)

@@ -374,7 +374,7 @@
     },
     "nb_domain_admins": {
         "name": "Number of domain admin accounts",
-        "request": "MATCH (n{enabled:true}) WHERE n.is_da = TRUE RETURN n.domain AS domain, n.name AS name, n.da_types AS `admin type`",
+        "request": "MATCH (n{enabled:true}) WHERE n.is_da = TRUE RETURN n.domain AS domain, n.name AS name, n.da_types AS `admin type`, n.admincount AS `admincount`",
         "output_type": "dict"
     },
     "os": {

@@ -392,20 +392,24 @@ class Domains:
                 count_da[da["domain"]] = 1
         self.max_da_per_domain = max(count_da.values())
 
+        data = []
+
         for da in self.users_nb_domain_admins:
-            da["domain"] = '<i class="bi bi-globe2"></i> ' + da["domain"]
-            da["name"] = '<i class="bi bi-gem"></i> ' + da["name"]
-            da["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["protected users"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Protected Users" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data = {}
+            tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + da["domain"]
+            tmp_data["name"] = '<i class="bi bi-gem"></i> ' + da["name"]
+            tmp_data["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["protected users"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Protected Users" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
+            data.append(tmp_data)
 
         grid = Grid("Domain admins")
         grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "protected users", "key admin", "enterprise key admin", "builtin admin"])
-        grid.setData(self.users_nb_domain_admins)
+        grid.setData(data)
         page.addComponent(grid)
         page.render()
 

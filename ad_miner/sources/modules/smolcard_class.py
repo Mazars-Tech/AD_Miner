@@ -47,7 +47,8 @@ dico_category = {
         "group_anomaly_acl",
         "has_sid_history",
         "cross_domain_admin_privileges",
-        "guest_accounts"
+        "guest_accounts",
+        "up_to_date_admincount"
     ],
     "misc": [
         "computers_os_obsolete",

@@ -167,7 +167,7 @@ def rating(users, domains, computers, objects, arguments):
     d[presence_of(users.has_sid_history, 2)].append("has_sid_history")
     d[rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
     d[1 if len([ude for ude in users.guest_accounts if ude[-1]]) > 0 else 5].append("guest_accounts")
-
+    d[rate_admincount(users.unpriviledged_users_with_admincount, users.users_nb_domain_admins)].append("up_to_date_admincount")
 
     return d
 
@@ -343,11 +343,13 @@ def hasPathToDA(
 #         "vuln_functional_level"
 #     )
 
+
 def rate_vuln_functional_level(req):
     if req != None:
         return min([ret["Level maturity"] for ret in req])
     else:
         return -1
+
 
 def rate_cross_domain_privileges(nb_local_priv,nb_da_priv):
     if nb_da_priv > 0:
@@ -356,3 +358,12 @@ def rate_cross_domain_privileges(nb_local_priv,nb_da_priv):
         return 2
     else:
         return 5
+
+
+def rate_admincount(unpriviledged_users_with_admincount, users_nb_domain_admins):
+    for da_dic in users_nb_domain_admins:
+        if not da_dic["admincount"]:
+            return 1
+    if len(unpriviledged_users_with_admincount) > 0:
+        return 3
+    return 5

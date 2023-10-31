@@ -522,7 +522,7 @@
   },
   "up_to_date_admincount": {
     "title": "List of account that are not up-to-date with \"adminCount\"",
-    "description": "These accounts either have an \"adminCount\" attribute set without current privileged group membership, or are privileged accounts missing the \"adminCount\" attribute.",
+    "description": "These accounts either have an \"admincount\" attribute set without current privileged group membership, or are privileged accounts missing the \"admincount\" attribute.",
     "risk": "Potential security oversight leading to unauthorized access, privilege misrepresentation, or unintended privilege escalation.",
     "poa": "Consistently audit and rectify any discrepancies in the `adminCount` attribute settings for all accounts, ensuring it aligns with actual privilege levels."
   }

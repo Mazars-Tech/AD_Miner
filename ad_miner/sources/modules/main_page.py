@@ -239,7 +239,9 @@ def create_dico_data(
         "empty_ous": len(domains.empty_ous),
         "has_sid_history": len(users.has_sid_history),
         "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts,
-        "guest_accounts": len([ude for ude in users.guest_accounts if ude[-1]])
+        "guest_accounts": len([ude for ude in users.guest_accounts if ude[-1]]),
+        "unpriviledged_users_with_admincount": len(users.unpriviledged_users_with_admincount),
+        "priviledge_users_without_admincount": len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]])
     }
     dico_data["color_category"] = dico_rating_color
 
@@ -331,7 +333,8 @@ def render(
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
         "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
         "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges",
-        "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled"
+        "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled",
+        "up_to_date_admincount": f"{dico_data['value']['priviledge_users_without_admincount']} priviledged accounts don't have admincount and {dico_data['value']['unpriviledged_users_with_admincount']} unpriviledged accounts have admincount"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -545,7 +548,8 @@ def render(
                 [0, 7],
                 [7, 0],
                 [7, 7],
-                [14, 0]
+                [14, 0],
+                [0, 14]
             ],
             "misc": [
                 [70, 41],
