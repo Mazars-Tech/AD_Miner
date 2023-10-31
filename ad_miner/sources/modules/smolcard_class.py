@@ -48,7 +48,8 @@ dico_category = {
         "has_sid_history",
         "cross_domain_admin_privileges",
         "guest_accounts",
-        "up_to_date_admincount"
+        "up_to_date_admincount",
+        "privileged_accounts_outside_Protected_Users"
     ],
     "misc": [
         "computers_os_obsolete",

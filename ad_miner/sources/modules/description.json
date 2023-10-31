@@ -525,5 +525,11 @@
     "description": "These accounts either have an \"admincount\" attribute set without current privileged group membership, or are privileged accounts missing the \"admincount\" attribute.",
     "risk": "Potential security oversight leading to unauthorized access, privilege misrepresentation, or unintended privilege escalation.",
     "poa": "Consistently audit and rectify any discrepancies in the `adminCount` attribute settings for all accounts, ensuring it aligns with actual privilege levels."
+  },
+    "privileged_accounts_outside_Protected_Users": {
+    "title": "List of privileged account outside the protected users group.",
+    "description": "Privileged accounts not protected by the Protected Users group.",
+    "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
+    "poa": "Privileged accounts must be part of the Protected Users group."
   }
 }

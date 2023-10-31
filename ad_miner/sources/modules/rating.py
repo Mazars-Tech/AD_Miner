@@ -167,7 +167,8 @@ def rating(users, domains, computers, objects, arguments):
     d[presence_of(users.has_sid_history, 2)].append("has_sid_history")
     d[rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
     d[1 if len([ude for ude in users.guest_accounts if ude[-1]]) > 0 else 5].append("guest_accounts")
-    d[rate_admincount(users.unpriviledged_users_with_admincount, users.users_nb_domain_admins)].append("up_to_date_admincount")
+    d[rate_admincount(users.unpriviledged_users_with_admincount, users.users_nb_domain_admins)].append("up_to_date_admincount"),
+    d[1 if len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]) > 0 else 5].append("privileged_accounts_outside_Protected_Users")
 
     return d
 
