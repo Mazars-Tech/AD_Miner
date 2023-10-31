@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+import re
+import os
+
+### Force get user input
+terminal_fd = os.open('/dev/tty', os.O_RDONLY)
+os.dup2(terminal_fd, 0)
+os.close(terminal_fd)
+
+### Global vars
+# Unstage all matching by default ?
+globalYes = False
+# Match if diff of a file > line_limit
+line_limit = 1000 
+# Match if filname matches
+filename_flagged = [
+    'render_.*/',           # render_* directory
+    '.*[tT][eE][sS][tT].*', # "test"
+    '.*out.*',              # > out 
+    '.*output.*'            # > output1
+    ]
+# Match if file extension not in array
+valid_extensions = [
+    'py',
+    'js',
+    'css',
+    'html',
+    'json',
+    'png',
+    'svg',
+    'map',
+    'woff',
+    'woff2'
+    ]
+# Contains patterns
+# contains_patterns = {
+#           'pattern1': r'your-regex-pattern-1',
+#           'pattern2': r'your-regex-pattern-2',
+#           # Add more patterns as needed
+#       }
+
+### Main function
+def main():
+    print(in_green(f"Pre-commit checks are running to keep your contrib safe. :)"))
+    staged_files = run_command('git diff --cached --name-only').split()
+
+    for file in staged_files:
+        # File name matches undesired
+        should_continue = True
+        for rex in filename_flagged:
+            if re.search(rex, file):
+                prompt = f"The filename '{file}' matches regex '{rex}'. Unstage file ? [y/all/N] "
+                if get_user_confirmation(prompt):
+                    unstage_file(file)
+                    should_continue = False
+                    break
+        if not should_continue: # Couldn't manage to make it cleaner..;
+            continue
+
+        # Check diff line count
+        diff = run_command(f'git diff --cached {file}')
+        lines = diff.split('\n')
+        if len(lines) > line_limit:
+            prompt = f"The file '{file}' contains more than {line_limit} lines of change. Unstage file ? [y/all/N] "
+            if get_user_confirmation(prompt):
+                unstage_file(file)
+                continue
+
+        # Lack of extension/unknown
+        if file.split('.')[-1] not in valid_extensions:
+            prompt = f"The file '{file}' extension is not in {valid_extensions}. Unstage file ? [y/all/N] "
+            if get_user_confirmation(prompt):
+                unstage_file(file)
+                continue
+                # If one day we want to hard fail the commit :
+                # sys.stderr.write(f"Error: Staged file '{file}' does not have a valid extension.\n")
+                # sys.exit(1)
+
+    # Check the content of staged files for regex matches
+        # for pattern_name, pattern in contains_patterns.items():
+        #     content = run_command(f'git show :{file}')
+        #     if re.search(pattern, content):
+        #         prompt = f"The content of '{file}' matches regex '{pattern_name}'. Unstage file ? [y/all/N] "
+        #         if get_user_confirmation(prompt):
+        #             unstage_file(file)
+        #             continue
+
+
+### UTILS 
+# String to red
+def in_red(prompt):
+    return f"\033[91m[-] {prompt}\033[0m"
+
+# String to green
+def in_green(prompt):
+    return f"\033[92m[+] {prompt}\033[0m"
+
+# Prompt validation
+def get_user_confirmation(prompt):
+    global globalYes
+    if globalYes:
+        return True
+    res = input(in_red(prompt))
+    if res in ['y','Y','yes','Yes','YES']:
+        return True
+    if res in ['a','A','all','All','ALL']:
+        globalYes = True
+        return True
+    return False
+
+# Run command
+def run_command(command):
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        sys.stderr.write(f"Error: {e}\n")
+        sys.exit(1)
+
+# Unstage file
+def unstage_file(file):
+    run_command(f'git reset HEAD -- {os.path.abspath(file)}')
+    print(in_green(f"Unstaged {file}"))
+    # staged_files.remove(file)
+
+
+if __name__ == '__main__':
+    main()
+
