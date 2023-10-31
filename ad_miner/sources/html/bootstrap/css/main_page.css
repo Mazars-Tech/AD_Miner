@@ -449,3 +449,18 @@ a:hover{
   height: 90%;
   margin: 5;
 }
+
+.highlighted {
+  transform: scale(1.4);
+  transition: 0.3s ease;
+  filter: brightness(2);
+}
+.highlighted-red {
+  filter: brightness(2.5);
+}
+.highlighted-orange {
+  filter: brightness(1.2);
+}
+.highlighted-green {
+  filter: brightness(1.2);
+}
