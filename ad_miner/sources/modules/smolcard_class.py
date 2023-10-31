@@ -8,19 +8,12 @@ from ad_miner.sources.modules.utils import DESCRIPTION_MAP, HTML_DIRECTORY
 dico_category = {
     "passwords": [
         "users_pwd_cleartext",
-        "dc_impersonation",
         "users_pwd_not_changed_since",
-        "computers_last_connexion",
         "never_expires",
-        "dormants_accounts",
-        "computers_os_obsolete",  # TODO : put here for balance, but really fits nowhere...
         "computers_without_laps",
-        "vuln_functional_level",
         "can_read_gmsapassword_of_adm",
         "users_password_not_required",
         "can_read_laps",
-        "empty_groups",
-        "empty_ous"
     ],
     "kerberos": [
         "kerberoastables",
@@ -55,6 +48,15 @@ dico_category = {
         "has_sid_history",
         "cross_domain_admin_privileges"
     ],
+    "misc": [
+        "computers_os_obsolete",
+        "dormants_accounts",
+        "dc_impersonation",
+        "computers_last_connexion",
+        "vuln_functional_level",
+        "empty_groups",
+        "empty_ous"
+    ]
 }
 
 
