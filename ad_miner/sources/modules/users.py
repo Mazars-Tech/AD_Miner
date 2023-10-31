@@ -206,6 +206,8 @@ class Users:
 
         self.has_sid_history = neo4j.all_requests["has_sid_history"]["result"]
 
+        self.guest_accounts = neo4j.all_requests["guest_accounts"]["result"]
+
         # Generate all the users-related pages
         self.genComputersWithMostAdminsPage()
         self.genServersCompromisablePage()
@@ -234,6 +236,7 @@ class Users:
         self.generatePasswordNotRequiredPage()
         self.genHasSIDHistory()
         self.number_group_ACL_anomaly = self.genGroupAnomalyAcl(domain)
+        self.genGuestUsers()
 
         logger.print_warning(timer_format(time.time() - self.start))
 
@@ -1576,5 +1579,30 @@ class Users:
         grid.setheaders(headers)
         grid.setData(self.has_sid_history)
 
+        page.addComponent(grid)
+        page.render()
+
+    def genGuestUsers(self):
+        page = Page(
+            self.arguments.cache_prefix,
+            "guest_accounts",
+            "Guest accounts",
+            "guest_accounts",
+        )
+        grid = Grid("Guest accounts")
+        grid.setheaders(["domain", "name", "enabled"])
+
+        # Sort accounts with enabled accounts first
+        guest_list = [ude for ude in self.guest_accounts if ude[-1]]
+        guest_list += [ude for ude in self.guest_accounts if not ude[-1]]
+
+        data = []
+        for account_name, domain, is_enabled in guest_list:
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + domain}
+            tmp_data["name"] = '<i class="bi bi-person-fill"></i> ' + account_name
+            tmp_data["enabled"] = "Enabled" if is_enabled else "Disabled"
+            data.append(tmp_data)
+
+        grid.setData(data)
         page.addComponent(grid)
         page.render()

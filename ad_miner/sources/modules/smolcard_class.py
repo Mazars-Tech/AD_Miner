@@ -46,7 +46,8 @@ dico_category = {
         "dangerous_paths",
         "group_anomaly_acl",
         "has_sid_history",
-        "cross_domain_admin_privileges"
+        "cross_domain_admin_privileges",
+        "guest_accounts"
     ],
     "misc": [
         "computers_os_obsolete",

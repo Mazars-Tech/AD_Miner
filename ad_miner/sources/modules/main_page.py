@@ -238,9 +238,9 @@ def create_dico_data(
         "empty_groups": len(domains.empty_groups),
         "empty_ous": len(domains.empty_ous),
         "has_sid_history": len(users.has_sid_history),
-        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts
+        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts,
+        "guest_accounts": len([ude for ude in users.guest_accounts if ude[-1]])
     }
-
     dico_data["color_category"] = dico_rating_color
 
     return dico_data
@@ -330,7 +330,8 @@ def render(
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
         "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
-        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges"
+        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges",
+        "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -529,16 +530,22 @@ def render(
                 [16, 20],
                 [22, 14],
                 [26, 75],
-                [5, 38],
-                [41, 72],
+                [6, 34],
+                [7, 58],
                 [27, 36],
                 [41, 25],
                 [42, 90],
                 [25, 48],
                 [30, 25],
-                [33, 68],
-                [34, 83],
-                [15,33],
+                [30, 68],
+                [16, 72],
+                [15, 33],
+                [5, 42],
+                [0, 0],
+                [0, 7],
+                [7, 0],
+                [7, 7],
+                [14, 0]
             ],
             "misc": [
                 [70, 41],

@@ -514,11 +514,11 @@
     "risk": "Membership of the \"Pre-Windows 2000 Compatible Access\" group allows to enumerate elements of the Active Directory.",
     "poa": "The Pre-Windows 2000 Compatible Access group must contain only \"Authenticated Users\"."
   },
-  "guest_account_enabled": {
-    "title": "List of enabled guests accounts",
-    "description": "One or more guests accounts are activated.",
+  "guest_accounts": {
+    "title": "Guest accounts",
+    "description": "List of guest accounts",
     "risk": "The Guest account allows unauthenticated network users to log in as Guest without a password. These unauthorised users can access all resources accessible to the Guest account on the network. This feature means that any shared objects or folders with permissions that allow access to the Guest account, the Domain Guests group, the Guests group, or the Everyone group are accessible on the network, which can lead to data exposure or corruption.",
-    "poa": "The guest account should be disabled."
+    "poa": "Guests accounts should be disabled."
   },
   "up_to_date_admincount": {
     "title": "List of account that are not up-to-date with \"adminCount\"",
