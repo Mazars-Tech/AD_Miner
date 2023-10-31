@@ -1472,7 +1472,9 @@ class Domains:
         final_data = []
         for dico in self.vuln_functional_level:
             d = dico.copy()
-            if d['Level maturity'] <= 1:
+            if d['Level maturity'] is None:
+                continue
+            elif d['Level maturity'] <= 1:
                 color = "red"
             elif d['Level maturity'] <= 3:
                 color = "orange"
