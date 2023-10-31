@@ -525,6 +525,16 @@
                     </div>
                     <div>{{kerberos_graph_summary}}</div>
                   </div>
+                  <div class="col-graph-details">
+                    <div>
+                      <canvas
+                        id="chart-details-4"
+                        class="chart-details"
+                      ></canvas>
+                      <h5 class="card-title chart-details-title">Misc</h5>
+                    </div>
+                    <div>{{misc_graph_summary}}</div>
+                  </div>
                 </div>
               </div>
 
@@ -1755,6 +1765,51 @@
           },
         },
       });
+
+
+      const ctxDetail4 = document.querySelector('#chart-details-4');
+      new Chart(ctxDetail4, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical', 'Major', 'Minor', 'Handled'],
+          datasets: [
+            {
+              label: 'Vulnerabilities',
+              cutout: '60%',
+              data: `{{misc_data}}`,
+              backgroundColor: [
+                'rgba(245, 75, 75, 0.9)',
+                'rgba(245, 177, 75, 0.9)',
+                'rgba(255, 221, 0, 0.9)',
+                'rgba(91, 180, 32, 0.9)',
+              ],
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          layout: {
+            padding: 10,
+          },
+          elements: {
+            center: {
+              text: '{{misc_letter_grade}}',
+              color: 'rgb({{misc_letter_color}})',
+              fontStyle: 'Arial',
+              fontSize: '50px',
+            },
+          },
+          plugins: {
+            shadow_plugin: false,
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+
 
       // Tooltip management
       const tooltipTriggerList = document.querySelectorAll(
