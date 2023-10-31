@@ -44,6 +44,20 @@ def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
     data["computers_per_domain"] = [
         k[2] for k in domains.getUserComputersCountPerDomain()
     ]
+    OS_repartition = sorted(computers.all_os.items(), key=lambda x: x[1], reverse=True)
+    data["os_labels"] = [os_rep[0] for os_rep in OS_repartition]
+    data["os_repartition"] = [os_rep[1] for os_rep in OS_repartition]
+
+    base_colors = ['rgb(255, 123, 0)', 'rgb(255, 149, 0)', 'rgb(255, 170, 0)', 'rgb(255, 195, 0)', 'rgb(255, 221, 0)']
+    i = 0
+    data["os_colors"] = []
+    for os in data["os_labels"]:
+        if os in computers.obsolete_os_list:
+            data["os_colors"].append('rgb(139, 0, 0)')
+        else:
+            data["os_colors"].append(base_colors[i])
+            i = (i + 1) % len(base_colors)
+
 
     return data
 
@@ -181,9 +195,6 @@ def create_dico_data(
         "non-dc_with_unconstrained_delegations": len(
             computers.computers_non_dc_unconstrained_delegations
         ) if computers.computers_non_dc_unconstrained_delegations else 0,
-        "non-dc_users_with_unconstrained_delegations": len(
-            computers.users_non_dc_unconstrained_delegations
-        ) if computers.users_non_dc_unconstrained_delegations else 0,
         "users_constrained_delegations": len(computers.users_constrained_delegations) if computers.users_constrained_delegations else 0,
         "krb_last_change": max(
             [dict["pass_last_change"] for dict in users.users_krb_pwd_last_set]
@@ -224,7 +235,8 @@ def create_dico_data(
         "group_anomaly_acl": users.number_group_ACL_anomaly,
         "empty_groups": len(domains.empty_groups),
         "empty_ous": len(domains.empty_ous),
-        "has_sid_history": len(users.has_sid_history)
+        "has_sid_history": len(users.has_sid_history),
+        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts
     }
 
     dico_data["color_category"] = dico_rating_color
@@ -316,7 +328,6 @@ def render(
         "kerberoastables": f"{dico_data['value']['kerberoastables']} kerberoastable accounts",
         "as_rep": f"{dico_data['value']['as_rep']} accounts are AS-REP-roastable",
         "non-dc_with_unconstrained_delegations": f"{dico_data['value']['non-dc_with_unconstrained_delegations']} non-DC with unconstrained delegations",
-        "non-dc_users_with_unconstrained_delegations": f"{dico_data['value']['non-dc_users_with_unconstrained_delegations']} users with unconstrained delegations",
         "users_constrained_delegations": f"{dico_data['value']['users_constrained_delegations']} users with constrained delegations",
         "krb_last_change": f"krbtgt not updated in > {dico_data['value']['krb_last_change']} days",
         "users_admin_of_computers": f"{dico_data['value']['users_admin_of_computers']} users with admin privs.",
@@ -353,7 +364,8 @@ def render(
         "group_anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
-        "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History"
+        "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
+        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -552,7 +564,7 @@ def render(
             ],
             "permission": [
                 [19, 65],
-                [10, 30],
+                [8, 28],
                 [25, 20],
                 [28, 60],
                 [5, 50],
@@ -565,12 +577,13 @@ def render(
                 [5, 38],
                 [7, 58],
                 [27, 36],
-                [20, 30],
+                [22, 29],
                 [13, 53],
                 [26, 48],
                 [30, 25],
                 [30, 68],
-                [16, 72]
+                [16, 72],
+                [15,33]
             ],
         }
 

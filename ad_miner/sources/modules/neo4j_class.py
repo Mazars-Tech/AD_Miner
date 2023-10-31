@@ -20,7 +20,7 @@ from ad_miner.sources.modules.utils import timer_format
 MODULES_DIRECTORY = pathlib(__file__).parent
 
 
-def pre_request_date(arguments):
+def pre_request(arguments):
     driver = GraphDatabase.driver(
         arguments.bolt,
         auth=(arguments.username, arguments.password),
@@ -32,14 +32,38 @@ def pre_request_date(arguments):
                 for record in tx.run(
                     "MATCH (a) WHERE a.lastlogon IS NOT NULL return toInteger(a.lastlogon) as last order by last desc LIMIT 1"
                 ):
-                    date_lastlogon = record.data()
+                    date_lastlogon = record.data()  
         driver.close()
     except Exception as e:
         logger.print_error("Connection to neo4j database impossible.")
         logger.print_error(e)
         driver.close()
         sys.exit(-1)
-    return date_lastlogon["last"]
+
+    try:
+        extract_date = datetime.datetime.fromtimestamp(date_lastlogon["last"]).strftime("%Y%m%d")
+    except UnboundLocalError as e:
+        logger.print_warning("No LastLogon, the date of the report will be today's date")
+        extract_date_timestamp = datetime.date.today()
+        extract_date = extract_date_timestamp.strftime("%Y%m%d")
+
+    with driver.session() as session:
+        with session.begin_transaction() as tx:
+            total_objects = []
+            for record in tx.run(
+                "MATCH (x) return labels(x), count(labels(x)) AS number_type"
+            ):
+                total_objects.append(record.data())
+
+            for record in tx.run(
+                "MATCH ()-[r]->() RETURN count(r) AS total_relations"
+            ):
+                number_relations = record.data()["total_relations"]
+
+    driver.close()
+    
+    return extract_date, total_objects, number_relations
+
 
 
 class Neo4j:
@@ -81,7 +105,7 @@ class Neo4j:
         self.password_renewal = int(arguments.renewal_password)
         # We only use the Azure relationships when requested to do so
 
-        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets"
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations"
 
         if arguments.azure:
             properties += "|AZAddMembers|AZContains|AZContributor|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZOwns|AZPrivilegedRoleAdmin|AZResetPassword|AZUserAccessAdministrator|AZAppAdmin|AZCloudAppAdmin|AZRunsAs|AZKeyVaultContributor|AddSelf|WriteSPN|AddKeyCredentialLink|AZAddSecret|AZAvereContributor|AZExecuteCommand|AZGrant|AZGrantSelf|AZHasRole|AZMemberOf|AZOwner|AZVMAdminLogin"
@@ -261,7 +285,7 @@ class Neo4j:
             result = self.simpleRequest(self, request_key)
 
         self.cache.createCacheEntry(request_key, result)
-        logger.print_time(
+        logger.print_warning(
             timer_format(time.time() - start) + " - %d objects" % len(result)
         )
 
@@ -592,7 +616,7 @@ class Neo4j:
 
         stopping_time = time.time()
 
-        logger.print_time(
+        logger.print_warning(
             "Integrity check took "
             + str(round(stopping_time - startig_time, 2))
             + "s"

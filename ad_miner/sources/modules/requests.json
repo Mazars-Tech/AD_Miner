@@ -176,14 +176,16 @@
     },
     "set_dcsync1": {
         "name": "Set dcsync=TRUE to nodes that can DCSync (GetChanges/GetChangesAll)",
-        "request": "MATCH p=allShortestPaths((n1)-[:MemberOf|GetChanges*1..5]->(u:Domain)) WHERE n1 <> u WITH n1 MATCH p2=(n1)-[:MemberOf|GetChangesAll*1..5]->(u:Domain) WHERE n1 <> u AND NOT n1.name IS NULL AND (((n1.is_da IS NULL OR n1.is_da=FALSE) AND (n1.is_dc IS NULL OR n1.is_dc=FALSE)) OR (NOT u.domain CONTAINS '.' + n1.domain AND n1.domain <> u.domain)) SET n1.can_dcsync=TRUE RETURN DISTINCT p2 as p",
+        "request": "MATCH (n1) WITH n1 ORDER BY n1.name SKIP PARAM1 LIMIT PARAM2 MATCH p=allShortestPaths((n1)-[:MemberOf|GetChanges*1..5]->(u:Domain)) WHERE n1 <> u WITH n1 MATCH p2=(n1)-[:MemberOf|GetChangesAll*1..5]->(u:Domain) WHERE n1 <> u AND NOT n1.name IS NULL AND (((n1.is_da IS NULL OR n1.is_da=FALSE) AND (n1.is_dc IS NULL OR n1.is_dc=FALSE)) OR (NOT u.domain CONTAINS '.' + n1.domain AND n1.domain <> u.domain)) SET n1.can_dcsync=TRUE RETURN DISTINCT p2 as p",
         "output_type": "Graph",
+        "scope_query": "MATCH (n1) return count(n1)",
         "is_a_write_request": "true"
     },
     "set_dcsync2": {
         "name": "Set dcsync=TRUE to nodes that can DCSync (GenericAll/AllExtendedRights)",
-        "request": "MATCH p3=allShortestPaths((n2)-[:MemberOf|GenericAll|AllExtendedRights*1..5]->(u:Domain)) WHERE n2 <> u AND NOT n2.name IS NULL AND (((n2.is_da IS NULL OR n2.is_da=FALSE) AND (n2.is_dc IS NULL OR n2.is_dc=FALSE)) OR (NOT u.domain CONTAINS '.' + n2.domain AND n2.domain <> u.domain)) SET n2.can_dcsync=TRUE RETURN DISTINCT p3 as p",
+        "request": "MATCH (n2) WITH n2 ORDER BY n2.name SKIP PARAM1 LIMIT PARAM2 MATCH p3=allShortestPaths((n2)-[:MemberOf|GenericAll|AllExtendedRights*1..5]->(u:Domain)) WHERE n2 <> u AND NOT n2.name IS NULL AND (((n2.is_da IS NULL OR n2.is_da=FALSE) AND (n2.is_dc IS NULL OR n2.is_dc=FALSE)) OR (NOT u.domain CONTAINS '.' + n2.domain AND n2.domain <> u.domain)) SET n2.can_dcsync=TRUE RETURN DISTINCT p3 as p",
         "output_type": "Graph",
+        "scope_query": "MATCH (n1) return count(n1)",
         "is_a_write_request": "true"
     },
     "dcsync_list": {
@@ -367,7 +369,7 @@
     },
     "computers_not_connected_since": {
         "name": "Computers not connected since",
-        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date - c.lastlogontimestamp)/86400) AS days ORDER BY days DESC ",
+        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date - c.lastlogontimestamp)/86400) as days, toInteger(($extract_date - c.pwdlastset)/86400) as pwdlastset, c.enabled as enabled ORDER BY days DESC ",
         "output_type": "dict"
     },
     "nb_domain_admins": {
@@ -657,5 +659,15 @@
         "output_type": "Graph",
         "scope_query": "MATCH (g:GPO) RETURN COUNT(g)",
         "_comment": "this is the normal version of the GPO request"
+    },
+    "cross_domain_local_admins":{
+        "name": "Users that are local admins cross-domain",
+        "request": "MATCH p1=(u{enabled:true})-[r:MemberOf*1..4]->(g:Group{is_admin:true})-[rr:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain WITH collect(distinct p1) as paths OPTIONAL MATCH q=(u{enabled:true})-[r:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain WITH paths + collect(distinct q) as allPaths UNWIND allPaths as p RETURN DISTINCT p",
+        "output_type": "Graph"
+    },
+    "cross_domain_domain_admins":{
+        "name": "Users that are domain admins cross-domain",
+        "request": "MATCH p=(u{enabled:true})-[r:MemberOf*1..4]->(g:Group{is_da:true}) WHERE u.domain <> g.domain AND NOT g.domain CONTAINS u.domain return p",
+        "output_type": "Graph"
     }
 }

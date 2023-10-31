@@ -33,9 +33,6 @@ def rating(users, domains, computers, objects, arguments):
     d[
         presence_of(computers.list_computers_unconstrained_delegations, criticity=2)
     ].append("non-dc_with_unconstrained_delegations")
-    d[presence_of(computers.list_users_unconstrained_delegations, criticity=2)].append(
-        "non-dc_users_with_unconstrained_delegations"
-    )
     d[constrainedDelegation(computers.users_constrained_delegations)].append(
         "users_constrained_delegations"
     )
@@ -168,6 +165,8 @@ def rating(users, domains, computers, objects, arguments):
     d[2 if len(domains.empty_ous)/len(domains.groups) > 0.40 else 3 if len(domains.empty_ous)/len(domains.groups) > 0.20 else 5].append("empty_ous")
 
     d[presence_of(users.has_sid_history, 2)].append("has_sid_history")
+    d[rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
+
 
     return d
 
@@ -348,3 +347,11 @@ def rate_vuln_functional_level(req):
         return min([ret["Level maturity"] for ret in req])
     else:
         return -1
+
+def rate_cross_domain_privileges(nb_local_priv,nb_da_priv):
+    if nb_da_priv > 0:
+        return 1
+    elif nb_local_priv>0:
+        return 2
+    else:
+        return 5

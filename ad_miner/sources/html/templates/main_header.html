@@ -184,6 +184,16 @@
                     >Computers</a
                   >
                 </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link stats-link text-primary"
+                    data-bs-toggle="tab"
+                    id="stats-tab-title-os"
+                    href="#os_distribution"
+                    aria-selected="true"
+                    ><i class="bi bi-windows stats-link-icon"></i>OS</a
+                  >
+                </li>
               </ul>
             </div>
 
@@ -351,6 +361,15 @@
                   </div>
                 </div>
               </div>
+
+              <div class="tab-pane fade" id="os_distribution" role="tabpanel">
+                <div class="card-body" id="stats-tab-os">
+                  <h5 class="card-title stats-title">OS distribution</h5>
+                  <div>
+                    <canvas id="chart-os" class="chart"></canvas>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -485,13 +504,6 @@
                       </h5>
                     </div>
                     <div>{{permissions_graph_summary}}</div>
-                    <div>
-                      <a
-                        href="cards.html?page=permission"
-                        class="btn btn-outline-dark chart-details-button"
-                        >Full IOE list <i class="bi bi-box-arrow-up-right"></i
-                      ></a>
-                    </div>
                   </div>
                   <div class="col-graph-details">
                     <div>
@@ -502,13 +514,6 @@
                       <h5 class="card-title chart-details-title">Passwords</h5>
                     </div>
                     <div>{{passwords_graph_summary}}</div>
-                    <div>
-                      <a
-                        href="cards.html?page=passwords"
-                        class="btn btn-outline-dark chart-details-button"
-                        >Full IOE list <i class="bi bi-box-arrow-up-right"></i
-                      ></a>
-                    </div>
                   </div>
                   <div class="col-graph-details">
                     <div>
@@ -519,13 +524,6 @@
                       <h5 class="card-title chart-details-title">Kerberos</h5>
                     </div>
                     <div>{{kerberos_graph_summary}}</div>
-                    <div>
-                      <a
-                        href="cards.html?page=kerberos"
-                        class="btn btn-outline-dark chart-details-button"
-                        >Full IOE list <i class="bi bi-box-arrow-up-right"></i
-                      ></a>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -947,44 +945,14 @@
                               <input
                                 class="form-check-input"
                                 type="checkbox"
-                                value="dc_with_unconstrained_delegations"
-                                id="checkbox_dc_with_unconstrained_delegations"
+                                value="non-dc_with_unconstrained_delegations"
+                                id="checkbox_non-dc_with_unconstrained_delegations"
                               />
                               <label
                                 class="form-check-label"
-                                for="checkbox_dc_with_unconstrained_delegations"
+                                for="checkbox_non-dc_with_unconstrained_delegations"
                               >
-                                Non-DC with unconstrained delegations
-                              </label>
-                            </div>
-
-                            <div class="form-check">
-                              <input
-                                class="form-check-input"
-                                type="checkbox"
-                                value="non-dc_users_with_unconstrained_delegations"
-                                id="checkbox_non-dc_users_with_unconstrained_delegations"
-                              />
-                              <label
-                                class="form-check-label"
-                                for="checkbox_non-dc_users_with_unconstrained_delegations"
-                              >
-                                Non-DC with unconstrained delegations
-                              </label>
-                            </div>
-
-                            <div class="form-check">
-                              <input
-                                class="form-check-input"
-                                type="checkbox"
-                                value="non-dc_users_with_unconstrained_delegations"
-                                id="checkbox_non-dc_users_with_unconstrained_delegations"
-                              />
-                              <label
-                                class="form-check-label"
-                                for="checkbox_non-dc_users_with_unconstrained_delegations"
-                              >
-                                Users with unconstrained delegations
+                                Non-DC accounts with unconstrained delegations
                               </label>
                             </div>
 
@@ -1509,6 +1477,42 @@
                 'rgb(183, 228, 199)',
                 'rgb(216, 243, 220)',
               ],
+              hoverOffset: 4,
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          plugins: {
+            center_text_doughnut: false,
+            shadow_plugin: false,
+            legend: {
+              position: 'bottom',
+              align: 'start',
+              labels: {
+                boxWidth: 20,
+                font: {
+                  size: 10,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // OS stats chart
+      const ctxOS = document.querySelector('#chart-os');
+      new Chart(ctxOS, {
+        type: 'doughnut',
+        data: {
+          labels: `{{os_labels}}`,
+          datasets: [
+            {
+              label: 'OS',
+              data: `{{os_repartition}}`,
+              backgroundColor: `{{os_colors}}`,
               hoverOffset: 4,
             },
           ],

@@ -215,26 +215,26 @@
   "non-dc_with_unconstrained_delegations": {
     "title": "Accounts with unconstrained delegations",
     "description": "These accounts are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
   "graph_path_objects_to_unconstrained_delegation": {
     "description": "Path to accounts that are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
   "non-dc_users_with_unconstrained_delegations": {
     "title": "Users with unconstrained delegations",
     "description": "These user accounts are allowed to connect to any service with the identity of another user who connected to them. It only concerns users that are not sensitive.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
   "graph_path_objects_to_unconstrained_delegation_users": {
     "description": "Path to user accounts that are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These computers can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
@@ -274,8 +274,8 @@
 
   "users_GPO_access": {
     "title": "GPOs that can be edited by unprivileged users",
-    "description": "GPOs that can be edited by unprivileged users",
-    "risk": "If an AD object has rights over a GPO, it can potentially cause damage over all the objects affected by the GPO. GPOs can also be leveraged to gain privileges in the domain(s). If an attacker exploits one of these paths, they will be able to gain privileges in the domain(s) and cause some serious damage.",
+    "description": "GPOs that can be edited by unprivileged users.",
+    "risk": "If an AD object has rights over a GPO, it can potentially cause damage over all the objects affected by the GPO. GPOs can also be leveraged to gain privileges in the domain(s). If an attacker exploits one of these paths, they will be able to gain privileges in the domain(s) and cause some serious damage.<br/><i class='bi bi-star-fill' style='color: red'></i><i class='bi bi-star-fill' style='color: red'></i><i class='bi bi-star-fill' style='color: red'></i> : Full domain or at least one domain admin as target.<br /><i class='bi bi-star-fill' style='color: orange'></i><i class='bi bi-star-fill' style='color: orange'></i><i class='bi bi-star' style='color: orange'></i> : At least one object admin of a computer.<br/><i class='bi bi-star-fill' style='color: green'></i><i class='bi bi-star' style='color: green'></i><i class='bi bi-star' style='color: green'></i> : At least one object as target.<br/><i class='bi bi-star' style='color: green'></i><i class='bi bi-star' style='color: green'></i><i class='bi bi-star' style='color: green'></i> : No direct target.",
     "poa": "Review the paths, make sure they are not exploitable. If they are, cut the link between the Active Directory objects in order to reduce the attack surface."
   },
 
@@ -494,5 +494,11 @@
     "description": "SID History (Security Identifier History) is a feature that allows a user or group to retain access to resources that they had permissions for in a different domain. This feature is particularly useful in scenarios involving domain migrations, domain trust relationships, or domain reorganizations.",
     "risk": " If an attacker gains control of an account with SID History entries, they may be able to use those historical SIDs to gain unauthorized access to resources in old domains. This is particularly concerning if the attacker can exploit vulnerabilities or weak security practices in the old domain.",
     "poa": "Regularly review and clean up SID History entries for users and groups that no longer require access to resources in old domains."
+  },
+  "cross_domain_admin_privileges":{
+    "title":"List of users that have powerful cross-domain privileges.",
+    "description": "Users privileges are not limited to their domains. Sometimes some users may have direct or non-direct local admin or even domain admin privilege on a foreign domain.",
+    "risk": "Cross-domain privileges are quite dangerous and will help attackers to pivot to other domains if they manage to compromise a domain",
+    "poa": "Review these privileges, this list should be as little as possible."
   }
 }

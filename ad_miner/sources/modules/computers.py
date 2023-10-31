@@ -94,7 +94,6 @@ class Computers:
         self.generateADCSListPage()
         self.genObsoleteOSPage()
         self.genNonDCWithUnconstrainedPage()
-        self.genDCUsersWithUnconstrainedPage()
         self.genUsersConstrainedPage()
         self.genComputersAdminOfPages()
         self.genComputersWithMostAdminsPage()
@@ -119,7 +118,7 @@ class Computers:
                 )
             )
 
-        logger.print_time(timer_format(time.time() - self.start))
+        logger.print_warning(timer_format(time.time() - self.start))
 
     def generate_stat_laps(self):
         if len(self.list_total_computers) != 0:
@@ -233,7 +232,7 @@ class Computers:
         page.render()
         self.list_computers_os_obsolete = cleaned_data
 
-    # Non DC computers with unconstrained delegations
+    # Non DC computers and users with unconstrained delegations
     def genNonDCWithUnconstrainedPage(self):
         if self.list_computers_unconstrained_delegations is None:
             return
@@ -248,31 +247,13 @@ class Computers:
         for d in self.computers_non_dc_unconstrained_delegations:
             d["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
             d["name"] = '<i class="bi bi-pc-display"></i> ' + d["name"]
-        grid.setData(self.computers_non_dc_unconstrained_delegations)
-        page.addComponent(grid)
-        page.render()
-
-    # Non DC users with unconstrained delegations
-    def genDCUsersWithUnconstrainedPage(self):
-        if (
-            self.list_users_unconstrained_delegations is None
-            or self.users_non_dc_unconstrained_delegations is None
-        ):
-            return
-        page = Page(
-            self.arguments.cache_prefix,
-            "non-dc_users_with_unconstrained_delegations",
-            "Non-DC users with unconstrained delegations",
-            "non-dc_users_with_unconstrained_delegations",
-        )
-        grid = Grid("Non-DC users with unconstrained delegations")
-        grid.setheaders(["domain", "name"])
         for d in self.users_non_dc_unconstrained_delegations:
             d["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
             d["name"] = '<i class="bi bi-person-fill"></i> ' + d["name"]
-        grid.setData(self.users_non_dc_unconstrained_delegations)
+        grid.setData(self.computers_non_dc_unconstrained_delegations + self.users_non_dc_unconstrained_delegations)
         page.addComponent(grid)
         page.render()
+
 
     # Users with constrained delegations
     def genUsersConstrainedPage(self):
@@ -313,7 +294,7 @@ class Computers:
         computers_admin_to_list = generic_computing.getListAdminTo(
             self.list_computers_admin_computers, "source_computer", "target_computer"
         )
-        computers_admin_data_grid = []
+        self.computers_admin_data_grid = []
         for admin_computer, computers_list in computers_admin_to_list.items():
             if admin_computer is not None and computers_list is not None:
                 num_path, nb_domains = self.domain.findAndCreatePathToDaFromComputersList(admin_computer, computers_list)
@@ -337,8 +318,8 @@ class Computers:
                 else:
                     tmp_line["Paths to domain admin"] = "-"
 
-                computers_admin_data_grid.append(tmp_line)
-        computers_admin_data_grid.sort(
+                self.computers_admin_data_grid.append(tmp_line)
+        self.computers_admin_data_grid.sort(
             key=lambda x: x["Computers count"], reverse=True
         )
 
@@ -351,7 +332,7 @@ class Computers:
         )
         grid = Grid("Computers admins of other computers")
         grid.setheaders(["Computer Admin", "Computers count", "Paths to domain admin"])
-        grid.setData(json.dumps(computers_admin_data_grid))
+        grid.setData(json.dumps(self.computers_admin_data_grid))
         page.addComponent(grid)
         page.render()
 
@@ -544,12 +525,12 @@ class Computers:
         return final_dict
 
     # Create os obsolete list
-    @staticmethod
-    def manageComputersOs(computer_list):
+    def manageComputersOs(self, computer_list):
         if computer_list is None:
             return None
+        self.all_os = {}
         computers_os_obsolete = []
-        obsolete_os_list = [
+        self.obsolete_os_list = [
             "Windows XP",
             "Windows 7",
             "Windows 2000",
@@ -562,18 +543,21 @@ class Computers:
 
         for line in computer_list:
             os = line["os"]
-            if "Windows" in line["os"] or "windows" in line["os"]:
+            if "windows" in os.lower():
+                os = os.lower()
                 os = os.replace("\xa0", " ")
                 os = os.replace("®", "")
-                os = os.replace(" Server", "")
-                os = os.replace(" Storage", "")
-                os = os.replace(" 2008 R2", " 2008R2")
-                os = os.replace(" 2012 R2", " 2012R2")
-                ver = re.match(r"^Windows ([.a-zA-Z0-9]+)\s", os, re.M | re.I)
+                os = os.replace(" server", "")
+                os = os.replace(" storage", "")
+                os = os.replace(" 2008 r2", " 2008R2")
+                os = os.replace(" 2012 r2", " 2012R2")
+                ver = re.match(r"^windows ([.a-zA-Z0-9]+)\s", os, re.M | re.I)
                 if ver:
-                    os = "Windows " + ver.group(1)
+                    os = "Windows " + ver.group(1).upper()
+                else:
+                    os = os.replace("windows", "Windows")
             else:
-                os = os[0:16] + "[..]"
+                os = os
 
             # Cleaner way to do a try/except for dictionaries is to use get() :
             lastLogon = line.get("lastLogon", "Not specified")
@@ -584,7 +568,27 @@ class Computers:
                 "Last logon in days": lastLogon,
             }
 
-            if os in obsolete_os_list:
+            # Stats for OS repartition
+            def addToOS(key):
+                if self.all_os.get(key):
+                    self.all_os[key] += 1
+                else:
+                    self.all_os[key] = 1
+            
+            if "windows" in os.lower():
+                addToOS(os)
+            elif "linux" in os.lower() or "ubuntu" in os.lower():
+                addToOS("Linux")
+            elif "mac" in os.lower():
+                addToOS("MacOS")
+            elif "android" in os.lower():
+                addToOS("Android")
+            elif "ios" in os.lower():
+                addToOS("iOS")
+            else:
+                addToOS("Other")
+
+            if os in self.obsolete_os_list:
                 computers_os_obsolete.append(final_line)
         return computers_os_obsolete
 
