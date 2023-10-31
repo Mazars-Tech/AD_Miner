@@ -9,9 +9,12 @@ function toggleSearch() {
     (searchBarDiv.classList.contains("search-bar-div-show")) ? searchBarDiv.classList.remove("search-bar-div-show") : searchBarDiv.classList.add("search-bar-div-show");
     (searchItemDropdown.classList.contains("active")) ? searchItemDropdown.classList.remove("active") : searchItemDropdown.classList.add("active");
     searchBar.focus();
+    console.log("toggle !")
 }
 
+
 const searchBar = document.getElementById("search-bar");
+const searchBarDiv = document.getElementById("search-bar-div");
 const controlDropdown = document.getElementById("search-dropdown");
 const allHex = document.querySelectorAll(".hexagon");
 
@@ -126,3 +129,15 @@ function updateDropdown(filteredControls) {
         controlDropdown.classList.remove("active");
     }
 }
+
+document.addEventListener("click", (event)=>{
+    console.log(event.target.id);
+    console.log(event.target.classList);
+    console.log(event.target);
+    if (event.target.id != "search-dropdown" && event.target.id != "search-icon" && event.target.id != "search-bar" && !event.target.classList.contains('bi-search')){
+        controlDropdown.classList.remove("active");
+        searchBar.value = "";
+        searchBarDiv.classList.remove("search-bar-div-show");
+        console.log("tout est caché !")
+    }
+});

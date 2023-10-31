@@ -76,7 +76,7 @@
     "rdp_access": "true",
     "dc_impersonation": "true",
     "rbcd": "true",
-    "graph_rbcd": "true",
+    "graph_rbcd": "false",
     "objects_to_ou_handlers": "true",
     "unpriv_users_to_GPO": "true",
     "unpriv_users_to_GPO_init": "true",
