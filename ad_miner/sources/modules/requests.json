@@ -672,7 +672,7 @@
     },
     "primaryGroupID_lower_than_1000": {
         "name": "User with PrimaryGroupID lower than 1000",
-        "request": "MATCH (n) WHERE (n:Group OR n:User) AND toInteger(split(n.objectid, \"-\")[-1]) < 1000 AND (n.enabled = true or n:Group) return toInteger(split(n.objectid, \"-\")[-1]) as sid,n.domain,n.name",
+        "request": "MATCH (n) WHERE (n:Group OR n:User) AND toInteger(split(n.objectid, \"-\")[-1]) < 1000 AND (n.enabled = true or n:Group) return toInteger(split(n.objectid, \"-\")[-1]) as sid, n.name, n.domain",
         "output_type": "list"
     },
     "pre_windows_2000_compatible_access_group": {
@@ -680,19 +680,14 @@
         "request": "MATCH (n:Group) WHERE n.name STARTS WITH \"PRE-WINDOWS 2000 COMPATIBLE ACCESS@\" MATCH (m)-[r:MemberOf]->(n) WHERE NOT m.objectid ENDS WITH \"-S-1-5-11\" return m.name,m.objectid",
         "output_type": "list"
     },
-    "guest_account_enabled": {
-        "name": "Guest account enabled",
-        "request": "MATCH (n:User) WHERE n.objectid ENDS WITH \"-501\" AND n.enabled = true return n.name",
+    "guest_accounts": {
+        "name": "Guest accounts enabled",
+        "request": "MATCH (n:User) WHERE n.objectid ENDS WITH \"-501\" RETURN n.name, n.domain, n.enabled",
         "output_type": "list"
     },
-    "privileged_accounts_outside_Protected_Users": {
-        "name": "Privileged accounts outside of the Protected Users group",
-        "request": "MATCH (g:Group) WHERE g.name STARTS WITH \"PROTECTED USERS@\" MATCH (u:User) WHERE (u.is_da=true OR u.is_admin=true) AND NOT (u)-[:MemberOf]->(g) RETURN distinct u.domain, u.name,u.is_da,u.is_admin",
-        "output_type": "list"
-    },
-    "up_to_date_admincount": {
-        "name": "Only privileged accounts with admincount",
-        "request": "MATCH (u:User{enabled:true}) WHERE (u.is_da=true AND u.admincount=false) OR (u.is_da=false AND u.admincount=true) return u.domain, u.name, u.is_da, u.admincount",
+    "unpriviledged_users_with_admincount": {
+        "name": "Unpriviledged users with admincount=1",
+        "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
     }
 }

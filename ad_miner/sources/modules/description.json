@@ -520,12 +520,6 @@
     "risk": "The Guest account allows unauthenticated network users to log in as Guest without a password. These unauthorised users can access all resources accessible to the Guest account on the network. This feature means that any shared objects or folders with permissions that allow access to the Guest account, the Domain Guests group, the Guests group, or the Everyone group are accessible on the network, which can lead to data exposure or corruption.",
     "poa": "The guest account should be disabled."
   },
-  "privileged_accounts_outside_Protected_Users": {
-    "title": "List of privileged account outside the protected users group.",
-    "description": "Some privileged accounts are not protected by the Protected Users group.",
-    "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
-    "poa": "Privileged accounts must be part of the Protected Users group."
-  },
   "up_to_date_admincount": {
     "title": "List of account that are not up-to-date with \"adminCount\"",
     "description": "These accounts either have an \"adminCount\" attribute set without current privileged group membership, or are privileged accounts missing the \"adminCount\" attribute.",
