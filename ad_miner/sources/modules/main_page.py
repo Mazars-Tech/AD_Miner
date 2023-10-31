@@ -242,7 +242,8 @@ def create_dico_data(
         "guest_accounts": len([ude for ude in users.guest_accounts if ude[-1]]),
         "unpriviledged_users_with_admincount": len(users.unpriviledged_users_with_admincount),
         "priviledge_users_without_admincount": len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
-        "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]])
+        "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]),
+        "sid_singularities": users.sid_singularities
     }
     dico_data["color_category"] = dico_rating_color
 
@@ -336,7 +337,8 @@ def render(
         "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges",
         "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled",
         "up_to_date_admincount": f"{dico_data['value']['priviledge_users_without_admincount']} priviledged accounts don't have admincount and {dico_data['value']['unpriviledged_users_with_admincount']} unpriviledged accounts have admincount",
-        "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts are not part of the Protected Users group"
+        "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts are not part of the Protected Users group",
+        "primaryGroupID_lower_than_1000": f"{dico_data['value']['sid_singularities']} accounts have unknown SIDs or unexpected names"
     }
 
     descriptions = DESCRIPTION_MAP

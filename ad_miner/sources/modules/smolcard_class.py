@@ -49,7 +49,8 @@ dico_category = {
         "cross_domain_admin_privileges",
         "guest_accounts",
         "up_to_date_admincount",
-        "privileged_accounts_outside_Protected_Users"
+        "privileged_accounts_outside_Protected_Users",
+        "primaryGroupID_lower_than_1000"
     ],
     "misc": [
         "computers_os_obsolete",

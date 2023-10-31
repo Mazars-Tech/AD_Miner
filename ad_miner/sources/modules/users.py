@@ -211,6 +211,8 @@ class Users:
         self.unpriviledged_users_with_admincount = neo4j.all_requests["unpriviledged_users_with_admincount"]["result"]
         self.users_nb_domain_admins = neo4j.all_requests["nb_domain_admins"]["result"]
 
+        self.primaryGroupID_lower_than_1000 = neo4j.all_requests["primaryGroupID_lower_than_1000"]["result"]
+
         # Generate all the users-related pages
         self.genComputersWithMostAdminsPage()
         self.genServersCompromisablePage()
@@ -242,6 +244,7 @@ class Users:
         self.genGuestUsers()
         self.genUpToDateAdmincount()
         self.genProtectedUsers()
+        self.genSID_lower_than_1000()
 
         logger.print_warning(timer_format(time.time() - self.start))
 
@@ -1655,7 +1658,6 @@ class Users:
         page.render()
 
     def genProtectedUsers(self):
-        print(self.users_nb_domain_admins)
         page = Page(
             self.arguments.cache_prefix,
             "privileged_accounts_outside_Protected_Users",
@@ -1682,6 +1684,531 @@ class Users:
             tmp_data["protected users"] = '<i class="bi bi-square"></i>'
             data.append(tmp_data)
 
+        grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+    def genSID_lower_than_1000(self):
+        known_SIDs = {
+            "1": ["DIALUP", "DIALUP (DIALUP)", "DIALUP (LIGNE)", "DIALUP (REMOTO)"],
+            "113": [
+                "LOCAL ACCOUNT",
+                "LOKALES KONTO",
+                "CUENTA LOCAL",
+                "COMPTE LOCAL",
+                "ACCOUNT LOCALE",
+            ],
+            "114": [
+                "LOCAL ACCOUNT AND MEMBER OF ADMINISTRATORS GROUP",
+                "LOKALES KONTO UND MITGLIED DER GRUPPE „ADMINISTRATOREN“",
+                "CUENTA LOCAL Y MIEMBRO DEL GRUPO ADMINISTRADORES",
+                "COMPTE LOCAL ET MEMBRE DU GROUPE ADMINISTRATEURS",
+                "ACCOUNT LOCALE E MEMBRO DEL GRUPPO AMMINISTRAZIONE ISTRATORS",
+            ],
+            "2": ["NETWORK", "NETZWERK", "RED", "RÉSEAU", "RETE"],
+            "3": ["BATCH"],
+            "4": ["INTERACTIVE", "INTERATTIVO"],
+            "Y": [
+                "LOGON SESSION",
+                "ANMELDESITZUNG",
+                "SESIÓN DE INICIO",
+                "SESSION D’OUVERTURE DE SESSION",
+                "SESSIONE DI ACCESSO",
+            ],
+            "6": ["SERVICE", "DIENST", "SERVICIO", "SERVIZIOO"],
+            "7": [
+                "ANONYMOUS LOGON",
+                "ANONYMOUS-ANMELDUNG",
+                "INICIO DE SESIÓN ANÓNIMO",
+                "OUVERTURE DE SESSION ANONYME",
+                "ACCESSO ANONIMO",
+            ],
+            "8": ["PROXY"],
+            "9": [
+                "ENTERPRISE DOMAIN CONTROLLERS",
+                "DOMÄNENCONTROLLER DES UNTERNEHMENS",
+                "CONTRÔLEURS DE DOMAINE D’ENTREPRISE",
+                "CONTROLLER DI DOMINIO ORGANIZZAZIONE",
+            ],
+            "10": [
+                "SELF",
+                "NTLM AUTHENTICATION",
+                "NTLM-AUTHENTIFIZIERUNG",
+                "PROPIO",
+                "AUTENTICACIÓN NTLM",
+                "AUTHENTIFICATION NTLM",
+                "AUTENTICAZIONE NTLM",
+            ],
+            "11": [
+                "AUTHENTICATED USERS",
+                "AUTHENTIFIZIERTE BENUTZER",
+                "USUARIOS AUTENTICADOS",
+                "UTILISATEURS AUTHENTIFIÉS",
+                "UTENTI AUTENTICATI",
+            ],
+            "12": [
+                "RESTRICTED CODE",
+                "EINGESCHRÄNKTER CODE",
+                "CÓDIGO RESTRINGIDO",
+                "CODE RESTREINT",
+                "CODICE CON RESTRIZIONI",
+            ],
+            "13": [
+                "TERMINAL SERVER USER",
+                "TERMINALSERVERBENUTZER",
+                "USUARIO DE TERMINAL SERVER",
+                "UTILISATEUR DE TERMINAL SERVER",
+                "UTENTE TERMINAL SERVER",
+            ],
+            "14": [
+                "REMOTE INTERACTIVE LOGON",
+                "SCHANNEL AUTHENTICATION",
+                "INTERAKTIVE REMOTEANMELDUNG",
+                "SCHANNEL-AUTHENTIFIZIERUNG",
+                "INICIO DE SESIÓN REMOTO INTERACTIVO",
+                "AUTENTICACIÓN SCHANNEL",
+                "OUVERTURE DE SESSION INTERACTIVE",
+                "AUTHENTIFICATION SCHANNEL",
+                "ACCESSO INTERATTIVO REMOTO",
+                "AUTENTICAZIONE SCHANNEL",
+            ],
+            "15": [
+                "THIS ORGANIZATION",
+                "THIS ORGANIZATION (DIESE ORGANISATION)",
+                "THIS ORGANIZATION (ESTA COMPAÑÍA)",
+                "THIS ORGANIZATION (CETTE ORGANISATION)",
+                "THIS ORGANIZATION (QUESTA ORGANIZZAZIONE)",
+            ],
+            "17": ["IUSR"],
+            "18": [
+                "SYSTEM (OR LOCALSYSTEM)",
+                "SYSTEM (ODER LOCALSYSTEM)",
+                "SISTEMA (O LOCALSYSTEM)",
+                "SYSTÈME (OU SYSTÈME LOCAL)",
+            ],
+            "19": [
+                "NT AUTHORITY (LOCALSERVICE)",
+                "NT-AUTORITÄT (LOCALSERVICE)",
+                "ENTIDAD NT (LOCALSERVICE)",
+                "AUTORITÉ NT (SERVICE LOCAL)",
+            ],
+            "20": [
+                "NETWORK SERVICE",
+                "NETZWERKDIENST",
+                "SERVICIO DE RED",
+                "SERVICE RÉSEAU",
+                "NETWORK SERVICE (SERVIZIO DI RETE)",
+            ],
+            "500": ["ADMINISTRATOR", "ADMINISTRADOR", "ADMINISTRATEUR", "AMMINISTRATORE"],
+            "501": ["GUEST", "GAST", "INVITADO", "INVITÉ", "OSPITE"],
+            "502": ["KRBTGT"],
+            "512": [
+                "DOMAIN ADMINS",
+                "DOMÄNENADMINISTRATOREN",
+                "ADMINS. DEL DOMINIO",
+                "ADMINISTRATEURS DU DOMAINE",
+            ],
+            "513": [
+                "DOMAIN USERS",
+                "DOMÄNENBENUTZER",
+                "USUARIOS DE DOMINIO",
+                "UTILISATEURS DU DOMAINE",
+            ],
+            "514": [
+                "DOMAIN GUESTS",
+                "DOMÄNEN-GÄSTE",
+                "INVITADOS DEL DOMINIO",
+                "INVITÉS DU DOMAINE",
+            ],
+            "515": [
+                "DOMAIN COMPUTERS",
+                "DOMÄNENCOMPUTER",
+                "EQUIPOS DEL DOMINIO",
+                "ORDINATEURS DU DOMAINE",
+                "COMPUTER DEL DOMINIO",
+            ],
+            "516": [
+                "DOMAIN CONTROLLERS",
+                "DOMÄNENCONTROLLER",
+                "CONTROLADORES DE DOMINIO",
+                "CONTRÔLEURS DE DOMAINE",
+                "CONTROLLER DI DOMINIO",
+            ],
+            "517": [
+                "CERT PUBLISHERS",
+                "ZERTIFIKATHERAUSGEBER",
+                "PUBLICADORES DE CERTIFICADOS",
+                "ÉDITEURS DE CERTIFICATS",
+            ],
+            "518": [
+                "SCHEMA ADMINS",
+                "SCHEMA-ADMINS",
+                "ADMINISTRADORES DE ESQUEMA",
+                "ADMINISTRATEURS DU SCHÉMA",
+                "AMMINISTRATORI SCHEMA",
+            ],
+            "519": [
+                "ENTERPRISE ADMINS",
+                "ORGANISATIONSADMINISTRATOREN",
+                "ADMINISTRADORES DE EMPRESAS",
+                "ADMINISTRATEURS DE L’ENTREPRISE",
+                "AMMINISTRATORI ENTERPRISE",
+            ],
+            "520": [
+                "GROUP POLICY CREATOR OWNERS",
+                "GRUPPENRICHTLINIENERSTELLER-BESITZER",
+                "PROPIETARIOS DEL CREADOR DE DIRECTIVAS DE GRUPO",
+                "PROPRIÉTAIRES CRÉATEURS DE LA STRATÉGIE DE GROUPE",
+                "PROPRIETARI AUTORI CRITERI DI GRUPPO",
+            ],
+            "521": [
+                "READ-ONLY DOMAIN CONTROLLERS",
+                "READ-ONLY-DOMÄNENCONTROLLER",
+                "CONTROLADORES DE DOMINIO DE SOLO LECTURA",
+                "CONTRÔLEURS DE DOMAINE EN LECTURE SEULE",
+                "CONTROLLER DI DOMINIO DI SOLA LETTURA",
+            ],
+            "522": [
+                "CLONABLE CONTROLLERS",
+                "KLONBARE CONTROLLER",
+                "CONTROLADORES QUE PUEDEN CLONARSE",
+                "CONTRÔLEURS CLONABLES",
+                "CONTROLLER CLONABILI",
+            ],
+            "525": [
+                "PROTECTED USERS",
+                "GESCHÜTZTE BENUTZER",
+                "USUARIOS PROTEGIDOS",
+                "UTILISATEURS PROTÉGÉS",
+                "UTENTI PROTETTI",
+            ],
+            "526": [
+                "KEY ADMINS",
+                "SCHLÜSSELADMINISTRATOREN",
+                "ADMINISTRADORES DE CLAVES",
+                "ADMINISTRATEURS DE CLÉS",
+                "AMMINISTRATORI CHIAVE",
+            ],
+            "527": [
+                "ENTERPRISE KEY ADMINS",
+                "ENTERPRISE KEY-ADMINISTRATOREN",
+                "ADMINISTRADORES CLAVE ENTERPRISE",
+            ],
+            "544": [
+                "ADMINISTRATORS",
+                "ADMINISTRATOREN",
+                "ADMINISTRADORES",
+                "ADMINISTRATEURS",
+                "AMMINISTRATORI",
+            ],
+            "545": ["USERS", "BENUTZER", "USUARIOS", "UTILISATEURS", "UTENTI"],
+            "546": ["GUESTS", "GÄSTE", "INVITADOS", "INVITÉS", "UTENTI GUEST"],
+            "547": [
+                "POWER USERS",
+                "HAUPTBENUTZER",
+                "USUARIOS AVANZADOS",
+                "UTILISATEURS AVEC POUVOIR",
+            ],
+            "548": [
+                "ACCOUNT OPERATORS",
+                "KONTEN-OPERATOREN",
+                "OPERADORES DE CUENTAS",
+                "OPÉRATEURS DE COMPTE",
+            ],
+            "549": [
+                "SERVER OPERATORS",
+                "SERVER-OPERATOREN",
+                "OPERADORES DE SERVIDORES",
+                "OPÉRATEURS DE SERVEUR",
+            ],
+            "550": [
+                "PRINT OPERATORS",
+                "DRUCKOPERATOREN",
+                "OPERADORES DE IMPRESIÓN",
+                "OPÉRATEURS D'IMPRESSION",
+            ],
+            "551": [
+                "BACKUP OPERATORS",
+                "SICHERUNGSOPERATOREN",
+                "OPERADORES DE COPIAS DE SEGURIDAD",
+                "OPÉRATEURS DE SAUVEGARDE",
+            ],
+            "552": ["REPLICATORS", "REPLIKATOREN", "REPLICADORES", "DUPLICATEURS"],
+            "553": [
+                "RAS AND IAS SERVERS",
+                "RAS- UND IAS-SERVER",
+                "SERVIDORES RAS E IAS",
+                "SERVEURS RAS ET IAS",
+                "SERVER RAS E IAS",
+            ],
+            "554": [
+                "BUILTIN\\PRE-WINDOWS 2000 COMPATIBLE ACCESS",
+                "PRE-WINDOWS 2000 COMPATIBLE ACCESS",
+                "BUILTIN\\PRÄ-WINDOWS\xa02000-KOMPATIBLER ZUGRIFF",
+                "PRÄ-WINDOWS\xa02000-KOMPATIBLER ZUGRIFF",
+                "BUILTIN\\ACCESO COMPATIBLE CON VERSIONES ANTERIORES A WINDOWS\xa02000",
+                "ACCESO COMPATIBLE CON VERSIONES ANTERIORES A WINDOWS\xa02000",
+                "BUILTIN\\ACCÈS COMPATIBLE PRÉ-WINDOWS\xa02000",
+                "ACCÈS COMPATIBLE PRÉ-WINDOWS\xa02000",
+                "ACCESSO COMPATIBILE CON BUILTIN\\PRE-WINDOWS 2000",
+                "ACCESSO COMPATIBILE CON PRE-WINDOWS 2000",
+            ],
+            "555": [
+                "BUILTIN\\REMOTE DESKTOP USERS",
+                "REMOTE DESKTOP USERS",
+                "BUILTIN\\REMOTEDESKTOPBENUTZER",
+                "REMOTEDESKTOPBENUTZER",
+                "BUILTIN\\USUARIOS DE ESCRITORIO REMOTO",
+                "USUARIOS DE ESCRITORIO REMOTO",
+                "BUILTIN\\UTILISATEURS DU BUREAU À DISTANCE",
+                "UTILISATEURS DU BUREAU À DISTANCE",
+            ],
+            "556": [
+                "BUILTIN\\NETWORK CONFIGURATION OPERATORS",
+                "NETWORK CONFIGURATION OPERATORS",
+                "BUILTIN\\NETZWERKKONFIGURATIONS-OPERATOREN",
+                "NETZWERKKONFIGURATIONS-OPERATOREN",
+                "BUILTIN\\OPERADORES DE CONFIGURACIÓN DE RED",
+                "OPERADORES DE CONFIGURACIÓN DE RED",
+                "BUILTIN\\OPÉRATEURS DE CONFIGURATION RÉSEAU",
+                "OPÉRATEURS DE CONFIGURATION RÉSEAU",
+            ],
+            "557": [
+                "BUILTIN\\INCOMING FOREST TRUST BUILDERS",
+                "INCOMING FOREST TRUST BUILDERS",
+                "BUILTIN\\EINGEHENDE GESAMTSTRUKTUR-VERTRAUENSSTELLUNG",
+                "EINGEHENDE GESAMTSTRUKTUR-VERTRAUENSSTELLUNG",
+                "BUILTIN\\GENERADORES DE CONFIANZA DE BOSQUE DE ENTRADA",
+                "GENERADORES DE CONFIANZA DE BOSQUE DE ENTRADA",
+                "BUILTIN\\GÉNÉRATEURS D’APPROBATIONS DE FORÊT ENTRANTE",
+                "GÉNÉRATEURS D’APPROBATIONS DE FORÊT ENTRANTE",
+            ],
+            "558": [
+                "BUILTIN\\PERFORMANCE MONITOR USERS",
+                "PERFORMANCE MONITOR USERS",
+                "BUILTIN\\LEISTUNGSMONITORBENUTZER",
+                "LEISTUNGSMONITORBENUTZER",
+                "BUILTIN\\USUARIOS DE SUPERVISIÓN DE RENDIMIENTO",
+                "USUARIOS DE SUPERVISIÓN DE RENDIMIENTO",
+                "BUILTIN\\UTILISATEURS DE L’ANALYSEUR DE PERFORMANCES",
+                "UTILISATEURS DE L’ANALYSEUR DE PERFORMANCES",
+                "UTENTI PREDEFINITI\\MONITOR PRESTAZIONI",
+            ],
+            "559": [
+                "BUILTIN\\PERFORMANCE LOG USERS",
+                "PERFORMANCE LOG USERS",
+                "BUILTIN\\LEISTUNGSPROTOKOLLBENUTZER",
+                "LEISTUNGSPROTOKOLLBENUTZER",
+                "BUILTIN\\USUARIOS DEL REGISTRO DE RENDIMIENTO",
+                "USUARIOS DEL REGISTRO DE RENDIMIENTO",
+                "BUILTIN\\UTILISATEURS DU JOURNAL DE PERFORMANCES",
+                "UTILISATEURS DU JOURNAL DE PERFORMANCES",
+            ],
+            "560": [
+                "BUILTIN\\WINDOWS AUTHORIZATION ACCESS GROUP",
+                "WINDOWS AUTHORIZATION ACCESS GROUP",
+                "BUILTIN\\WINDOWS-AUTORISIERUNGSZUGRIFFSGRUPPE",
+                "WINDOWS-AUTORISIERUNGSZUGRIFFSGRUPPE",
+                "BUILTIN\\GRUPO DE ACCESO DE AUTORIZACIÓN DE WINDOWS",
+                "GRUPO DE ACCESO DE AUTORIZACIÓN DE WINDOWS",
+                "BUILTIN\\GROUPE D’ACCÈS D’AUTORISATION WINDOWS",
+                "GROUPE D’ACCÈS D’AUTORISATION WINDOWS",
+            ],
+            "561": [
+                "BUILTIN\\TERMINAL SERVER LICENSE SERVERS",
+                "TERMINAL SERVER LICENSE SERVERS",
+                "BUILTIN\\TERMINALSERVER-LIZENZSERVER",
+                "TERMINALSERVER-LIZENZSERVER",
+                "BUILTIN\\SERVIDORES DE LICENCIAS DE TERMINAL SERVER",
+                "SERVIDORES DE LICENCIAS DE TERMINAL SERVER",
+                "BUILTIN\\SERVEURS DE LICENCES DES SERVICES TERMINAL SERVER",
+                "SERVEURS DE LICENCES DES SERVICES TERMINAL SERVER",
+                "SERVER LICENZE BUILTIN\\TERMINAL SERVER",
+                "SERVER LICENZE TERMINAL SERVER",
+            ],
+            "562": [
+                "BUILTIN\\DISTRIBUTED COM USERS",
+                "DISTRIBUTED COM USERS",
+                "BUILTIN\\DISTRIBUTED COM-BENUTZER",
+                "DISTRIBUTED COM-BENUTZER",
+                "BUILTIN\\USUARIOS DE COM DISTRIBUIDO",
+                "USUARIOS DE COM DISTRIBUIDO",
+                "BUILTIN\\UTILISATEURS DU MODÈLE COM DISTRIBUÉ",
+                "UTILISATEURS DU MODÈLE COM DISTRIBUÉ",
+                "UTENTI COM PREDEFINITI\\DISTRIBUITI",
+            ],
+            "568": ["BUILTIN\\IIS_IUSRS", "IIS_IUSRS"],
+            "569": [
+                "BUILTIN\\CRYPTOGRAPHIC OPERATORS",
+                "CRYPTOGRAPHIC OPERATORS",
+                "BUILTIN\\KRYPTOGRAFIE-OPERATOREN",
+                "KRYPTOGRAFIE-OPERATOREN",
+                "BUILTIN\\OPERADORES CRIPTOGRÁFICOS",
+                "OPERADORES CRIPTOGRÁFICOS",
+                "BUILTIN\\OPÉRATEURS DE CHIFFREMENT",
+                "OPÉRATEURS DE CHIFFREMENT",
+                "OPERATORI BUILTIN\\CRYPTOGRAPHIC",
+                "OPERATORI CRYPTOGRAPHIC",
+            ],
+            "571": [
+                "ALLOWED RODC PASSWORD REPLICATION GROUP",
+                "ZULÄSSIGE RODC-KENNWORTREPLIKATIONSGRUPPE",
+                "GRUPO CON PERMISO PARA REPLICAR CONTRASEÑAS EN RODC",
+                "GROUPE DE RÉPLICATION DONT LE MOT DE PASSE RODC EST AUTORISÉ",
+                "GRUPPO DI REPLICA PASSWORD DI CONTROLLER DI DOMINIO DI SOLA LETTURA CONSENTITO",
+            ],
+            "572": [
+                "DENIED RODC PASSWORD REPLICATION GROUP",
+                "ABGELEHNTE RODC-KENNWORTREPLIKATIONSGRUPPE",
+                "GRUPO SIN PERMISO PARA REPLICAR CONTRASEÑAS EN RODC",
+                "GROUPE DE RÉPLICATION DONT LE MOT DE PASSE RODC EST REFUSÉ",
+                "GRUPPO DI REPLICA PASSWORD DI CONTROLLER DI DOMINIO DI SOLA LETTURA NEGATO",
+            ],
+            "573": [
+                "BUILTIN\\EVENT LOG READERS",
+                "EVENT LOG READERS",
+                "BUILTIN\\EREIGNISPROTOKOLLLESER",
+                "EREIGNISPROTOKOLLLESER",
+                "BUILTIN\\LECTORES DEL REGISTRO DE EVENTOS",
+                "LECTORES DEL REGISTRO DE EVENTOS",
+                "BUILTIN\\LECTEURS DES JOURNAUX D’ÉVÉNEMENTS",
+                "LECTEURS DES JOURNAUX D’ÉVÉNEMENTS",
+                "BUILTIN\\EVENT LOG READER",
+                "EVENT LOG READER",
+            ],
+            "574": [
+                "BUILTIN\\CERTIFICATE SERVICE DCOM ACCESS",
+                "CERTIFICATE SERVICE DCOM ACCESS",
+                "BUILTIN\\ZERTIFIKATDIENST-DCOM-ZUGRIFF",
+                "ZERTIFIKATDIENST-DCOM-ZUGRIFF",
+                "BUILTIN\\ACCESO DCOM DEL SERVICIO DE CERTIFICADOS",
+                "ACCESO DCOM DEL SERVICIO DE CERTIFICADOS",
+                "BUILTIN\\ACCÈS DCOM SERVICE DE CERTIFICATS",
+                "ACCÈS DCOM SERVICE DE CERTIFICATS",
+            ],
+            "575": [
+                "BUILTIN\\RDS REMOTE ACCESS SERVERS",
+                "RDS REMOTE ACCESS SERVERS",
+                "BUILTIN\\RDS-REMOTEZUGRIFFSSERVER",
+                "RDS-REMOTEZUGRIFFSSERVER",
+                "BUILTIN\\SERVIDORES DE ACCESO REMOTO RDS",
+                "SERVIDORES DE ACCESO REMOTO RDS",
+                "BUILTIN\\SERVEURS ACCÈS DISTANT RDS",
+                "SERVEURS ACCÈS DISTANT RDS",
+                "SERVER DI ACCESSO REMOTO BUILTIN\\RDS",
+                "SERVER DI ACCESSO REMOTO RDS",
+            ],
+            "576": [
+                "BUILTIN\\RDS ENDPOINT SERVERS",
+                "RDS ENDPOINT SERVERS",
+                "BUILTIN\\RDS-ENDPUNKTSERVER",
+                "RDS-ENDPUNKTSERVER",
+                "BUILTIN\\SERVIDORES DE PUNTO DE CONEXIÓN RDS",
+                "SERVIDORES DE PUNTO DE CONEXIÓN RDS",
+                "BUILTIN\\SERVEURS RDS ENDPOINT",
+                "SERVEURS RDS ENDPOINT",
+                "SERVER ENDPOINT BUILTIN\\RDS",
+                "SERVER ENDPOINT RDS",
+            ],
+            "577": [
+                "BUILTIN\\RDS MANAGEMENT SERVERS",
+                "RDS MANAGEMENT SERVERS",
+                "BUILTIN\\RDS-VERWALTUNGSSERVER",
+                "RDS-VERWALTUNGSSERVER",
+                "BUILTIN\\SERVIDORES DE ADMINISTRACIÓN RDS",
+                "SERVIDORES DE ADMINISTRACIÓN RDS",
+                "BUILTIN\\SERVEURS GESTION RDS",
+                "SERVEURS GESTION RDS",
+                "SERVER DI GESTIONE BUILTIN\\RDS",
+                "SERVER DI GESTIONE RDS",
+            ],
+            "578": [
+                "BUILTIN\\HYPER-V ADMINISTRATORS",
+                "HYPER-V ADMINISTRATORS",
+                "BUILTIN\\HYPER-V-ADMINISTRATOREN",
+                "HYPER-V-ADMINISTRATOREN",
+                "BUILTIN\\ADMINISTRADORES DE HYPER-V",
+                "ADMINISTRADORES DE HYPER-V",
+                "BUILTIN\\ADMINISTRATEURS HYPER-V",
+                "ADMINISTRATEURS HYPER-V",
+                "BUILTIN\\HYPER-V AMMINISTRAZIONE ISTRATORS",
+                "HYPER-V AMMINISTRAZIONE ISTRATORS",
+            ],
+            "579": [
+                "BUILTIN\\ACCESS CONTROL ASSISTANCE OPERATORS",
+                "ACCESS CONTROL ASSISTANCE OPERATORS",
+                "BUILTIN\\ZUGRIFFSSTEUERUNGS-UNTERSTÜTZUNGSOPERATOREN",
+                "ZUGRIFFSSTEUERUNGS-UNTERSTÜTZUNGSOPERATOREN",
+                "BUILTIN\\OPERADORES DE ASISTENCIA DE CONTROL DE ACCESO",
+                "OPERADORES DE ASISTENCIA DE CONTROL DE ACCESO",
+                "BUILTIN\\OPÉRATEURS D’ASSISTANCE DE CONTRÔLE D’ACCÈS",
+                "OPÉRATEURS D’ASSISTANCE DE CONTRÔLE D’ACCÈS",
+                "OPERATORI DI ASSISTENZA BUILTIN\\CONTROLLO DI ACCESSO",
+                "OPERATORI DI ASSISTENZA CONTROLLO DI ACCESSO",
+            ],
+            "580": [
+                "BUILTIN\\REMOTE MANAGEMENT USERS",
+                "REMOTE MANAGEMENT USERS",
+                "BUILTIN\\REMOTEVERWALTUNGSBENUTZER",
+                "REMOTEVERWALTUNGSBENUTZER",
+                "BUILTIN\\USUARIOS DE ADMINISTRACIÓN REMOTA",
+                "USUARIOS DE ADMINISTRACIÓN REMOTA",
+                "BUILTIN\\UTILISATEURS DE GESTION À DISTANCE",
+                "UTILISATEURS DE GESTION À DISTANCE",
+            ],
+            "21": [
+                "DIGEST AUTHENTICATION",
+                "DIGESTAUTHENTIFIZIERUNG",
+                "AUTENTICACIÓN IMPLÍCITA",
+                "AUTHENTIFICATION DIGEST",
+                "AUTENTICAZIONE DIGEST",
+            ],
+            "80": [
+                "NT SERVICE",
+                "NT-DIENST",
+                "SERVICIO NT",
+                "SERVICE WINDOWS NT",
+                "SERVIZIO NT",
+            ],
+            "0": [
+                "ALL SERVICES",
+                "NT VIRTUAL MACHINE\\VIRTUAL MACHINES",
+                "ALLE DIENSTE",
+                "NT VIRTUELLER COMPUTER\\VIRTUELLE COMPUTER",
+                "TODOS LOS SERVICIOS",
+                "TOUS LES SERVICES",
+                "TUTTI I SERVIZI",
+                "MACCHINA VIRTUALE NT\\MACCHINE VIRTUALI",
+            ],
+        }
+
+        page = Page(
+            self.arguments.cache_prefix,
+            "primaryGroupID_lower_than_1000",
+            "Unexpected accounts with lower than 1000 SIDs",
+            "primaryGroupID_lower_than_1000",
+        )
+        grid = Grid("Unexpected accounts with lower than 1000 SIDs")
+        grid.setheaders(["domain", "name", "SID", "reason"])
+
+        data = []
+
+        for sid, name, domain in self.primaryGroupID_lower_than_1000:
+            tmp_data = {}
+            if str(sid) not in known_SIDs:
+                tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
+                tmp_data["SID"] = str(sid)
+                tmp_data["name"] = name
+                tmp_data["reason"] = "Unknown SID"
+                data.append(tmp_data)
+            elif name.replace("@" + domain, "") not in known_SIDs[str(sid)]:
+                tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
+                tmp_data["SID"] = str(sid)
+                tmp_data["name"] = name
+                tmp_data["reason"] = "Unexpected name, expected name : " + known_SIDs[str(sid)][0]
+                data.append(tmp_data)
+        
+        self.sid_singularities = len(data)
         grid.setData(data)
         page.addComponent(grid)
         page.render()
