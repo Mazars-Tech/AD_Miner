@@ -439,9 +439,8 @@ def render(
                     key += original[i + j]
                     try:
                         content += str(data[key])
-                    except KeyError as e:
+                    except KeyError:
                         content += "N/A"
-                        print("ERROR : ", e, data.keys())
                     i += len(key) + 4
                 elif original[i] == "`":
                     i += 1
