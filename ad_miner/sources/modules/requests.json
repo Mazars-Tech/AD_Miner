@@ -677,7 +677,7 @@
     },
     "pre_windows_2000_compatible_access_group": {
         "name": "Pre-Windows 2000 Compatible Access contains unauthenticated users",
-        "request": "MATCH (n:Group) WHERE n.name STARTS WITH \"PRE-WINDOWS 2000 COMPATIBLE ACCESS@\" MATCH (m)-[r:MemberOf]->(n) WHERE NOT m.objectid ENDS WITH \"-S-1-5-11\" return m.domain, m.name, m.objectid",
+        "request": "MATCH (n:Group) WHERE n.name STARTS WITH \"PRE-WINDOWS 2000 COMPATIBLE ACCESS@\" MATCH (m)-[r:MemberOf]->(n) WHERE NOT m.objectid ENDS WITH \"-S-1-5-11\" return m.domain, m.name, m.objectid, labels(m)[0] as type",
         "output_type": "list"
     },
     "guest_accounts": {
