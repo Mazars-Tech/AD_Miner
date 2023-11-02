@@ -1747,10 +1747,10 @@ class Users:
         sorted_list += [dni for dni in self.pre_windows_2000_compatible_access_group if "1-5-7" not in dni[2]]
 
         data = []
-        for domain, account_name, objectid in sorted_list:
+        for domain, account_name, objectid, type in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
-            tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' + account_name
-            tmp_data["User type"] = "Unauthenticated" if "1-5-7" not in objectid else "Anonymous"
+            tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' if "User" in type else '<i class="bi bi-people-fill"></i> ' + account_name
+            tmp_data["Group"] = "Unauthenticated" if "1-5-7" not in objectid else "Anonymous"
             data.append(tmp_data)
 
         grid.setData(data)
