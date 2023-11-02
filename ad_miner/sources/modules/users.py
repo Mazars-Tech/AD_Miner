@@ -1740,7 +1740,7 @@ class Users:
             "pre_windows_2000_compatible_access_group",
         )
         grid = Grid("Pre-Windows 2000 Compatible Access")
-        grid.setheaders(["Domain", "Name", "User type"])
+        grid.setheaders(["Domain", "Name", "Type"])
 
         # Sort accounts with anonymous accounts first
         sorted_list = [dni for dni in self.pre_windows_2000_compatible_access_group if "1-5-7" in dni[2]]
@@ -1749,8 +1749,8 @@ class Users:
         data = []
         for domain, account_name, objectid, type in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
-            tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' if "User" in type else '<i class="bi bi-people-fill"></i> ' + account_name
-            tmp_data["Group"] = "Unauthenticated" if "1-5-7" not in objectid else "Anonymous"
+            tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' + account_name if "User" in type else '<i class="bi bi-people-fill"></i> ' + account_name
+            tmp_data["Type"] = "Unauthenticated" if "1-5-7" not in objectid else "Anonymous"
             data.append(tmp_data)
 
         grid.setData(data)
