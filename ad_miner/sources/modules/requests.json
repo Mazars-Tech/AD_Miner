@@ -672,7 +672,7 @@
     },
     "primaryGroupID_lower_than_1000": {
         "name": "User with PrimaryGroupID lower than 1000",
-        "request": "MATCH (n) WHERE (n:Group OR n:User) AND toInteger(split(n.objectid, \"-\")[-1]) < 1000 AND (n.enabled = true or n:Group) return toInteger(split(n.objectid, \"-\")[-1]) as sid, n.name, n.domain ORDER BY sid",
+        "request": "MATCH (n) WHERE (n:Group OR n:User) AND toInteger(split(n.objectid, \"-\")[-1]) < 1000 AND (n.enabled = true or n:Group) return toInteger(split(n.objectid, \"-\")[-1]) as sid, n.name, n.domain",
         "output_type": "list"
     },
     "pre_windows_2000_compatible_access_group": {

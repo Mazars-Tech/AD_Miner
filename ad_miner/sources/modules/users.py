@@ -1707,6 +1707,8 @@ class Users:
         data = []
 
         for sid, name, domain in self.primaryGroupID_lower_than_1000:
+            name_without_domain = name.replace("@","").replace(domain, "")
+
             tmp_data = {}
             if str(sid) not in known_SIDs:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
@@ -1714,17 +1716,17 @@ class Users:
                 tmp_data["name"] = name
                 tmp_data["reason"] = "Unknown SID"
                 data.append(tmp_data)
-            elif name.replace("@","").replace(domain, "") not in known_SIDs[str(sid)]:
+            elif name_without_domain not in known_SIDs[str(sid)]:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
                 tmp_data["SID"] = str(sid)
                 tmp_data["name"] = name
                 tmp_data["reason"] = "Unexpected name, expected : " + known_SIDs[str(sid)][0]
                 data.append(tmp_data)
 
-        sorted_data = sorted(data, key=lambda x: x["SID"])
+        data = sorted(data, key=lambda x: x["SID"])
 
-        sorted_data = [tmp_data for tmp_data in sorted_data if tmp_data["reason"].startswith("Unknown")]
-        sorted_data += [tmp_data for tmp_data in sorted_data if tmp_data["reason"].startswith("Unexpected")]
+        sorted_data = [tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unknown")]
+        sorted_data += [tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unexpected")]
         
         self.sid_singularities = len(sorted_data)
 
