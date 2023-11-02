@@ -1736,7 +1736,7 @@ class Users:
         page = Page(
             self.arguments.cache_prefix,
             "pre_windows_2000_compatible_access_group",
-            "Pre-Windows 2000 Compatible Access accounts",
+            "Pre-Windows 2000 Compatible Access groups",
             "pre_windows_2000_compatible_access_group",
         )
         grid = Grid("Pre-Windows 2000 Compatible Access")
