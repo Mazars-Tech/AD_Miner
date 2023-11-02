@@ -1750,7 +1750,7 @@ class Users:
         for domain, account_name, objectid in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
             tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' + account_name
-            tmp_data["User type"] = "Unauthenticated" if objectid != "1-5-7" else "Anonymous"
+            tmp_data["User type"] = "Unauthenticated" if "1-5-7" not in objectid else "Anonymous"
             data.append(tmp_data)
 
         grid.setData(data)
