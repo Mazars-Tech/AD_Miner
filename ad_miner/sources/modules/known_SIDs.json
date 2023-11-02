@@ -343,7 +343,7 @@
         "\u00d0\u0090\u00d0\u00b4\u00d0\u00bc\u00d0\u00b8\u00d0\u00bd\u00d0\u00b8\u00d1\u0081\u00d1\u0082\u00d1\u0080\u00d0\u00b0\u00d1\u0082\u00d0\u00be\u00d1\u0080\u00d1\u008b \u00d0\u00b4\u00d0\u00be\u00d0\u00bc\u00d0\u039c\u00d0\u00bd\u00d0\u00b0",
         "ADMINISTRADORES DO DOM\u00c3\u00adNIO",
         "DOMAIN_ADMINS",
-        "DOM\u00c3\u00a4NEN-ADMINS"
+        "DOM\u00c4NEN-ADMINS"
     ],
     "513": [
         "DOMAIN USERS",
@@ -461,7 +461,8 @@
         "CONTROLLER DI DOMINIO DI SOLA LETTURA",
         "\u00d0\u009a\u00d0\u00be\u00d0\u00bd\u00d1\u0082\u00d1\u0080\u00d0\u00be\u00d0\u00bb\u00d0\u00bb\u00d0\u039c\u00d1\u0080\u00d1\u008b \u00d0\u00b4\u00d0\u00be\u00d0\u00bc\u00d0\u039c\u00d0\u00bd\u00d0\u00b0 \u00d1\u0082\u00d0\u00be\u00d0\u00bb\u00d1\u008c\u00d0\u00ba\u00d0\u00be \u00d0\u00b4\u00d0\u00bb\u00d1\u008f \u00d1\u0087\u00d1\u0082\u00d0\u039c\u00d0\u00bd\u00d0\u00b8\u00d1\u008f",
         "CONTROLADORES DE DOM\u00c3\u00adNIO SOMENTE LEITURA",
-        "READONLY_DOMAIN_CONTROLLERS"
+        "READONLY_DOMAIN_CONTROLLERS",
+        "READ-ONLY DOMAIN CONTROLLERS"
     ],
     "522": [
         "CLONABLE CONTROLLERS",
