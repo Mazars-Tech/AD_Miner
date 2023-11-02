@@ -243,7 +243,8 @@ def create_dico_data(
         "unpriviledged_users_with_admincount": len(users.unpriviledged_users_with_admincount),
         "priviledge_users_without_admincount": len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
         "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]),
-        "sid_singularities": users.sid_singularities
+        "sid_singularities": users.sid_singularities,
+        "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group)
     }
     dico_data["color_category"] = dico_rating_color
 
@@ -338,7 +339,8 @@ def render(
         "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled",
         "up_to_date_admincount": f"{dico_data['value']['priviledge_users_without_admincount']} priviledged accounts don't have admincount and {dico_data['value']['unpriviledged_users_with_admincount']} unpriviledged accounts have admincount",
         "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts are not part of the Protected Users group",
-        "primaryGroupID_lower_than_1000": f"{dico_data['value']['sid_singularities']} accounts have unknown SIDs or unexpected names"
+        "primaryGroupID_lower_than_1000": f"{dico_data['value']['sid_singularities']} accounts have unknown SIDs or unexpected names",
+         "pre_Win_2000_accounts": f"{len(users.pre_windows_2000_compatible_access_group)} unauthenticated users in Pre-Win 2000 Compatible Access group"
     }
 
     descriptions = DESCRIPTION_MAP

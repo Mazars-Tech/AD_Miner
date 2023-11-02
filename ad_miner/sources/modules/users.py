@@ -216,6 +216,8 @@ class Users:
 
         self.primaryGroupID_lower_than_1000 = neo4j.all_requests["primaryGroupID_lower_than_1000"]["result"]
 
+        self.pre_windows_2000_compatible_access_group = neo4j.all_requests["pre_windows_2000_compatible_access_group"]["result"]
+        
         # Generate all the users-related pages
         self.genComputersWithMostAdminsPage()
         self.genServersCompromisablePage()
@@ -248,7 +250,7 @@ class Users:
         self.genUpToDateAdmincount()
         self.genProtectedUsers()
         self.genSID_lower_than_1000()
-
+        self.preWin2000()
         logger.print_warning(timer_format(time.time() - self.start))
 
     # List of Servers with the most user compromise paths (and if to handle empty cases)
@@ -1727,5 +1729,30 @@ class Users:
         self.sid_singularities = len(sorted_data)
 
         grid.setData(sorted_data)
+        page.addComponent(grid)
+        page.render()
+
+    def genPreWin2000(self):
+        page = Page(
+            self.arguments.cache_prefix,
+            "pre_windows_2000_compatible_access_group",
+            "Pre-Windows 2000 Compatible Access accounts",
+            "pre_windows_2000_compatible_access_group",
+        )
+        grid = Grid("Pre-Windows 2000 Compatible Access")
+        grid.setheaders(["Domain", "Name", "User type"])
+
+        # Sort accounts with anonymous accounts first
+        sorted_list = [dni for dni in self.pre_windows_2000_compatible_access_group if "1-5-7" in dni[2]]
+        sorted_list += [dni for dni in self.pre_windows_2000_compatible_access_group if "1-5-7" not in dni[2]]
+
+        data = []
+        for domain, account_name, objectid in sorted_list:
+            tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
+            tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' + account_name
+            tmp_data["User type"] = "Unauthenticated" if objectid != "1-5-7" else "Anonymous"
+            data.append(tmp_data)
+
+        grid.setData(data)
         page.addComponent(grid)
         page.render()
