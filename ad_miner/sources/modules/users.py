@@ -250,7 +250,7 @@ class Users:
         self.genUpToDateAdmincount()
         self.genProtectedUsers()
         self.genSID_lower_than_1000()
-        self.preWin2000()
+        self.genPreWin2000()
         logger.print_warning(timer_format(time.time() - self.start))
 
     # List of Servers with the most user compromise paths (and if to handle empty cases)
