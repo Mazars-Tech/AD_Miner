@@ -50,7 +50,7 @@ dico_category = {
         "guest_accounts",
         "up_to_date_admincount",
         "privileged_accounts_outside_Protected_Users",
-        "primaryGroupID_lower_than_1000"
+        "primaryGroupID_lower_than_1000",
         "pre_windows_2000_compatible_access_group"
     ],
     "misc": [
