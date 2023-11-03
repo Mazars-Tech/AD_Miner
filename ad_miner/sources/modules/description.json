@@ -510,14 +510,14 @@
     "poa": "Review these privileges, this list should be as little as possible."
   },
   "primaryGroupID_lower_than_1000": {
-    "title": "List of user with PrimaryGroupID lower than 1000",
-    "description": "These accounts either have an unknown SID, or a well-known SID that doesn't match their name.",
+    "title": "User with PrimaryGroupID lower than 1000",
+    "description": "Accounts with either an unknown SID, or SID-name missmatches.",
     "risk": "In Active Directory, the primaryGroupId attribute of a user or machine account implicitly assigns this account to a group, even if this group is not listed in the user's memberOf attribute. Membership of a group via this attribute does not appear in the list of group members in certain interfaces. This attribute can be used to hide an account's membership of a group.",
     "poa": "We recommend that you reset the primaryGroupId attributes of the users or computers concerned to their default values."
   },
   "pre_windows_2000_compatible_access_group": {
-    "title": "List of unauthenticated users member of the \"Pre-Windows 2000 Compatible Access\" group",
-    "description": "Unauthenticated accounts in the \"Pre-Windows 2000 Compatible Access\" group.",
+    "title": "\"Pre-Windows 2000 Compatible Access\" group",
+    "description": "Inadequate object in \"Pre-Windows 2000 Compatible Access\" group.",
     "risk": "Membership of the \"Pre-Windows 2000 Compatible Access\" group allows to enumerate elements of the Active Directory.",
     "poa": "The Pre-Windows 2000 Compatible Access group must contain only \"Authenticated Users\"."
   },
@@ -528,13 +528,13 @@
     "poa": "Guests accounts should be disabled."
   },
   "up_to_date_admincount": {
-    "title": "List of account that are not up-to-date with \"adminCount\"",
-    "description": "These accounts either have an \"admincount\" attribute set without current privileged group membership, or are privileged accounts missing the \"admincount\" attribute.",
+    "title": "Account status regarding \"adminCount\"",
+    "description": "Discrepancies in 'adminCount' attribute for accounts",
     "risk": "Potential security oversight leading to unauthorized access, privilege misrepresentation, or unintended privilege escalation.",
     "poa": "Consistently audit and rectify any discrepancies in the `adminCount` attribute settings for all accounts, ensuring it aligns with actual privilege levels."
   },
     "privileged_accounts_outside_Protected_Users": {
-    "title": "List of privileged account outside the protected users group.",
+    "title": "Privileged account outside the protected users group.",
     "description": "Privileged accounts not protected by the Protected Users group.",
     "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
     "poa": "Privileged accounts must be part of the Protected Users group."
