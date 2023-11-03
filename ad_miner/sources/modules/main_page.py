@@ -410,11 +410,12 @@ def render(
             data[global_risk_controls[risk_control]["panel_key"]] = ""
             red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
             for issue in data[f"{risk_control}_list"]:
+                custom_title = dico_name_description[issue].replace("$", "")
                 data[
                     global_risk_controls[risk_control]["panel_key"]
                 ] += f"""
                     <a href="{issue}.html">
-                        <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{red_status}">
+                        <div class="card threat-card" custom-title="{custom_title}" custom-status="{red_status}">
                             <div class="card-body">
                                 <h6 class="card-title">{dico_name_title[issue]}</h6>
                             </div>
@@ -584,7 +585,7 @@ def render(
                     "position": dico_position[category][
                         dico_position_instance[category]
                     ],
-                    "title": dico_name_description[indicator]
+                    "title": dico_name_description[indicator].replace("$", "")
                     if dico_name_description.get(indicator)
                     else indicator,
                 }

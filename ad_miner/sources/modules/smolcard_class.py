@@ -170,7 +170,7 @@ class SmolCard:
         tmp_details = ""
         for char in self.details:
             if char == "$":
-                # Toggle the in_dollars flag but don't add the dollar to the output
+                # Toggle the startedDollars flag but don't add the dollar to the output
                 startedDollars = not startedDollars
                 # If we end a digit sequence because of a dollar, we close the tag
                 if startedDigits:
@@ -191,7 +191,8 @@ class SmolCard:
         # Add closing tag if the string ends with a number
         if startedDigits:
             tmp_details += "</b>"
-
+        self.details = tmp_details
+        
         if len(self.description) > 150:
             self.description_reduced = self.description[:150] + "..."
         else:
