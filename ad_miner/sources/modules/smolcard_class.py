@@ -165,9 +165,32 @@ class SmolCard:
         ) as line_f:
             html_raw = line_f.read()
 
-        while '$' in self.details:
-            self.details = self.details.replace("$", '<b class=\'number-in-details\'>', 1)
-            self.details = self.details.replace('$', "</b>", 1)
+        startedDollars = False
+        startedDigits = False
+        tmp_details = ""
+        for char in self.details:
+            if char == "$":
+                # Toggle the in_dollars flag but don't add the dollar to the output
+                startedDollars = not startedDollars
+                # If we end a digit sequence because of a dollar, we close the tag
+                if startedDigits:
+                    tmp_details += "</b>"
+                    startedDigits = False
+                continue
+            
+            if not startedDollars and not startedDigits and char in string.digits:
+              tmp_details += "<b class='number-in-details'>"
+              startedDigits = True
+
+            if startedDigits and char not in string.digits:
+                tmp_details += "</b>"
+                startedDigits = False
+
+            tmp_details += char
+
+        # Add closing tag if the string ends with a number
+        if startedDigits:
+            tmp_details += "</b>"
 
         if len(self.description) > 150:
             self.description_reduced = self.description[:150] + "..."
