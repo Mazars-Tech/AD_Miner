@@ -1643,7 +1643,7 @@ class Users:
             tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
             tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
             tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["admincount"] = '<i class="bi bi-square"></i>'
+            tmp_data["admincount"] = '<i class="bi bi-square" style="color: rgb(255, 89, 94);"></i> Missing admincount'
             data.append(tmp_data)
 
         for name, domain, da_type in self.unpriviledged_users_with_admincount:
@@ -1654,8 +1654,8 @@ class Users:
             tmp_data["enterprise admin"] = '<i class="bi bi-square"></i>'
             tmp_data["key admin"] = '<i class="bi bi-square"></i>'
             tmp_data["enterprise key admin"] = '<i class="bi bi-square"></i>'
-            tmp_data["builtin admin"] = '<i class="bi bi-square"></i>'
-            tmp_data["admincount"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+            tmp_data["builtin admin"] = '<i class="bi bi-square" style="color: rgb(255, 89, 94);"></i>'
+            tmp_data["admincount"] = '<i class="bi bi-check-square-fill"></i>Misleading admincount<span style="display:none">True</span>'
             data.append(tmp_data)
 
         grid.setData(data)
@@ -1670,7 +1670,7 @@ class Users:
             "privileged_accounts_outside_Protected_Users",
         )
         grid = Grid("Priviledged accounts not part of the Protected Users group")
-        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "key admin", "enterprise key admin", "builtin admin"])
+        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "key admin", "enterprise key admin", "builtin admin", "protected user"])
 
         data = []
 
@@ -1685,7 +1685,7 @@ class Users:
             tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
             tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
             tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["admincount"] = '<i class="bi bi-square"></i>'
+            tmp_data["protected user"] = '<i class="bi bi-x-circle" style="color: rgb(255, 89, 94);"></i> Unprotected'
             data.append(tmp_data)
 
         grid.setData(data)

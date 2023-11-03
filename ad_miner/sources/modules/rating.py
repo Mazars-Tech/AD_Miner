@@ -169,7 +169,7 @@ def rating(users, domains, computers, objects, arguments):
     d[1 if len([ude for ude in users.guest_accounts if ude[-1]]) > 0 else 5].append("guest_accounts")
     d[rate_admincount(users.unpriviledged_users_with_admincount, users.users_nb_domain_admins)].append("up_to_date_admincount"),
     d[1 if len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]) > 0 else 5].append("privileged_accounts_outside_Protected_Users"),
-    d[1 if users.sid_singularities > 0 else 5].append("primaryGroupID_lower_than_1000")
+    d[2 if users.sid_singularities > 0 else 5].append("primaryGroupID_lower_than_1000")
     d[1 if True in ["1-5-7" in dni[2] for dni in users.pre_windows_2000_compatible_access_group] else 2 if len(users.pre_windows_2000_compatible_access_group) > 0 else 5].append("pre_windows_2000_compatible_access_group")
     return d
 
