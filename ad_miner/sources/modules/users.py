@@ -1706,20 +1706,20 @@ class Users:
 
         data = []
 
-        for sid, name, domain in self.primaryGroupID_lower_than_1000:
+        for sid, name, domain, is_da in self.primaryGroupID_lower_than_1000:
             name_without_domain = name.replace("@","").replace(domain, "")
 
             tmp_data = {}
             if str(sid) not in known_SIDs:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
                 tmp_data["SID"] = str(sid)
-                tmp_data["name"] = name
+                tmp_data["name"] = '<i class="bi bi-gem"></i> ' + name if is_da else name
                 tmp_data["reason"] = "Unknown SID"
                 data.append(tmp_data)
             elif name_without_domain not in known_SIDs[str(sid)]:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
                 tmp_data["SID"] = str(sid)
-                tmp_data["name"] = name
+                tmp_data["name"] = '<i class="bi bi-gem"></i> ' + name if is_da else name
                 tmp_data["reason"] = "Unexpected name, expected : " + known_SIDs[str(sid)][0]
                 data.append(tmp_data)
 
@@ -1738,7 +1738,7 @@ class Users:
         page = Page(
             self.arguments.cache_prefix,
             "pre_windows_2000_compatible_access_group",
-            "Pre-Windows 2000 Compatible Access groups",
+            "Pre-Windows 2000 Compatible Access group",
             "pre_windows_2000_compatible_access_group",
         )
         grid = Grid("Pre-Windows 2000 Compatible Access")

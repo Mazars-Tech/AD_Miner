@@ -121,6 +121,12 @@
     "poa": "LAPS is a good tool to use, consider installing it or expanding its usage to more computers."
   },
 
+    "_paths_to_ou_handlers": {
+    "description": "Graph of paths leading to OU handlers",
+    "risk": "Compromission paths to OU handlers represent the exposed attack surface that the AD environment presents to the attacker in order to gain corresponding privileges.",
+    "poa": "Review the paths, make sure they are not exploitable. If they are, cut the link between the Active Directory objects in order to reduce the attack surface."
+  },
+
   "laps_computer_list": {
     "description": "Microsoft Local Administrator Password Solution (LAPS) allows local admnistrators to manage different passwords on local administrator accounts.",
     "risk": "The more computers are configured with LAPS, the better, especially on critical servers/machines. Without LAPS, it becomes tedious to have different passwords on local administrator for different computers, resulting in reuse of passwords and a risk of lateral movement.",
@@ -379,6 +385,7 @@
     "risk": "Inadequate administration rights on computers can lead to easy privilege escalation for an attacker. With a privileged account, it is possible to perform local memory looting to find credentials for example.",
     "poa": "Only a handful of accounts should have administrator privilege on computers to perform some maintenance actions. No normal user should be admin of any computer, not even its own."
   },
+
   "users_shadow_credentials_to_non_admins": {
     "title": "Low-privilege users impersonation",
     "description": "Users that can perform a shadow credentials attack and impersonate unprivileged accounts. It allows user to use a key for authentication.",
@@ -504,12 +511,12 @@
   },
   "primaryGroupID_lower_than_1000": {
     "title": "List of user with PrimaryGroupID lower than 1000",
-    "description": "Some users or computers have a primaryGroupId attribute outside the recommended default values. PrimaryGroupId values below 1000 are often preferred.",
+    "description": "These accounts either have an unknown SID, or a well-known SID that doesn't match their name.",
     "risk": "In Active Directory, the primaryGroupId attribute of a user or machine account implicitly assigns this account to a group, even if this group is not listed in the user's memberOf attribute. Membership of a group via this attribute does not appear in the list of group members in certain interfaces. This attribute can be used to hide an account's membership of a group.",
     "poa": "We recommend that you reset the primaryGroupId attributes of the users or computers concerned to their default values."
   },
   "pre_windows_2000_compatible_access_group": {
-    "title": "List of unauthenticated users in \"Pre-Windows 2000 Compatible Access\" group",
+    "title": "List of unauthenticated users member of the \"Pre-Windows 2000 Compatible Access\" group",
     "description": "Unauthenticated accounts in the \"Pre-Windows 2000 Compatible Access\" group.",
     "risk": "Membership of the \"Pre-Windows 2000 Compatible Access\" group allows to enumerate elements of the Active Directory.",
     "poa": "The Pre-Windows 2000 Compatible Access group must contain only \"Authenticated Users\"."
