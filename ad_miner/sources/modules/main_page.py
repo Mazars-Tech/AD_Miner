@@ -392,7 +392,7 @@ def render(
                     </p>"""
             data[f"{category}_data"].append(categories[category])
         
-        #Setting global risk info
+        # Setting global risk info
         if not data["global_rating"] and data[risk_control] > 0:
             data["global_rating"] = f"""
                 <div class="alert alert-{global_risk_controls[risk_control]["div_class"]} d-flex align-items-center global-rating" role="alert">
@@ -410,11 +410,12 @@ def render(
             data[global_risk_controls[risk_control]["panel_key"]] = ""
             red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
             for issue in data[f"{risk_control}_list"]:
+                custom_title = dico_name_description[issue].replace("$", "")
                 data[
                     global_risk_controls[risk_control]["panel_key"]
                 ] += f"""
                     <a href="{issue}.html">
-                        <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{red_status}">
+                        <div class="card threat-card" custom-title="{custom_title}" custom-status="{red_status}">
                             <div class="card-body">
                                 <h6 class="card-title">{dico_name_title[issue]}</h6>
                             </div>
@@ -550,12 +551,9 @@ def render(
                 [16, 72],
                 [15, 33],
                 [5, 42],
-                [0, 0],
-                [0, 7],
-                [7, 0],
-                [7, 7],
-                [14, 0],
-                [0, 14]
+                [40, 80],
+                [42, 69],
+                [30, 85]
             ],
             "misc": [
                 [70, 41],
@@ -564,7 +562,8 @@ def render(
                 [75, 58],
                 [72, 50],
                 [81, 39],
-                [82, 62]
+                [82, 62],
+                [85, 30]
             ]
         }
 
@@ -586,7 +585,7 @@ def render(
                     "position": dico_position[category][
                         dico_position_instance[category]
                     ],
-                    "title": dico_name_description[indicator]
+                    "title": dico_name_description[indicator].replace("$", "")
                     if dico_name_description.get(indicator)
                     else indicator,
                 }
