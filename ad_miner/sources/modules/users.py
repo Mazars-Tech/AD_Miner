@@ -1753,7 +1753,7 @@ class Users:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
             tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' + account_name if "User" in type else '<i class="bi bi-pc-display"></i> ' + account_name if "Computer" in type else '<i class="bi bi-people-fill"></i> ' + account_name
             tmp_data["Type"] = "Unauthenticated" if "1-5-7" not in objectid else "Anonymous"
-            tmp_data["Rating"] = '<i class="bi bi-star-fill" style="color: yellow"></i><i class="bi bi-star-fill" style="color: yellow"></i><i class="bi bi-star" style="color: yellow"></i><i class="bi bi-star" style="color: yellow"></i><i class="bi bi-star" style="color: yellow"></i>' if "1-5-7" not in objectid else '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>'
+            tmp_data["Rating"] = '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>' if "1-5-7" not in objectid else '<i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i>'
             data.append(tmp_data)
 
         grid.setData(data)
