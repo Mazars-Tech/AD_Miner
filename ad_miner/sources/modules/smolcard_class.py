@@ -165,16 +165,14 @@ class SmolCard:
             html_raw = line_f.read()
 
         started = False
-        tmp_details = ""
-        for i in range(len(self.details)):
-            if not started and self.details[i] in string.digits:
-                tmp_details += "<b class='number-in-details'>"
+
+        while '$' in self.details:
+            if not started:
+                self.details = self.details.replace("$", '<b class=\'number-in-details\'>', 1)
                 started = True
-            if started and self.details[i] not in string.digits:
-                tmp_details += "</b>"
+            else:
+                self.details = self.details.replace('$', "</b>", 1)
                 started = False
-            tmp_details += self.details[i]
-        self.details = tmp_details
 
         if len(self.description) > 150:
             self.description_reduced = self.description[:150] + "..."
