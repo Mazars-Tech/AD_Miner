@@ -221,7 +221,6 @@ def create_dico_data(
         "unpriv_to_dnsadmins": len(users.unpriv_to_dnsadmins) if users.unpriv_to_dnsadmins else 0,
         "objects_to_operators_member": len(users.objects_to_operators_member) if len(users.objects_to_operators_member) else 0,
         "computers_os_obsolete": len(computers.list_computers_os_obsolete) if computers.list_computers_os_obsolete else 0,
-        "users_pwd_cleartext": len(users.users_pwd_cleartext) if users.users_pwd_cleartext else 0,
         "computers_without_laps": computers.stat_laps if computers.stat_laps else 0,
         "graph_path_objects_to_ou_handlers": domains.nb_starting_nodes_to_ous if domains.nb_starting_nodes_to_ous else 0,
         "vuln_functional_level": len(domains.vuln_functional_level) if domains.vuln_functional_level else 0,
@@ -244,7 +243,8 @@ def create_dico_data(
         "priviledge_users_without_admincount": len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
         "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]),
         "rid_singularities": users.rid_singularities,
-        "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group)
+        "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group),
+        "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]])
     }
     dico_data["color_category"] = dico_rating_color
 
