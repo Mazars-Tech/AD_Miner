@@ -1614,7 +1614,11 @@ class Users:
         for account_name, domain, is_enabled in guest_list:
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + domain}
             tmp_data["name"] = '<i class="bi bi-person-fill"></i> ' + account_name
-            tmp_data["enabled"] = '<i class="bi bi-unlock-fill text-danger"></i> Enabled' if is_enabled else '<i class="bi bi-lock-fill text-success"></i> Disabled'
+            tmp_data["enabled"] = (
+                '<i class="bi bi-unlock-fill text-danger"></i> Enabled'
+                if is_enabled
+                else '<i class="bi bi-lock-fill text-success"></i> Disabled'
+            )
             data.append(tmp_data)
 
         grid.setData(data)
@@ -1633,7 +1637,19 @@ class Users:
             "up_to_date_admincount",
         )
         grid = Grid("Priviledged accounts and admincount")
-        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "key admin", "enterprise key admin", "builtin admin", "admincount"])
+        grid.setheaders(
+            [
+                "domain",
+                "name",
+                "domain admin",
+                "schema admin",
+                "enterprise admin",
+                "key admin",
+                "enterprise key admin",
+                "builtin admin",
+                "admincount",
+            ]
+        )
 
         data = []
 
@@ -1642,13 +1658,39 @@ class Users:
                 continue
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dic["domain"]}
             tmp_data["name"] = '<i class="bi bi-gem"></i> ' + dic["name"]
-            tmp_data["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["admincount"] = '<i class="bi bi-square" style="color: red;"></i> Missing admincount'
+            tmp_data["domain admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Domain Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["schema admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Schema Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "_ Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["builtin admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Builtin Administrator" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data[
+                "admincount"
+            ] = '<i class="bi bi-square" style="color: red;"></i> Missing admincount'
             data.append(tmp_data)
 
         for name, domain, da_type in self.unpriviledged_users_with_admincount:
@@ -1660,7 +1702,9 @@ class Users:
             tmp_data["key admin"] = '<i class="bi bi-square"></i>'
             tmp_data["enterprise key admin"] = '<i class="bi bi-square"></i>'
             tmp_data["builtin admin"] = '<i class="bi bi-square"></i>'
-            tmp_data["admincount"] = '<i class="bi bi-check-square-fill" style="color: red;"></i> Misleading admincount<span style="display:none">True</span>'
+            tmp_data[
+                "admincount"
+            ] = '<i class="bi bi-check-square-fill" style="color: red;"></i> Misleading admincount<span style="display:none">True</span>'
             data.append(tmp_data)
 
         grid.setData(data)
@@ -1678,7 +1722,19 @@ class Users:
             "privileged_accounts_outside_Protected_Users",
         )
         grid = Grid("Priviledged accounts not part of the Protected Users group")
-        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "key admin", "enterprise key admin", "builtin admin", "protected user"])
+        grid.setheaders(
+            [
+                "domain",
+                "name",
+                "domain admin",
+                "schema admin",
+                "enterprise admin",
+                "key admin",
+                "enterprise key admin",
+                "builtin admin",
+                "protected user",
+            ]
+        )
 
         data = []
 
@@ -1687,13 +1743,39 @@ class Users:
                 continue
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dic["domain"]}
             tmp_data["name"] = '<i class="bi bi-gem"></i> ' + dic["name"]
-            tmp_data["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in dic["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["protected user"] = '<i class="bi bi-x-circle" style="color: rgb(255, 89, 94);"></i> Unprotected'
+            tmp_data["domain admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Domain Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["schema admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Schema Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "_ Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["builtin admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Builtin Administrator" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data[
+                "protected user"
+            ] = '<i class="bi bi-x-circle" style="color: rgb(255, 89, 94);"></i> Unprotected'
             data.append(tmp_data)
 
         grid.setData(data)
@@ -1704,7 +1786,9 @@ class Users:
         if self.primaryGroupID_lower_than_1000 is None:
             self.primaryGroupID_lower_than_1000 = []
 
-        known_RIDs = json.loads((MODULES_DIRECTORY / "known_RIDs.json").read_text(encoding="utf-8"))
+        known_RIDs = json.loads(
+            (MODULES_DIRECTORY / "known_RIDs.json").read_text(encoding="utf-8")
+        )
 
         page = Page(
             self.arguments.cache_prefix,
@@ -1724,21 +1808,31 @@ class Users:
             if str(rid) not in known_RIDs:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
                 tmp_data["RID"] = str(rid)
-                tmp_data["name"] = '<i class="bi bi-gem"></i> ' + name if is_da else name
+                tmp_data["name"] = (
+                    '<i class="bi bi-gem"></i> ' + name if is_da else name
+                )
                 tmp_data["reason"] = "Unknown RID"
                 data.append(tmp_data)
             elif name_without_domain not in known_RIDs[str(rid)]:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
                 tmp_data["RID"] = str(rid)
-                tmp_data["name"] = '<i class="bi bi-gem"></i> ' + name if is_da else name
-                tmp_data["reason"] = "Unexpected name, expected : " + known_RIDs[str(rid)][0]
+                tmp_data["name"] = (
+                    '<i class="bi bi-gem"></i> ' + name if is_da else name
+                )
+                tmp_data["reason"] = (
+                    "Unexpected name, expected : " + known_RIDs[str(rid)][0]
+                )
                 data.append(tmp_data)
 
         data = sorted(data, key=lambda x: x["RID"])
 
-        sorted_data = [tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unknown")]
-        sorted_data += [tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unexpected")]
-        
+        sorted_data = [
+            tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unknown")
+        ]
+        sorted_data += [
+            tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unexpected")
+        ]
+
         self.rid_singularities = len(sorted_data)
 
         grid.setData(sorted_data)
@@ -1759,14 +1853,32 @@ class Users:
         grid.setheaders(["Domain", "Name", "Rating"])
 
         # Sort accounts with anonymous accounts first
-        sorted_list = [dni for dni in self.pre_windows_2000_compatible_access_group if "1-5-7" in dni[2]]
-        sorted_list += [dni for dni in self.pre_windows_2000_compatible_access_group if "1-5-7" not in dni[2]]
+        sorted_list = [
+            dni
+            for dni in self.pre_windows_2000_compatible_access_group
+            if "1-5-7" in dni[2]
+        ]
+        sorted_list += [
+            dni
+            for dni in self.pre_windows_2000_compatible_access_group
+            if "1-5-7" not in dni[2]
+        ]
 
         data = []
         for domain, account_name, objectid, type in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
-            tmp_data["Name"] = '<i class="bi bi-person-fill"></i> ' + account_name if "User" in type else '<i class="bi bi-pc-display"></i> ' + account_name if "Computer" in type else '<i class="bi bi-people-fill"></i> ' + account_name
-            tmp_data["Rating"] = '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>' if "1-5-7" not in objectid else '<i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i>  Anonymous' 
+            tmp_data["Name"] = (
+                '<i class="bi bi-person-fill"></i> ' + account_name
+                if "User" in type
+                else '<i class="bi bi-pc-display"></i> ' + account_name
+                if "Computer" in type
+                else '<i class="bi bi-people-fill"></i> ' + account_name
+            )
+            tmp_data["Rating"] = (
+                '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>'
+                if "1-5-7" not in objectid
+                else '<i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i>  Anonymous'
+            )
             data.append(tmp_data)
 
         grid.setData(data)

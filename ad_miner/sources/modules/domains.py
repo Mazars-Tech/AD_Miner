@@ -390,7 +390,7 @@ class Domains:
                 count_da[da["domain"]] += 1
             except KeyError:
                 count_da[da["domain"]] = 1
-        self.max_da_per_domain = max(count_da.values())
+        self.max_da_per_domain = max(count_da.values(), default=0)
 
         data = []
 

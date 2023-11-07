@@ -166,7 +166,7 @@ def rating(users, domains, computers, objects, arguments):
 
     d[presence_of(users.has_sid_history, 2)].append("has_sid_history")
     d[rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
-    
+
     d[presence_of([ude for ude in users.guest_accounts if ude[-1]])].append("guest_accounts")
     d[rate_admincount(users.unpriviledged_users_with_admincount, users.users_nb_domain_admins)].append("up_to_date_admincount"),
     d[presence_of([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]])].append("privileged_accounts_outside_Protected_Users"),
@@ -349,7 +349,7 @@ def hasPathToDA(
 
 def rate_vuln_functional_level(req):
     if req != None:
-        return min([ret["Level maturity"] for ret in req])
+        return min([ret["Level maturity"] for ret in req]) # TODO
     else:
         return -1
 
@@ -377,7 +377,6 @@ def rate_admincount(unpriviledged_users_with_admincount, users_nb_domain_admins)
 def rate_pre_windows_2000(pre_windows_2000_compatible_access_group):
     if pre_windows_2000_compatible_access_group is None:
         return -1
-    2 
     if True in ["1-5-7" in dni[2] for dni in pre_windows_2000_compatible_access_group]:
         return 2
     elif len(pre_windows_2000_compatible_access_group) > 0:

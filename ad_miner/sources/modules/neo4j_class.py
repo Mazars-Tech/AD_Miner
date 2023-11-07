@@ -237,6 +237,8 @@ class Neo4j:
     def process_request(self, request_key):
         if self.cache_enabled:  # If cache enable, try to retrieve from cache
             result = self.cache.retrieveCacheEntry(request_key)
+            if result is None:
+                result = []
             if result is not False:  # Sometimes result = []
                 logger.print_debug(
                     "From cache : %s - %d objects"
@@ -284,6 +286,9 @@ class Neo4j:
         else:  # Simple not parallelized read request
             result = self.simpleRequest(self, request_key)
 
+        if result is None:
+            result = []
+
         self.cache.createCacheEntry(request_key, result)
         logger.print_warning(
             timer_format(time.time() - start) + " - %d objects" % len(result)
@@ -291,6 +296,7 @@ class Neo4j:
 
         if "postProcessing" in request:
             request["postProcessing"](self, result)
+
         request["result"] = result
         return result
 
