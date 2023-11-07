@@ -166,11 +166,12 @@ def rating(users, domains, computers, objects, arguments):
 
     d[presence_of(users.has_sid_history, 2)].append("has_sid_history")
     d[rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
-    d[1 if len([ude for ude in users.guest_accounts if ude[-1]]) > 0 else 5].append("guest_accounts")
+    
+    d[presence_of([ude for ude in users.guest_accounts if ude[-1]])].append("guest_accounts")
     d[rate_admincount(users.unpriviledged_users_with_admincount, users.users_nb_domain_admins)].append("up_to_date_admincount"),
-    d[1 if len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]) > 0 else 5].append("privileged_accounts_outside_Protected_Users"),
-    d[2 if users.sid_singularities > 0 else 5].append("primaryGroupID_lower_than_1000")
-    d[2 if True in ["1-5-7" in dni[2] for dni in users.pre_windows_2000_compatible_access_group] else 3 if len(users.pre_windows_2000_compatible_access_group) > 0 else 5].append("pre_windows_2000_compatible_access_group")
+    d[presence_of([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]])].append("privileged_accounts_outside_Protected_Users"),
+    d[2 if users.rid_singularities > 0 else 5].append("primaryGroupID_lower_than_1000")
+    d[rate_pre_windows_2000(users.pre_windows_2000_compatible_access_group)].append("pre_windows_2000_compatible_access_group")
     return d
 
 
@@ -363,9 +364,23 @@ def rate_cross_domain_privileges(nb_local_priv,nb_da_priv):
 
 
 def rate_admincount(unpriviledged_users_with_admincount, users_nb_domain_admins):
+    if unpriviledged_users_with_admincount is None or users_nb_domain_admins is None:
+        return -1
     for da_dic in users_nb_domain_admins:
         if not da_dic["admincount"]:
             return 1
     if len(unpriviledged_users_with_admincount) > 0:
         return 3
     return 5
+
+
+def rate_pre_windows_2000(pre_windows_2000_compatible_access_group):
+    if pre_windows_2000_compatible_access_group is None:
+        return -1
+    2 
+    if True in ["1-5-7" in dni[2] for dni in pre_windows_2000_compatible_access_group]:
+        return 2
+    elif len(pre_windows_2000_compatible_access_group) > 0:
+        return 3
+    else:
+        return 5

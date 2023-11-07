@@ -511,7 +511,7 @@
   },
   "primaryGroupID_lower_than_1000": {
     "title": "User with PrimaryGroupID lower than 1000",
-    "description": "Accounts with either an unknown SID, or SID-name missmatches.",
+    "description": "Accounts with either an unknown RID, or RID-name missmatches.",
     "risk": "In Active Directory, the primaryGroupId attribute of a user or machine account implicitly assigns this account to a group, even if this group is not listed in the user's memberOf attribute. Membership of a group via this attribute does not appear in the list of group members in certain interfaces. This attribute can be used to hide an account's membership of a group.",
     "poa": "We recommend that you reset the primaryGroupId attributes of the users or computers concerned to their default values."
   },

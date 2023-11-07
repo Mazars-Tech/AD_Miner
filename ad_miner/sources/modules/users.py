@@ -21,6 +21,7 @@ from pathlib import Path as pathlib
 
 MODULES_DIRECTORY = pathlib(__file__).parent
 
+
 class Users:
     def __init__(self, arguments, neo4j, domain):
         self.arguments = arguments
@@ -249,7 +250,7 @@ class Users:
         self.genGuestUsers()
         self.genUpToDateAdmincount()
         self.genProtectedUsers()
-        self.genSID_lower_than_1000()
+        self.genRID_lower_than_1000()
         self.genPreWin2000()
         logger.print_warning(timer_format(time.time() - self.start))
 
@@ -1621,6 +1622,10 @@ class Users:
         page.render()
 
     def genUpToDateAdmincount(self):
+        if self.users_nb_domain_admins is None:
+            self.users_nb_domain_admins = []
+        if self.unpriviledged_users_with_admincount is None:
+            self.unpriviledged_users_with_admincount = []
         page = Page(
             self.arguments.cache_prefix,
             "up_to_date_admincount",
@@ -1663,6 +1668,9 @@ class Users:
         page.render()
 
     def genProtectedUsers(self):
+        if self.users_nb_domain_admins is None:
+            self.users_nb_domain_admins = []
+
         page = Page(
             self.arguments.cache_prefix,
             "privileged_accounts_outside_Protected_Users",
@@ -1692,49 +1700,55 @@ class Users:
         page.addComponent(grid)
         page.render()
 
-    def genSID_lower_than_1000(self):
-        known_SIDs = json.loads((MODULES_DIRECTORY / "known_SIDs.json").read_text(encoding="utf-8"))
+    def genRID_lower_than_1000(self):
+        if self.primaryGroupID_lower_than_1000 is None:
+            self.primaryGroupID_lower_than_1000 = []
+
+        known_RIDs = json.loads((MODULES_DIRECTORY / "known_RIDs.json").read_text(encoding="utf-8"))
 
         page = Page(
             self.arguments.cache_prefix,
             "primaryGroupID_lower_than_1000",
-            "Unexpected accounts with lower than 1000 SIDs",
+            "Unexpected accounts with lower than 1000 RIDs",
             "primaryGroupID_lower_than_1000",
         )
-        grid = Grid("Unexpected accounts with lower than 1000 SIDs")
-        grid.setheaders(["domain", "name", "SID", "reason"])
+        grid = Grid("Unexpected accounts with lower than 1000 RIDs")
+        grid.setheaders(["domain", "name", "RID", "reason"])
 
         data = []
 
-        for sid, name, domain, is_da in self.primaryGroupID_lower_than_1000:
-            name_without_domain = name.replace("@","").replace(domain, "")
+        for rid, name, domain, is_da in self.primaryGroupID_lower_than_1000:
+            name_without_domain = name.replace("@", "").replace(domain, "")
 
             tmp_data = {}
-            if str(sid) not in known_SIDs:
+            if str(rid) not in known_RIDs:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
-                tmp_data["SID"] = str(sid)
+                tmp_data["RID"] = str(rid)
                 tmp_data["name"] = '<i class="bi bi-gem"></i> ' + name if is_da else name
-                tmp_data["reason"] = "Unknown SID"
+                tmp_data["reason"] = "Unknown RID"
                 data.append(tmp_data)
-            elif name_without_domain not in known_SIDs[str(sid)]:
+            elif name_without_domain not in known_RIDs[str(rid)]:
                 tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
-                tmp_data["SID"] = str(sid)
+                tmp_data["RID"] = str(rid)
                 tmp_data["name"] = '<i class="bi bi-gem"></i> ' + name if is_da else name
-                tmp_data["reason"] = "Unexpected name, expected : " + known_SIDs[str(sid)][0]
+                tmp_data["reason"] = "Unexpected name, expected : " + known_RIDs[str(rid)][0]
                 data.append(tmp_data)
 
-        data = sorted(data, key=lambda x: x["SID"])
+        data = sorted(data, key=lambda x: x["RID"])
 
         sorted_data = [tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unknown")]
         sorted_data += [tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unexpected")]
         
-        self.sid_singularities = len(sorted_data)
+        self.rid_singularities = len(sorted_data)
 
         grid.setData(sorted_data)
         page.addComponent(grid)
         page.render()
 
     def genPreWin2000(self):
+        if self.pre_windows_2000_compatible_access_group is None:
+            self.pre_windows_2000_compatible_access_group = []
+
         page = Page(
             self.arguments.cache_prefix,
             "pre_windows_2000_compatible_access_group",

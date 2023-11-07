@@ -123,9 +123,6 @@
         "C\u00c3\u00b3DIGO RESTRITO",
         "RESTRICTED_CODE"
     ],
-    "12288": [
-        "ML_HIGH"
-    ],
     "13": [
         "TERMINAL SERVER USER",
         "USUARIO DE TERMINAL SERVER",
@@ -175,9 +172,6 @@
         "THIS ORGANIZATION (\u00d0\u0094\u00d0\u00b0\u00d0\u00bd\u00d0\u00bd\u00d0\u00b0\u00d1\u008f \u00d0\u00be\u00d1\u0080\u00d0\u00b3\u00d0\u00b0\u00d0\u00bd\u00d0\u00b8\u00d0\u00b7\u00d0\u00b0\u00d1\u0086\u00d0\u00b8\u00d1\u008f)",
         "THIS ORGANIZATION (ESTA ORGANIZA\u00c3\u00a7\u00c3\u00a3O)",
         "THIS_ORGANIZATION"
-    ],
-    "16384": [
-        "ML_SYSTEM"
     ],
     "17": [
         "IUSR",
@@ -237,9 +231,6 @@
         "SERVI\u00c3\u00a7O DE REDE",
         "NETWORK_SERVICE"
     ],
-    "20480": [
-        "ML_PROTECTED_PROCESS"
-    ],
     "21": [
         "DIGEST AUTHENTICATION",
         "AUTENTICACI\u00c3\u00b3N IMPL\u00c3\u00adCITA",
@@ -254,9 +245,6 @@
         "\u00cb\u008b\u00a4\u00cc\u009d\u00b4\u00cc\u00a0\u009c\u00cc\u008a\u00a4\u00cd\u008a\u00b8 \u00cc\u009d\u00b8\u00cc\u00a6\u009d",
         "AUTENTICA\u00c3\u00a7\u00c3\u00a3O DIGEST",
         "DIGEST_AUTHENTICATION"
-    ],
-    "28672": [
-        "ML_SECURE_PROCESS"
     ],
     "3": [
         "BATCH",
@@ -280,9 +268,6 @@
         "INTERATIVO",
         "OWNER_RIGHTS",
         "KEY_TRUST_IDENTITY"
-    ],
-    "4096": [
-        "ML_LOW"
     ],
     "496": [
         "COMPOUNDED_AUTHENTICATION"
@@ -940,12 +925,6 @@
         "NT \u00cc\u0084\u009c\u00cb\u00b9\u0084\u00cc\u008a\u00a4",
         "SERVI\u00c3\u00a7O DO NT",
         "NT_SERVICE"
-    ],
-    "8192": [
-        "ML_MEDIUM"
-    ],
-    "8448": [
-        "ML_MEDIUM_PLUS"
     ],
     "9": [
         "ENTERPRISE DOMAIN CONTROLLERS",
