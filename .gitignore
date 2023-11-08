@@ -4,6 +4,7 @@ cache_neo4j/
 AD_Miner/sources/modules/temporary*
 *node_modules*
 /tests
+/test
 
 
 # Byte-compiled / optimized / DLL files
