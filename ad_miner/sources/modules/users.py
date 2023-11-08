@@ -84,7 +84,8 @@ class Users:
         else:
             self.users_dc_impersonation_count=0
 
-        self.group_anomaly_acl = neo4j.all_requests["group_anomaly_acl"]["result"]
+        self.group_anomaly_acl_1 = neo4j.all_requests["group_anomaly_acl_1"]["result"]
+        self.group_anomaly_acl_2 = neo4j.all_requests["group_anomaly_acl_2"]["result"]
 
         # users_can_impersonate_to_count = generic_computing.getCountValueFromKey(self.users_dc_impersonation, 'name')
         # self.users_can_impersonate_count = len(users_can_impersonate_to_count) if self.users_dc_impersonation is not None else None
@@ -1452,12 +1453,17 @@ class Users:
 
     def genGroupAnomalyAcl(self, domain):
 
-        if self.group_anomaly_acl is None:
+        if self.group_anomaly_acl_1 is None and self.group_anomaly_acl_2 is None:
             page = Page(
             self.arguments.cache_prefix, "group_anomaly_acl", "Group Anomaly ACL", "group_anomaly_acl"
         )
             page.render()
             return 0
+
+        for each in range(len(self.group_anomaly_acl_1)):
+            self.group_anomaly_acl_1[each]['g.members_count'] = '-'
+        
+        self.group_anomaly_acl = self.group_anomaly_acl_1 + self.group_anomaly_acl_2
 
         formated_data_details = []
         formated_data = {}
@@ -1466,6 +1472,8 @@ class Users:
         for k in range(len(self.group_anomaly_acl)):
             if formated_data.get(self.group_anomaly_acl[k]["g.name"]) and formated_data[self.group_anomaly_acl[k]["g.name"]]["type"] == self.group_anomaly_acl[k]["type(r2)"]:
                 formated_data[self.group_anomaly_acl[k]["g.name"]]["targets"].append(self.group_anomaly_acl[k]["n.name"])
+            elif formated_data.get(self.group_anomaly_acl[k]["g.name"]) and formated_data[self.group_anomaly_acl[k]["g.name"]]["targets"] == [self.group_anomaly_acl[k]["n.name"]] and self.group_anomaly_acl[k]["type(r2)"] not in formated_data[self.group_anomaly_acl[k]["g.name"]]["type"] :
+                formated_data[self.group_anomaly_acl[k]["g.name"]]["type"] += f" | {self.group_anomaly_acl[k]['type(r2)']}"
             else:
                 formated_data[self.group_anomaly_acl[k]["g.name"]] = {
                     "name": self.group_anomaly_acl[k]["g.name"],
