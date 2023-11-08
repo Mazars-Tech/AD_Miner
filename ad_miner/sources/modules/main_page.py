@@ -221,7 +221,6 @@ def create_dico_data(
         "unpriv_to_dnsadmins": len(users.unpriv_to_dnsadmins) if users.unpriv_to_dnsadmins else 0,
         "objects_to_operators_member": len(users.objects_to_operators_member) if len(users.objects_to_operators_member) else 0,
         "computers_os_obsolete": len(computers.list_computers_os_obsolete) if computers.list_computers_os_obsolete else 0,
-        "users_pwd_cleartext": len(users.users_pwd_cleartext) if users.users_pwd_cleartext else 0,
         "computers_without_laps": computers.stat_laps if computers.stat_laps else 0,
         "graph_path_objects_to_ou_handlers": domains.nb_starting_nodes_to_ous if domains.nb_starting_nodes_to_ous else 0,
         "vuln_functional_level": len(domains.vuln_functional_level) if domains.vuln_functional_level else 0,
@@ -238,9 +237,15 @@ def create_dico_data(
         "empty_groups": len(domains.empty_groups),
         "empty_ous": len(domains.empty_ous),
         "has_sid_history": len(users.has_sid_history),
-        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts
+        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts,
+        "guest_accounts": len([ude for ude in users.guest_accounts if ude[-1]]),
+        "unpriviledged_users_with_admincount": len(users.unpriviledged_users_with_admincount),
+        "priviledge_users_without_admincount": len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
+        "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]),
+        "rid_singularities": users.rid_singularities,
+        "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group),
+        "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]])
     }
-
     dico_data["color_category"] = dico_rating_color
 
     return dico_data
@@ -325,12 +330,17 @@ def render(
         "can_read_gmsapassword_of_adm": f"{len(users.can_read_gmsapassword_of_adm)} can read GMSA passwords of Administrators",
         "dangerous_paths": f"More than {domains.total_dangerous_paths} dangerous paths to DA",
         "users_password_not_required":f"{dico_data['value']['users_password_not_required']} users can bypass your password policy",
-        "can_read_laps":f"{len(users.can_read_laps_parsed)} accounts can read LAPS passwords",
+        "can_read_laps": f"{len(users.can_read_laps_parsed)} accounts can read LAPS passwords",
         "group_anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
         "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
-        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges"
+        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges",
+        "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled",
+        "up_to_date_admincount": f"{dico_data['value']['priviledge_users_without_admincount']} priviledged accounts without admincount and {dico_data['value']['unpriviledged_users_with_admincount']} unpriviledged accounts with admincount",
+        "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts not in Protected Users group",
+        "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
+        "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -382,7 +392,7 @@ def render(
                     </p>"""
             data[f"{category}_data"].append(categories[category])
         
-        #Setting global risk info
+        # Setting global risk info
         if not data["global_rating"] and data[risk_control] > 0:
             data["global_rating"] = f"""
                 <div class="alert alert-{global_risk_controls[risk_control]["div_class"]} d-flex align-items-center global-rating" role="alert">
@@ -400,11 +410,12 @@ def render(
             data[global_risk_controls[risk_control]["panel_key"]] = ""
             red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
             for issue in data[f"{risk_control}_list"]:
+                custom_title = dico_name_description[issue].replace("$", "")
                 data[
                     global_risk_controls[risk_control]["panel_key"]
                 ] += f"""
                     <a href="{issue}.html">
-                        <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{red_status}">
+                        <div class="card threat-card" custom-title="{custom_title}" custom-status="{red_status}">
                             <div class="card-body">
                                 <h6 class="card-title">{dico_name_title[issue]}</h6>
                             </div>
@@ -529,16 +540,20 @@ def render(
                 [16, 20],
                 [22, 14],
                 [26, 75],
-                [5, 38],
-                [41, 72],
+                [6, 34],
+                [7, 58],
                 [27, 36],
                 [41, 25],
                 [42, 90],
                 [25, 48],
                 [30, 25],
-                [33, 68],
-                [34, 83],
-                [15,33],
+                [30, 68],
+                [16, 72],
+                [15, 33],
+                [5, 42],
+                [40, 80],
+                [42, 69],
+                [30, 85]
             ],
             "misc": [
                 [70, 41],
@@ -547,7 +562,8 @@ def render(
                 [75, 58],
                 [72, 50],
                 [81, 39],
-                [82, 62]
+                [82, 62],
+                [85, 30]
             ]
         }
 
@@ -569,7 +585,7 @@ def render(
                     "position": dico_position[category][
                         dico_position_instance[category]
                     ],
-                    "title": dico_name_description[indicator]
+                    "title": dico_name_description[indicator].replace("$", "")
                     if dico_name_description.get(indicator)
                     else indicator,
                 }

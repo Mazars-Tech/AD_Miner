@@ -101,8 +101,9 @@ The following provides a list controls that have already been implemented in AD 
 |LAPS status|Non tier 0 with DCSync capabilities|Objects with path to an Operator Member|
 |LAPS access|Unconstrained delegations|ADCS local admin privs|
 |KRBTGT password age|Constrained delegations|Empty groups/OU|
-|DC Shadow to DA|Role-based constrained delegations|
-|DC Shadow to all|Control paths to domain admins|
+|DC Shadow to DA|Role-based constrained delegations|Guest accounts|
+|DC Shadow to all|Control paths to domain admins|Pre-Windows 2000 group|
+|Admincount relevance|Protected Users|Primary Group ID|
 
 
 ## Contributing ##

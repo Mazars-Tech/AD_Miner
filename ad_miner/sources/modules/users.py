@@ -16,6 +16,10 @@ from ad_miner.sources.modules.node_neo4j import Node
 from ad_miner.sources.modules.page_class import Page
 from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.table_class import Table
+from pathlib import Path as pathlib
+
+
+MODULES_DIRECTORY = pathlib(__file__).parent
 
 
 class Users:
@@ -206,6 +210,15 @@ class Users:
 
         self.has_sid_history = neo4j.all_requests["has_sid_history"]["result"]
 
+        self.guest_accounts = neo4j.all_requests["guest_accounts"]["result"]
+
+        self.unpriviledged_users_with_admincount = neo4j.all_requests["unpriviledged_users_with_admincount"]["result"]
+        self.users_nb_domain_admins = neo4j.all_requests["nb_domain_admins"]["result"]
+
+        self.primaryGroupID_lower_than_1000 = neo4j.all_requests["primaryGroupID_lower_than_1000"]["result"]
+
+        self.pre_windows_2000_compatible_access_group = neo4j.all_requests["pre_windows_2000_compatible_access_group"]["result"]
+        
         # Generate all the users-related pages
         self.genComputersWithMostAdminsPage()
         self.genServersCompromisablePage()
@@ -234,7 +247,11 @@ class Users:
         self.generatePasswordNotRequiredPage()
         self.genHasSIDHistory()
         self.number_group_ACL_anomaly = self.genGroupAnomalyAcl(domain)
-
+        self.genGuestUsers()
+        self.genUpToDateAdmincount()
+        self.genProtectedUsers()
+        self.genRID_lower_than_1000()
+        self.genPreWin2000()
         logger.print_warning(timer_format(time.time() - self.start))
 
     # List of Servers with the most user compromise paths (and if to handle empty cases)
@@ -1576,5 +1593,294 @@ class Users:
         grid.setheaders(headers)
         grid.setData(self.has_sid_history)
 
+        page.addComponent(grid)
+        page.render()
+
+    def genGuestUsers(self):
+        page = Page(
+            self.arguments.cache_prefix,
+            "guest_accounts",
+            "Guest accounts",
+            "guest_accounts",
+        )
+        grid = Grid("Guest accounts")
+        grid.setheaders(["domain", "name", "enabled"])
+
+        # Sort accounts with enabled accounts first
+        guest_list = [ude for ude in self.guest_accounts if ude[-1]]
+        guest_list += [ude for ude in self.guest_accounts if not ude[-1]]
+
+        data = []
+        for account_name, domain, is_enabled in guest_list:
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + domain}
+            tmp_data["name"] = '<i class="bi bi-person-fill"></i> ' + account_name
+            tmp_data["enabled"] = (
+                '<i class="bi bi-unlock-fill text-danger"></i> Enabled'
+                if is_enabled
+                else '<i class="bi bi-lock-fill text-success"></i> Disabled'
+            )
+            data.append(tmp_data)
+
+        grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+    def genUpToDateAdmincount(self):
+        if self.users_nb_domain_admins is None:
+            self.users_nb_domain_admins = []
+        if self.unpriviledged_users_with_admincount is None:
+            self.unpriviledged_users_with_admincount = []
+        page = Page(
+            self.arguments.cache_prefix,
+            "up_to_date_admincount",
+            "Priviledged accounts and admincount",
+            "up_to_date_admincount",
+        )
+        grid = Grid("Priviledged accounts and admincount")
+        grid.setheaders(
+            [
+                "domain",
+                "name",
+                "domain admin",
+                "schema admin",
+                "enterprise admin",
+                "key admin",
+                "enterprise key admin",
+                "builtin admin",
+                "admincount",
+            ]
+        )
+
+        data = []
+
+        for dic in self.users_nb_domain_admins:
+            if dic["admincount"]:
+                continue
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dic["domain"]}
+            tmp_data["name"] = '<i class="bi bi-gem"></i> ' + dic["name"]
+            tmp_data["domain admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Domain Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["schema admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Schema Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "_ Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["builtin admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Builtin Administrator" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data[
+                "admincount"
+            ] = '<i class="bi bi-square" style="color: red;"></i> Missing admincount'
+            data.append(tmp_data)
+
+        for name, domain, da_type in self.unpriviledged_users_with_admincount:
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + domain}
+            tmp_data["name"] = '<i class="bi bi-person-fill"></i> ' + name
+            tmp_data["domain admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["schema admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["enterprise admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["key admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["enterprise key admin"] = '<i class="bi bi-square"></i>'
+            tmp_data["builtin admin"] = '<i class="bi bi-square"></i>'
+            tmp_data[
+                "admincount"
+            ] = '<i class="bi bi-check-square-fill" style="color: red;"></i> Misleading admincount<span style="display:none">True</span>'
+            data.append(tmp_data)
+
+        grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+    def genProtectedUsers(self):
+        if self.users_nb_domain_admins is None:
+            self.users_nb_domain_admins = []
+
+        page = Page(
+            self.arguments.cache_prefix,
+            "privileged_accounts_outside_Protected_Users",
+            "Priviledged accounts not part of the Protected Users group",
+            "privileged_accounts_outside_Protected_Users",
+        )
+        grid = Grid("Priviledged accounts not part of the Protected Users group")
+        grid.setheaders(
+            [
+                "domain",
+                "name",
+                "domain admin",
+                "schema admin",
+                "enterprise admin",
+                "key admin",
+                "enterprise key admin",
+                "builtin admin",
+                "protected user",
+            ]
+        )
+
+        data = []
+
+        for dic in self.users_nb_domain_admins:
+            if "Protected Users" in dic["admin type"]:
+                continue
+            tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dic["domain"]}
+            tmp_data["name"] = '<i class="bi bi-gem"></i> ' + dic["name"]
+            tmp_data["domain admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Domain Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["schema admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Schema Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "_ Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Key Admin" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["builtin admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Builtin Administrator" in dic["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data[
+                "protected user"
+            ] = '<i class="bi bi-x-circle" style="color: rgb(255, 89, 94);"></i> Unprotected'
+            data.append(tmp_data)
+
+        grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+    def genRID_lower_than_1000(self):
+        if self.primaryGroupID_lower_than_1000 is None:
+            self.primaryGroupID_lower_than_1000 = []
+
+        known_RIDs = json.loads(
+            (MODULES_DIRECTORY / "known_RIDs.json").read_text(encoding="utf-8")
+        )
+
+        page = Page(
+            self.arguments.cache_prefix,
+            "primaryGroupID_lower_than_1000",
+            "Unexpected accounts with lower than 1000 RIDs",
+            "primaryGroupID_lower_than_1000",
+        )
+        grid = Grid("Unexpected accounts with lower than 1000 RIDs")
+        grid.setheaders(["domain", "name", "RID", "reason"])
+
+        data = []
+
+        for rid, name, domain, is_da in self.primaryGroupID_lower_than_1000:
+            name_without_domain = name.replace("@", "").replace(domain, "")
+
+            tmp_data = {}
+            if str(rid) not in known_RIDs:
+                tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
+                tmp_data["RID"] = str(rid)
+                tmp_data["name"] = (
+                    '<i class="bi bi-gem"></i> ' + name if is_da else name
+                )
+                tmp_data["reason"] = "Unknown RID"
+                data.append(tmp_data)
+            elif name_without_domain not in known_RIDs[str(rid)]:
+                tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + domain
+                tmp_data["RID"] = str(rid)
+                tmp_data["name"] = (
+                    '<i class="bi bi-gem"></i> ' + name if is_da else name
+                )
+                tmp_data["reason"] = (
+                    "Unexpected name, expected : " + known_RIDs[str(rid)][0]
+                )
+                data.append(tmp_data)
+
+        data = sorted(data, key=lambda x: x["RID"])
+
+        sorted_data = [
+            tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unknown")
+        ]
+        sorted_data += [
+            tmp_data for tmp_data in data if tmp_data["reason"].startswith("Unexpected")
+        ]
+
+        self.rid_singularities = len(sorted_data)
+
+        grid.setData(sorted_data)
+        page.addComponent(grid)
+        page.render()
+
+    def genPreWin2000(self):
+        if self.pre_windows_2000_compatible_access_group is None:
+            self.pre_windows_2000_compatible_access_group = []
+
+        page = Page(
+            self.arguments.cache_prefix,
+            "pre_windows_2000_compatible_access_group",
+            "Pre-Windows 2000 Compatible Access group",
+            "pre_windows_2000_compatible_access_group",
+        )
+        grid = Grid("Pre-Windows 2000 Compatible Access")
+        grid.setheaders(["Domain", "Name", "Rating"])
+
+        # Sort accounts with anonymous accounts first
+        sorted_list = [
+            dni
+            for dni in self.pre_windows_2000_compatible_access_group
+            if "1-5-7" in dni[2]
+        ]
+        sorted_list += [
+            dni
+            for dni in self.pre_windows_2000_compatible_access_group
+            if "1-5-7" not in dni[2]
+        ]
+
+        data = []
+        for domain, account_name, objectid, type in sorted_list:
+            tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
+            tmp_data["Name"] = (
+                '<i class="bi bi-person-fill"></i> ' + account_name
+                if "User" in type
+                else '<i class="bi bi-pc-display"></i> ' + account_name
+                if "Computer" in type
+                else '<i class="bi bi-people-fill"></i> ' + account_name
+            )
+            tmp_data["Rating"] = (
+                '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>'
+                if "1-5-7" not in objectid
+                else '<i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i><i class="bi bi-star-fill" style="color: red"></i>  Anonymous'
+            )
+            data.append(tmp_data)
+
+        grid.setData(data)
         page.addComponent(grid)
         page.render()

@@ -46,7 +46,11 @@ dico_category = {
         "dangerous_paths",
         "group_anomaly_acl",
         "has_sid_history",
-        "cross_domain_admin_privileges"
+        "cross_domain_admin_privileges",
+        "guest_accounts",
+        "up_to_date_admincount",
+        "privileged_accounts_outside_Protected_Users",
+        "pre_windows_2000_compatible_access_group"
     ],
     "misc": [
         "computers_os_obsolete",
@@ -55,7 +59,9 @@ dico_category = {
         "computers_last_connexion",
         "vuln_functional_level",
         "empty_groups",
-        "empty_ous"
+        "empty_ous",
+        "primaryGroupID_lower_than_1000"
+
     ]
 }
 
@@ -159,16 +165,32 @@ class SmolCard:
         ) as line_f:
             html_raw = line_f.read()
 
-        started = False
+        startedDollars = False
+        startedDigits = False
         tmp_details = ""
-        for i in range(len(self.details)):
-            if not started and self.details[i] in string.digits:
+        for char in self.details:
+            if char == "$":
+                # Toggle the startedDollars flag but don't add the dollar to the output
+                startedDollars = not startedDollars
+                # If we end a digit sequence because of a dollar, we close the tag
+                if startedDigits:
+                    tmp_details += "</b>"
+                    startedDigits = False
+                continue
+
+            if not startedDollars and not startedDigits and char in string.digits:
                 tmp_details += "<b class='number-in-details'>"
-                started = True
-            if started and self.details[i] not in string.digits:
+                startedDigits = True
+
+            if startedDigits and char not in string.digits:
                 tmp_details += "</b>"
-                started = False
-            tmp_details += self.details[i]
+                startedDigits = False
+
+            tmp_details += char
+
+        # Add closing tag if the string ends with a number
+        if startedDigits:
+            tmp_details += "</b>"
         self.details = tmp_details
 
         if len(self.description) > 150:
