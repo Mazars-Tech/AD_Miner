@@ -159,7 +159,7 @@ def rating(users, domains, computers, objects, arguments):
 
     d[2 if len(users.can_read_laps_parsed) > len(domains.users_nb_domain_admins) else 5].append("can_read_laps")
 
-    d[2 if users.number_group_ACL_anomaly > 0 else 5].append("group_anomaly_acl")
+    d[2 if users.number_group_ACL_anomaly > 0 else 5].append("anomaly_acl")
 
     d[2 if len(domains.empty_groups)/len(domains.groups) > 0.40 else 3 if len(domains.empty_groups)/len(domains.groups) > 0.20 else 5].append("empty_groups")
     d[2 if len(domains.empty_ous)/len(domains.groups) > 0.40 else 3 if len(domains.empty_ous)/len(domains.groups) > 0.20 else 5].append("empty_ous")
