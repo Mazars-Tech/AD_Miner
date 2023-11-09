@@ -35,7 +35,7 @@ def pre_request(arguments):
                     date_lastlogon = record.data()
 
                 for record in tx.run(
-                    "MATCH (m:Domain)-[r]->() WITH COLLECT(distinct(COALESCE(m.domain, m.name))) AS doms MATCH (n) WHERE not n.domain in doms return distinct n.domain"
+                    "MATCH (m:Domain)-[r]->() WITH COLLECT(distinct(COALESCE(m.domain, m.name))) AS doms MATCH (n) WHERE not toUpper(n.domain) in doms return distinct n.domain"
                 ):
                     logger.print_error("Corrupted Neo4j database : required Domain object(s) are missing for the proper functioning of AD Miner.")
                     sys.exit(-1)
