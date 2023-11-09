@@ -32,7 +32,15 @@ def pre_request(arguments):
                 for record in tx.run(
                     "MATCH (a) WHERE a.lastlogon IS NOT NULL return toInteger(a.lastlogon) as last order by last desc LIMIT 1"
                 ):
-                    date_lastlogon = record.data()  
+                    date_lastlogon = record.data()
+
+                for record in tx.run(
+                    "MATCH (m:Domain)-[r]->() WITH COLLECT(distinct(COALESCE(m.domain, m.name))) AS doms MATCH (n) WHERE not n.domain in doms return distinct n.domain"
+                ):
+                    result_pre_request = record.data()
+
+
+             
         driver.close()
     except Exception as e:
         logger.print_error("Connection to neo4j database impossible.")
