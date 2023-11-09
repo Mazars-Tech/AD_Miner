@@ -1470,7 +1470,7 @@ class Users:
         anomaly_acl_extract = []
 
         for k in range(len(self.anomaly_acl)):
-            name_label_instance = f"{self.anomaly_acl[k]['g.name']} {self.anomaly_acl[k]['LABELS(g)[0]']}"
+            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{self.anomaly_acl[k]['LABELS(g)[0]']}"
             if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
                 formated_data[name_label_instance]["targets"].append(self.anomaly_acl[k]["n.name"])
             elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
@@ -1486,7 +1486,7 @@ class Users:
                 }
 
         for name_label_instance in formated_data:
-            name_instance = name_label_instance.split(" ")[0]
+            name_instance = name_label_instance.split(formated_data[name_label_instance]["label"])[0]
 
             formated_data_details = []
             interest = 0
