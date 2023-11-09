@@ -37,10 +37,9 @@ def pre_request(arguments):
                 for record in tx.run(
                     "MATCH (m:Domain)-[r]->() WITH COLLECT(distinct(COALESCE(m.domain, m.name))) AS doms MATCH (n) WHERE not n.domain in doms return distinct n.domain"
                 ):
-                    result_pre_request = record.data()
+                    logger.print_error("Corrupted Neo4j database : required Domain object(s) are missing for the proper functioning of AD Miner.")
+                    sys.exit(-1)
 
-
-             
         driver.close()
     except Exception as e:
         logger.print_error("Connection to neo4j database impossible.")
