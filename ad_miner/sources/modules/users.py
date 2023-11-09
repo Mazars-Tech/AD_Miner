@@ -1485,8 +1485,6 @@ class Users:
                     "targets": [self.anomaly_acl[k]["n.name"]],
                 }
 
-        print("formated data : ", formated_data)
-
         for name_label_instance in formated_data:
             name_instance = name_label_instance.split(" ")[0]
 
