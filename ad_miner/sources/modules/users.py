@@ -1532,7 +1532,7 @@ class Users:
             anomaly_acl_extract.append(
                 {
                     "name": name_instance,
-                    "label": '<i class="bi bi-people-fill"></i> '+formated_data[name_label_instance]["label"] if formated_data[name_label_instance]["members_count"] != "-" else '<i class="bi bi-person-fill"></i> '+formated_data[name_label_instance]["label"],
+                    "label": f"{generic_formating.get_label_icon_dictionary()[formated_data[name_label_instance]['label']]} {formated_data[name_label_instance]['label']}",
                     "type": formated_data[name_label_instance]["type"],
                     "members count": f'<i class="{str(formated_data[name_label_instance]["members_count"]).zfill(6)} bi bi-people-fill"></i> ' + str(formated_data[name_label_instance]["members_count"]) if formated_data[name_label_instance]["members_count"] != '-' else '-',
                     "targets count": grid_data_stringify({
