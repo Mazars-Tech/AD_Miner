@@ -84,7 +84,8 @@ class Users:
         else:
             self.users_dc_impersonation_count=0
 
-        self.group_anomaly_acl = neo4j.all_requests["group_anomaly_acl"]["result"]
+        self.anomaly_acl_1 = neo4j.all_requests["anomaly_acl_1"]["result"]
+        self.anomaly_acl_2 = neo4j.all_requests["anomaly_acl_2"]["result"]
 
         # users_can_impersonate_to_count = generic_computing.getCountValueFromKey(self.users_dc_impersonation, 'name')
         # self.users_can_impersonate_count = len(users_can_impersonate_to_count) if self.users_dc_impersonation is not None else None
@@ -1452,33 +1453,44 @@ class Users:
 
     def genGroupAnomalyAcl(self, domain):
 
-        if self.group_anomaly_acl is None:
+        if self.anomaly_acl_1 is None and self.anomaly_acl_2 is None:
             page = Page(
-            self.arguments.cache_prefix, "group_anomaly_acl", "Group Anomaly ACL", "group_anomaly_acl"
+            self.arguments.cache_prefix, "anomaly_acl", "ACL Anomaly ", "anomaly_acl"
         )
             page.render()
             return 0
 
+        for each in range(len(self.anomaly_acl_1)):
+            self.anomaly_acl_1[each]['g.members_count'] = '-'
+        
+        self.anomaly_acl = self.anomaly_acl_1 + self.anomaly_acl_2
+
         formated_data_details = []
         formated_data = {}
-        group_anomaly_acl_extract = []
+        anomaly_acl_extract = []
 
-        for k in range(len(self.group_anomaly_acl)):
-            if formated_data.get(self.group_anomaly_acl[k]["g.name"]) and formated_data[self.group_anomaly_acl[k]["g.name"]]["type"] == self.group_anomaly_acl[k]["type(r2)"]:
-                formated_data[self.group_anomaly_acl[k]["g.name"]]["targets"].append(self.group_anomaly_acl[k]["n.name"])
+        for k in range(len(self.anomaly_acl)):
+            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{self.anomaly_acl[k]['LABELS(g)[0]']}"
+            if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
+                formated_data[name_label_instance]["targets"].append(self.anomaly_acl[k]["n.name"])
+            elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
+                formated_data[name_label_instance]["type"] += f" | {self.anomaly_acl[k]['type(r2)']}"
             else:
-                formated_data[self.group_anomaly_acl[k]["g.name"]] = {
-                    "name": self.group_anomaly_acl[k]["g.name"],
-                    "type": self.group_anomaly_acl[k]["type(r2)"],
-                    "members_count": self.group_anomaly_acl[k]["g.members_count"],
-                    "targets": [self.group_anomaly_acl[k]["n.name"]]
+                # it is possible to have an OU and a Group with the same name for example, that's why it is necessary to have the name + the label as key
+                formated_data[name_label_instance] = { 
+                    "name": self.anomaly_acl[k]["g.name"],
+                    "label": self.anomaly_acl[k]["LABELS(g)[0]"],
+                    "type": self.anomaly_acl[k]["type(r2)"],
+                    "members_count": self.anomaly_acl[k]["g.members_count"],
+                    "targets": [self.anomaly_acl[k]["n.name"]],
                 }
 
-        for name_instance in formated_data:
+        for name_label_instance in formated_data:
+            name_instance = name_label_instance.split(formated_data[name_label_instance]["label"])[0]
 
             formated_data_details = []
             interest = 0
-            for k in formated_data[name_instance]["targets"]:
+            for k in formated_data[name_label_instance]["targets"]:
                 tmp_dict = {}
                 if k in domain.admin_list:
                     tmp_dict["targets"] = '<i class="bi bi-gem" title="This user is domain admin"></i> ' + k
@@ -1506,7 +1518,7 @@ class Users:
                 formated_data_details.append(tmp_dict)
 
             page = Page(
-            self.arguments.cache_prefix, f"group_anomaly_acl_details_{name_instance}", "Group Anomaly ACL Details", "group_anomaly_acl"
+            self.arguments.cache_prefix, f"anomaly_acl_details_{name_label_instance.replace(' ', '_')}", "Group Anomaly ACL Details", "anomaly_acl"
         )
 
 
@@ -1517,27 +1529,28 @@ class Users:
             page.addComponent(grid)
             page.render()
 
-            group_anomaly_acl_extract.append(
+            anomaly_acl_extract.append(
                 {
-                    "name": '<i class="bi bi-people-fill"></i> ' + name_instance,
-                    "type": formated_data[name_instance]["type"],
-                    "members count": f'<i class="{str(formated_data[name_instance]["members_count"]).zfill(6)} bi bi-people-fill"></i> ' + str(formated_data[name_instance]["members_count"]),
+                    "name": name_instance,
+                    "label": f"{generic_formating.get_label_icon_dictionary()[formated_data[name_label_instance]['label']]} {formated_data[name_label_instance]['label']}",
+                    "type": formated_data[name_label_instance]["type"],
+                    "members count": f'<i class="{str(formated_data[name_label_instance]["members_count"]).zfill(6)} bi bi-people-fill"></i> ' + str(formated_data[name_label_instance]["members_count"]) if formated_data[name_label_instance]["members_count"] != '-' else '-',
                     "targets count": grid_data_stringify({
-                        "link": f"group_anomaly_acl_details_{quote(str(name_instance))}.html",
-                        "value": f"{len(formated_data[name_instance]['targets'])} target{'s' if len(formated_data[name_instance]['targets']) > 1 else ''} <i class='bi bi-box-arrow-up-right' aria-hidden='true'></i>",
-                        "before_link": f"<i class='<i bi bi-bullseye {str(len(formated_data[name_instance]['targets'])).zfill(6)}'></i> "
+                        "link": f"anomaly_acl_details_{quote(str(name_label_instance.replace(' ', '_')))}.html",
+                        "value": f"{str(len(formated_data[name_label_instance]['targets'])) +' targets' if len(formated_data[name_label_instance]['targets']) > 1 else formated_data[name_label_instance]['targets'][0]} <i class='bi bi-box-arrow-up-right' aria-hidden='true'></i>",
+                        "before_link": f"<i class='<i bi bi-bullseye {str(len(formated_data[name_label_instance]['targets'])).zfill(6)}'></i> "
                     }),
                     "interest": f"<span class='{interest}'></span><i class='bi bi-star-fill'></i>"*interest + "<i class='bi bi-star'></i>"*(3-interest)
                 }
             )
 
         page = Page(
-            self.arguments.cache_prefix, "group_anomaly_acl", "Group Anomaly ACL", "group_anomaly_acl"
+            self.arguments.cache_prefix, "anomaly_acl", "ACL Anomaly", "anomaly_acl"
         )
-        grid = Grid("group_anomaly_acl")
-        grid.setheaders(["name", "type", "members count", "targets count", "interest"])
+        grid = Grid("anomaly_acl")
+        grid.setheaders(["name", "label", "members count", "type", "targets count", "interest"])
 
-        grid.setData(group_anomaly_acl_extract)
+        grid.setData(anomaly_acl_extract)
         page.addComponent(grid)
         page.render()
 

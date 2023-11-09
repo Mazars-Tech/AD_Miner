@@ -1,6 +1,18 @@
 from ad_miner.sources.modules.utils import grid_data_stringify
 from urllib.parse import quote
 
+def get_label_icon_dictionary():
+    return {
+        "User":"<i class='bi bi-person-fill'></i>",
+        "Computer": "<i class='bi bi-pc-display'></i>",
+        "Group": "<i class='bi bi-people-fill'></i>",
+        "OU": "<i class='bi bi-building'></i>",
+        "Container": "<i class='bi bi-box'></i>",
+        "Domain": "<i class='bi bi-globe'></i>",
+        "GPO": "<i class='bi bi-journal-text'></i>",
+    }
+
+
 # format data for grid components format: list of dicts [{key1:value1}, {key2:value2}]
 def formatGridValues2Columns(data, headers, prefix, icon="", icon2=""):
     output = []
