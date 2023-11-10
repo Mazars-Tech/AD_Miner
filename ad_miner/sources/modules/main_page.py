@@ -198,9 +198,7 @@ def create_dico_data(
             computers.computers_non_dc_unconstrained_delegations
         ) if computers.computers_non_dc_unconstrained_delegations else 0,
         "users_constrained_delegations": len(computers.users_constrained_delegations) if computers.users_constrained_delegations else 0,
-        "krb_last_change": max(
-            [dict["pass_last_change"] for dict in users.users_krb_pwd_last_set]
-        ) if users.users_krb_pwd_last_set else 0,
+        "krb_last_change": max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set], default=0),
         "users_admin_of_computers": len(users.users_admin_computer_count) if users.users_admin_computer_count else 0,
         "server_users_could_be_admin": users.servers_with_most_paths if users.servers_with_most_paths else 0,
         "dom_admin_on_non_dc": len(users.users_domain_admin_on_nondc) if users.users_domain_admin_on_nondc else 0,
