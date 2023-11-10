@@ -1486,7 +1486,7 @@ class Users:
                 }
 
         for name_label_instance in formated_data:
-            name_instance = name_label_instance.split(formated_data[name_label_instance]["label"])[0]
+            name_instance = formated_data[name_label_instance]["name"]
 
             formated_data_details = []
             interest = 0
@@ -1501,7 +1501,8 @@ class Users:
                 tmp_dict["Computers admin"] = "-"
                 tmp_dict["Path to DA"] = "-"
                 for u in self.users_admin_of_computers:
-                    if k in u["User"]:
+                    name_user = u["User"].split("</i>")[1].strip()
+                    if k==name_user:
                         if "No data to show" not in u['List of computers']:
                             count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
                             tmp_dict["Computers admin"] = grid_data_stringify({
