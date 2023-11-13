@@ -332,7 +332,7 @@
     },
     "nb_domain_controllers": {
         "name": "Number of domain controllers",
-        "request": "MATCH (c1:Computer{is_dc:TRUE}) RETURN DISTINCT(c1.domain) AS domain, c1.name AS name, COALESCE(c1.operatingsystem, 'Unknown') AS os, COALESCE(c1.ghost_computer, False) AS ghost",
+        "request": "MATCH (c1:Computer{is_dc:TRUE}) RETURN DISTINCT(c1.domain) AS domain, c1.name AS name, COALESCE(c1.operatingsystem, 'Unknown') AS os, COALESCE(c1.ghost_computer, False) AS ghost, toInteger(($extract_date - c1.lastlogontimestamp)/86400) as lastLogon",
         "output_type": "dict"
     },
     "domain_OUs": {
