@@ -23,7 +23,7 @@ def rating(users, domains, computers, objects, arguments):
     )
     d[
         time_since(
-            users.users_krb_pwd_last_set[0]["pass_last_change"],
+            max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set], default=None),
             age=1 * 365,
             criticity=2,
         )
