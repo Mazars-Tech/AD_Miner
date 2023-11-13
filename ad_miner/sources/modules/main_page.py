@@ -491,7 +491,11 @@ def render(
 </div>
             """
             if arguments.evolution == "":
-                modal_footer += "<script>document.querySelector('#flexSwitchCheckDefault').setAttribute('disabled', '');</script>"
+                modal_footer += """<script>
+                document.querySelector('#flexSwitchCheckDefault').setAttribute('disabled', '');
+                document.querySelector('#switchLogScaleDiv').style.display = 'none';
+                </script>
+                """
 
             page_f.write(modal_header + cardsHtml + modal_footer)
             # html = secondary.returnHtml()

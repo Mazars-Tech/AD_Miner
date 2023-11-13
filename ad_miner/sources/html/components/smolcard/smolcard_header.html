@@ -29,7 +29,7 @@
           <canvas id="card-chart-{{id}}" class="chart smol-evolution-chart" style="width: 80%"></canvas>
           <script>
             if (`{{evolution_chart_data}}`.length > 0) {
-              new Chart(document.querySelector('#card-chart-{{id}}'), {
+              allCharts.push(new Chart(document.querySelector('#card-chart-{{id}}'), {
                 type: 'line',
                 data: {
                   labels: `{{evolution_labels}}`,
@@ -83,7 +83,7 @@
                     },
                   },
                 }
-              });
+              }));
             }
             else {
               const elementToReplace = document.querySelector('#card-chart-{{id}}');

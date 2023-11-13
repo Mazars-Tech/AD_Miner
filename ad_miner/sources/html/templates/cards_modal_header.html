@@ -6,7 +6,11 @@
             <div class="form-check form-switch" style="margin-left: 40px; padding-top: 8px;">
                 <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="showEvolutionGraph()">
                 <label class="form-check-label" for="flexSwitchCheckDefault">Show evolution</label>
-            </div>        
+            </div>
+            <div class="form-check form-switch" id="switchLogScaleDiv" style="margin-left: 40px; padding-top: 8px;">
+                <input class="form-check-input" type="checkbox" role="switch" id="switchLogScale" onclick="changeScale()">
+                <label class="form-check-label" for="switchLogScale">Logarithmic scale</label>
+            </div>           
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -57,6 +61,31 @@
                     non_evol_graph.forEach(e => {
                         e.style.display = 'block';
                     });
+                }
+            }
+
+            // All chart list
+            var allCharts = [];
+            var logScale = false;
+
+            function changeScale() {
+                if (logScale) {
+                    allCharts.forEach(chart => {
+                        chart.options.scales.y = {
+                            type: 'linear'
+                        };
+                        chart.update();
+                    })
+                    logScale = false;
+                }
+                else {
+                    allCharts.forEach(chart => {
+                        chart.options.scales.y = {
+                            type: 'logarithmic'
+                        };
+                        chart.update();
+                    })
+                    logScale = true;
                 }
             }
         </script>
