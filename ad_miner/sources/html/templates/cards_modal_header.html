@@ -68,9 +68,12 @@
             var allCharts = [];
             var logScale = false;
 
+            // Change the scaling from linear to log and vice-versa
+            // Because 0-values are not supported by log scale, it changes them to 0.1
             function changeScale() {
                 if (logScale) {
                     allCharts.forEach(chart => {
+                        chart.data.datasets[0].data = chart.data.datasets[0].data.map(value => value === 0.1 ? 0 : value);
                         chart.options.scales.y = {
                             type: 'linear'
                         };
@@ -80,9 +83,31 @@
                 }
                 else {
                     allCharts.forEach(chart => {
-                        chart.options.scales.y = {
+                        chart.data.datasets[0].data = chart.data.datasets[0].data.map(value => value === 0 ? 0.1 : value);
+                        if (chart.data.datasets[0].data.includes(0.1)) {
+                            chart.options.scales.y = {
+                            type: 'logarithmic',
+                            ticks: {
+                                // We change the 0.1 value on the y-axis to 0
+                                callback: (value, index) => index === 0 ? '0' : value
+                                }
+                            };
+                            chart.options.plugins.tooltip = {
+                                // Hook to artificially change the displayed value of the tooltip to 0
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label;
+                                        let number = context.parsed.y;
+                                        return number === 0.1 ? label + ": " + "0" : label + ": " + number.toString();
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            chart.options.scales.y = {
                             type: 'logarithmic'
-                        };
+                            };
+                        }
                         chart.update();
                     })
                     logScale = true;
