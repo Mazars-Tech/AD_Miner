@@ -200,7 +200,7 @@ class SmolCard:
             self.description = ""
 
         try:
-            evolution_chart_data = self.evolution_data[self.id]            
+            evolution_chart_data = self.evolution_data[self.id]
         except KeyError:
             evolution_chart_data = []
         
