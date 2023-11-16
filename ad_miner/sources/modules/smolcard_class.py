@@ -211,7 +211,7 @@ class SmolCard:
                 evolution_percent = abs(round((evolution_chart_data[-1] - evolution_chart_data[-2]) / evolution_chart_data[-2], 3) * 100)
             except ZeroDivisionError:
                 # If the stats staggers at zero, it's a great thing
-                if evolution_chart_data[-2] == 0:
+                if evolution_chart_data[-1] == 0:
                     evolution_percent = 0.0
                 else:
                     evolution_percent = '<i class="bi bi-infinity"></i>'
