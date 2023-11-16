@@ -200,9 +200,50 @@ class SmolCard:
             self.description = ""
 
         try:
-            evolution_chart_data = self.evolution_data[self.id]
+            evolution_chart_data = self.evolution_data[self.id]            
         except KeyError:
             evolution_chart_data = []
+        
+        if len(evolution_chart_data) >= 2:
+            percent = "%"
+            width_evolution_big = 9
+            try:
+                evolution_percent = abs(round((evolution_chart_data[-1] - evolution_chart_data[-2]) / evolution_chart_data[-2], 3) * 100)
+            except ZeroDivisionError:
+                # If the stats staggers at zero, it's a great thing
+                if evolution_chart_data[-2] == 0:
+                    evolution_percent = 0.0
+                else:
+                    evolution_percent = '<i class="bi bi-infinity"></i>'
+
+            if evolution_chart_data[-1] >= evolution_chart_data[-2]:
+                # Downgrade
+                evolution_sign = "+"
+                evolution_color = "red"
+                arrow_dir = "caret-up-fill"
+            else:
+                # Upgrade
+                evolution_sign = "-"
+                evolution_color = "#03bf03"
+                arrow_dir = "caret-down-fill"
+            if isinstance(evolution_percent, float) and evolution_percent < 5:
+                # If the stats staggers at zero, it's a great thing
+                if evolution_chart_data[-1] == 0:
+                    evolution_color = "#03bf03"
+                # Neutral
+                else:
+                    evolution_color = "orange"
+            # Handles very big variations
+            if isinstance(evolution_percent, float) and evolution_percent >= 1000:
+                evolution_percent = str(round(evolution_percent / 1000, 2)) + "k"
+        else:
+            evolution_sign = ""
+            evolution_percent = ""
+            evolution_color = ""
+            arrow_dir = ""
+            percent = ""
+            width_evolution_big = 12
+
 
         template_data = {
             "category": self.category,
@@ -216,7 +257,13 @@ class SmolCard:
             "id": md5(self.description_reduced.encode('utf-8')).hexdigest()[:8],
             "rgb_color": rgb_color,
             "evolution_chart_data": evolution_chart_data,
-            "evolution_labels": self.evolution_labels
+            "evolution_labels": self.evolution_labels,
+            "evolution_sign": evolution_sign,
+            "evolution_percent": str(evolution_percent) + percent,
+            "evolution_color": evolution_color,
+            "arrow_dir": arrow_dir,
+            "width_evolution_big": width_evolution_big,
+            "width_evolution_small": 12 - width_evolution_big
         }
 
         html_line = self.fillTemplate(html_raw, template_data)
