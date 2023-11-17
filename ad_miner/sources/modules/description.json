@@ -468,7 +468,7 @@
     "poa": "Ensure that the existing privileges on this ADCS server are legitimate and limit them to administrators optimaly."
   },
   "dangerous_paths": {
-    "title": "List of the main paths to become a domain administrator",
+    "title": "Main paths to become a domain administrator",
     "description": "List of the main paths to become a domain administrator",
     "risk": "This representation exposes the most common links to become domain administrator, which means the more likely to be used during an attack.",
     "poa": "Tackling the most common paths is a good approach to limit the risk of a compromission as it removes most of the paths to domain administrator."
@@ -504,7 +504,7 @@
     "poa": "Regularly review and clean up SID History entries for users and groups that no longer require access to resources in old domains."
   },
   "cross_domain_admin_privileges":{
-    "title":"List of users that have powerful cross-domain privileges.",
+    "title":"Users that have powerful cross-domain privileges",
     "description": "Users privileges are not limited to their domains. Sometimes some users may have direct or non-direct local admin or even domain admin privilege on a foreign domain.",
     "risk": "Cross-domain privileges are quite dangerous and will help attackers to pivot to other domains if they manage to compromise a domain",
     "poa": "Review these privileges, this list should be as little as possible."
