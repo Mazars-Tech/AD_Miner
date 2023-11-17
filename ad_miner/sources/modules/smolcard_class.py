@@ -208,7 +208,7 @@ class SmolCard:
             percent = "%"
             width_evolution_big = 9
             try:
-                evolution_percent = abs(round((evolution_chart_data[-1] - evolution_chart_data[-2]) / evolution_chart_data[-2], 3) * 100)
+                evolution_percent = abs(round((evolution_chart_data[-1] - evolution_chart_data[-2]) / evolution_chart_data[-2] *100, 1))
             except ZeroDivisionError:
                 # If the stats staggers at zero, it's a great thing
                 if evolution_chart_data[-1] == 0:
