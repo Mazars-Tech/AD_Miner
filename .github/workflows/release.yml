@@ -17,6 +17,8 @@ jobs:
            uses: TriPSs/conventional-changelog-action@v3
            with:
               github-token: ${{ secrets.github_token }}
+              version-file: "./pyproject.toml"
+              version-path: tool.poetry.version
 
          - name: Create Release # This action will create the actual release
            uses: actions/create-release@v1
