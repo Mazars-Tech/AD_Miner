@@ -102,6 +102,8 @@ def complete_data_evolution_time(data, raw_other_list_data):
             dico_data_evolution_time[k] = []
         for k in dico_category["permission"]:
             dico_data_evolution_time[k] = []
+        for k in dico_category["misc"]:
+            dico_data_evolution_time[k] = []
 
         for k in range(len(raw_other_list_data)):
             value_immediate_risk = 0
@@ -196,9 +198,7 @@ def create_dico_data(
             computers.computers_non_dc_unconstrained_delegations
         ) if computers.computers_non_dc_unconstrained_delegations else 0,
         "users_constrained_delegations": len(computers.users_constrained_delegations) if computers.users_constrained_delegations else 0,
-        "krb_last_change": max(
-            [dict["pass_last_change"] for dict in users.users_krb_pwd_last_set]
-        ) if users.users_krb_pwd_last_set else 0,
+        "krb_last_change": max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set], default=0),
         "users_admin_of_computers": len(users.users_admin_computer_count) if users.users_admin_computer_count else 0,
         "server_users_could_be_admin": users.servers_with_most_paths if users.servers_with_most_paths else 0,
         "dom_admin_on_non_dc": len(users.users_domain_admin_on_nondc) if users.users_domain_admin_on_nondc else 0,
@@ -219,7 +219,6 @@ def create_dico_data(
         "unpriv_to_dnsadmins": len(users.unpriv_to_dnsadmins) if users.unpriv_to_dnsadmins else 0,
         "objects_to_operators_member": len(users.objects_to_operators_member) if len(users.objects_to_operators_member) else 0,
         "computers_os_obsolete": len(computers.list_computers_os_obsolete) if computers.list_computers_os_obsolete else 0,
-        "users_pwd_cleartext": len(users.users_pwd_cleartext) if users.users_pwd_cleartext else 0,
         "computers_without_laps": computers.stat_laps if computers.stat_laps else 0,
         "graph_path_objects_to_ou_handlers": domains.nb_starting_nodes_to_ous if domains.nb_starting_nodes_to_ous else 0,
         "vuln_functional_level": len(domains.vuln_functional_level) if domains.vuln_functional_level else 0,
@@ -232,13 +231,19 @@ def create_dico_data(
         "dangerous_path": domains.total_dangerous_paths,
         "users_password_not_required":len(users.users_password_not_required),
         "can_read_laps":len(users.can_read_laps_parsed),
-        "group_anomaly_acl": users.number_group_ACL_anomaly,
+        "anomaly_acl": users.number_group_ACL_anomaly,
         "empty_groups": len(domains.empty_groups),
         "empty_ous": len(domains.empty_ous),
         "has_sid_history": len(users.has_sid_history),
-        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts
+        "cross_domain_admin_privileges":domains.cross_domain_total_admin_accounts,
+        "guest_accounts": len([ude for ude in users.guest_accounts if ude[-1]]),
+        "unpriviledged_users_with_admincount": len(users.unpriviledged_users_with_admincount),
+        "priviledge_users_without_admincount": len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
+        "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]),
+        "rid_singularities": users.rid_singularities,
+        "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group),
+        "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]])
     }
-
     dico_data["color_category"] = dico_rating_color
 
     return dico_data
@@ -285,43 +290,6 @@ def render(
         data, raw_other_list_data
     )  # for the chart evolution over time
 
-    # TODO : corriger incohérence entre password not change > 1year and 3 months
-    # dico_name_description = {
-    #     "dc_impersonation": f"{users.users_dc_impersonation_count} paths to impersonate DCs",
-    #     "users_pwd_not_changed_since": f"{len(domains.users_pwd_not_changed_since_3months)} unchanged passwords > {int((neo4j.password_renewal)/30)} months",
-    #     "kerberoastables": f"{len(users.users_kerberoastable_users)} kerberoastable accounts",
-    #     "as_rep": f"{len(users.users_kerberos_as_rep)} accounts are AS-REP-roastable",
-    #     "non-dc_with_unconstrained_delegations": f"{len(computers.computers_non_dc_unconstrained_delegations)} non-DC with unconstrained delegations",
-    #     "non-dc_users_with_unconstrained_delegations": f"{len(computers.users_non_dc_unconstrained_delegations)} users with unconstrained delegations",
-    #     "users_constrained_delegations": f"{len(computers.users_constrained_delegations)} users with constrained delegations",
-    #     "krb_last_change": f"krbtgt not updated in > {max([dict['pass_last_change'] for dict in users.users_krb_pwd_last_set])} days",
-    #     "users_admin_of_computers": f"{len(users.users_admin_computer_count)} users with admin privs.",
-    #     "server_users_could_be_admin": f"Up to {users.servers_with_most_paths} users could compromise a server",
-    #     "dom_admin_on_non_dc": f"{len(users.users_domain_admin_on_nondc)} domain admin sessions on non-DC",
-    #     "nb_domain_admins": f"{len(domains.users_nb_domain_admins)} domain admins",
-    #     "users_shadow_credentials_to_non_admins": f"Users can be impersonated by up {users.max_number_users_shadow_credentials_to_non_admins} users",
-    #     "users_shadow_credentials": f"{len(users.users_shadow_credentials_uniq)} users can impersonate privileged accounts",
-    #     "can_dcsync": f"{len(objects.can_dcsync_nodes)} non DA/DC objects have DCSync privileges",
-    #     "computers_members_high_privilege": f"{len(computers.computers_members_high_privilege_uniq)} computers with high privs.",
-    #     "computers_admin_of_computers": f"{computers.count_computers_admins} computers admin of {computers.count_computers_admins_target} computers",
-    #     "graph_path_objects_to_da": f"{len(domains.objects_to_domain_admin)} paths to DA",
-    #     "computers_last_connexion": f"{len(domains.computers_not_connected_since_60)} ghost computers",
-    #     "computers_list_of_rdp_users": f"{len(users.users_rdp_access_2)} computers with RDP access",
-    #     "never_expires": f"{len(users.users_password_never_expires)} users w/o password expiration",
-    #     "dormants_accounts": f"{len(domains.users_dormant_accounts)} dormant accounts",
-    #     "unpriv_to_dnsadmins": f"{len(users.unpriv_to_dnsadmins)} paths to DNSAdmins group",
-    #     "unpriv_to_backupoperators": f"{len(users.unpriv_to_backupoperators)} paths to Backup Operators group",
-    #     "computers_os_obsolete": f"{len(computers.list_computers_os_obsolete)} computers with obsolete OS",
-    #     "users_pwd_cleartext": f"{len(users.users_pwd_cleartext)} users with clear text password",
-    #     "computers_without_laps": f"{computers.stat_laps} % computers without LAPS",
-    #     "graph_path_objects_to_ou_handlers": f"{domains.nb_starting_nodes_to_ous} dangerous control paths over {domains.nb_ous_with_da} OUs",
-    #     "vuln_functional_level": f"{len(domains.vuln_functional_level)} insufficient forest and domains functional levels",
-    #     "vuln_permissions_adminsdholder": f"{len(users.vuln_permissions_adminsdholder)} paths to an AdminSDHolder container",
-    #     "graph_list_objects_rbcd": f"{users.rbcd_nb_start_nodes} users can perform an RBCD attack on {users.rbcd_nb_end_nodes} computers",
-    #     "objects_to_adcs": f"{len(computers.ADCS_path_sorted.keys())} ADCS servers can be compromised",
-    #     "users_GPO_access": f"{domains.number_of_gpo} GPO can be exploited"
-    # }
-
     dico_name_description = {
         "dc_impersonation": f"{dico_data['value']['dc_impersonation']} paths to impersonate DCs",
         "users_pwd_not_changed_since": f"{dico_data['value']['users_pwd_not_changed_since']} unchanged passwords > {int((neo4j.password_renewal)/30)} months",
@@ -360,12 +328,17 @@ def render(
         "can_read_gmsapassword_of_adm": f"{len(users.can_read_gmsapassword_of_adm)} can read GMSA passwords of Administrators",
         "dangerous_paths": f"More than {domains.total_dangerous_paths} dangerous paths to DA",
         "users_password_not_required":f"{dico_data['value']['users_password_not_required']} users can bypass your password policy",
-        "can_read_laps":f"{len(users.can_read_laps_parsed)} accounts can read LAPS passwords",
-        "group_anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
+        "can_read_laps": f"{len(users.can_read_laps_parsed)} accounts can read LAPS passwords",
+        "anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
         "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
-        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges"
+        "cross_domain_admin_privileges": f"{dico_data['value']['cross_domain_admin_privileges']} accounts have cross-domain admin privileges",
+        "guest_accounts": f"{dico_data['value']['guest_accounts']} guests accounts are enabled",
+        "up_to_date_admincount": f"{dico_data['value']['priviledge_users_without_admincount']} priviledged accounts without admincount and {dico_data['value']['unpriviledged_users_with_admincount']} unpriviledged accounts with admincount",
+        "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts not in Protected Users group",
+        "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
+        "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -392,14 +365,17 @@ def render(
     data["permissions_data"] = []
     data["passwords_data"] = []
     data["kerberos_data"] = []
+    data["misc_data"] = []
     data["global_rating"] = ""
     for risk_control in global_risk_controls:
-        categories = {"permissions": 0, "passwords": 0, "kerberos": 0}
+        categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
         for control in data[f"{risk_control}_list"]:
             if control in dico_category["permission"]:
                 categories["permissions"] += 1
             elif control in dico_category["passwords"]:
                 categories["passwords"] += 1
+            elif control in dico_category["misc"]:
+                categories["misc"] += 1
             elif control in dico_category["kerberos"]:
                 categories["kerberos"] += 1
         for category in categories:
@@ -414,7 +390,7 @@ def render(
                     </p>"""
             data[f"{category}_data"].append(categories[category])
         
-        #Setting global risk info
+        # Setting global risk info
         if not data["global_rating"] and data[risk_control] > 0:
             data["global_rating"] = f"""
                 <div class="alert alert-{global_risk_controls[risk_control]["div_class"]} d-flex align-items-center global-rating" role="alert">
@@ -432,11 +408,12 @@ def render(
             data[global_risk_controls[risk_control]["panel_key"]] = ""
             red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
             for issue in data[f"{risk_control}_list"]:
+                custom_title = dico_name_description[issue].replace("$", "")
                 data[
                     global_risk_controls[risk_control]["panel_key"]
                 ] += f"""
                     <a href="{issue}.html">
-                        <div class="card threat-card" custom-title="{dico_name_description[issue]}" custom-status="{red_status}">
+                        <div class="card threat-card" custom-title="{custom_title}" custom-status="{red_status}">
                             <div class="card-body">
                                 <h6 class="card-title">{dico_name_title[issue]}</h6>
                             </div>
@@ -447,13 +424,7 @@ def render(
                     </a>
                 """
 
-    data["main_graph_data"] = list(
-        map(
-            add,
-            data["permissions_data"],
-            list(map(add, data["passwords_data"], data["kerberos_data"])),
-        )
-    )
+    data["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["permissions_data"], data["kerberos_data"], data["passwords_data"], data["misc_data"])]
 
     data["issue_or_issues"] = manage_plural(data["immediate_risk"], ("issue", "issues"))
     data["vuln_text_major_risk"] = manage_plural(data["potential_risk"], ("vulnerability", "vulnerabilities"))
@@ -518,7 +489,11 @@ def render(
 </div>
             """
             if arguments.evolution == "":
-                modal_footer += "<script>document.querySelector('#flexSwitchCheckDefault').setAttribute('disabled', '');</script>"
+                modal_footer += """<script>
+                document.querySelector('#flexSwitchCheckDefault').setAttribute('disabled', '');
+                document.querySelector('#switchLogScaleDiv').style.display = 'none';
+                </script>
+                """
 
             page_f.write(modal_header + cardsHtml + modal_footer)
             # html = secondary.returnHtml()
@@ -533,61 +508,68 @@ def render(
 
         dico_js = {}
 
-        # permission : top, passwords : left, kerberos : right
+        # permission : top, passwords : left, kerberos : right, misc : bottom
         dico_position = {
             "passwords": [
-                [52, 25],
-                [70, 17],
-                [80, 40],
-                [36, 12],
-                [50, 10],
-                [70, 30],
+                [54, 25],
+                [80, 17],
+                [70, 20],
+                [70, 12],
+                [53, 10],
+                [66, 31],
                 [78, 24],
-                [62, 8],
-                [44, 17],
-                [42, 25],
-                [70, 41],
-                [42, 5],
-                [89, 38],
-                [84, 30]
             ],
             "kerberos": [
-                [60, 85],
-                [90, 55],
-                [48, 75],
+                [60, 89],
+                [64, 63],
                 [81, 71],
                 [70, 80],
                 [70, 70],
-                [40, 85],
-                [72, 55],
-                [80, 60],
+                [77, 79],
+                [55, 82],
+                [54, 71],
+
             ],
             "permission": [
                 [19, 65],
                 [8, 28],
-                [25, 20],
+                [34, 14],
                 [28, 60],
                 [5, 50],
-                [13, 42],
+                [43, 10],
                 [18, 80],
                 [10, 66],
                 [16, 20],
                 [22, 14],
                 [26, 75],
-                [5, 38],
+                [6, 34],
                 [7, 58],
                 [27, 36],
-                [22, 29],
-                [13, 53],
-                [26, 48],
+                [41, 25],
+                [42, 90],
+                [25, 48],
                 [30, 25],
                 [30, 68],
                 [16, 72],
-                [15,33]
+                [15, 33],
+                [5, 42],
+                [40, 80],
+                [42, 69],
+                [30, 85]
             ],
+            "misc": [
+                [70, 41],
+                [89, 38],
+                [90, 55],
+                [75, 58],
+                [72, 50],
+                [81, 39],
+                [82, 62],
+                [85, 30]
+            ]
         }
 
-        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0}
+        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0}
 
         for category in dico_category:
             for indicator in dico_category[category]:
@@ -605,7 +587,7 @@ def render(
                     "position": dico_position[category][
                         dico_position_instance[category]
                     ],
-                    "title": dico_name_description[indicator]
+                    "title": dico_name_description[indicator].replace("$", "")
                     if dico_name_description.get(indicator)
                     else indicator,
                 }

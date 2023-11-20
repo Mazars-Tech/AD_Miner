@@ -449,3 +449,40 @@ a:hover{
   height: 90%;
   margin: 5;
 }
+
+.evol-col {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.col-0 {
+  display: none;
+}
+
+.evolution-percentage-div {
+  text-align: right;
+}
+
+.icon-evolution {
+  font-size: small;
+}
+
+.percentage-evolution {
+  font-size: small;
+  font-weight: 800;
+}
+
+.highlighted {
+  transform: scale(1.4);
+  transition: 0.3s ease;
+  filter: brightness(2);
+}
+.highlighted-red {
+  filter: brightness(2.5);
+}
+.highlighted-orange {
+  filter: brightness(1.2);
+}
+.highlighted-green {
+  filter: brightness(1.2);
+}

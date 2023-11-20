@@ -11,8 +11,12 @@ function toggleSearch() {
     searchBar.focus();
 }
 
+
 const searchBar = document.getElementById("search-bar");
+const searchBarDiv = document.getElementById("search-bar-div");
 const controlDropdown = document.getElementById("search-dropdown");
+const allHex = document.querySelectorAll(".hexagon");
+
 
 // Event listener for input in the search bar
 searchBar.addEventListener("input", function() {
@@ -69,6 +73,52 @@ function updateDropdown(filteredControls) {
         dropdownItem.addEventListener("click", function() {
             searchBar.value = "";
         });
+        dropdownItem.addEventListener("mouseover", function() {
+            allHex.forEach(hex=>{
+                hex.classList.remove("highlighted");
+                if (hex.classList.contains("highlighted-red")){
+                    hex.classList.remove("highlighted-red");
+                }
+                if (hex.classList.contains("highlighted-green")){
+                    hex.classList.remove("highlighted-green");
+                }
+                if (hex.classList.contains("highlighted-orange")){
+                    hex.classList.remove("highlighted-orange");
+                }
+            });
+            
+            var selectedControlLink = control.link;
+            for (const hex of allHex){
+                parentHref = hex.parentElement.href;
+                if (selectedControlLink == parentHref.split('/')[parentHref.split('/').length -1]){
+                    hex.classList.add("highlighted");
+                }
+                if (selectedControlLink == parentHref.split('/')[parentHref.split('/').length -1] && hex.classList.contains("hexagon-red")){
+                    hex.classList.add("highlighted-red");
+                }
+                if (selectedControlLink == parentHref.split('/')[parentHref.split('/').length -1] && hex.classList.contains("hexagon-green")){
+                    hex.classList.add("highlighted-green");
+                }
+                if (selectedControlLink == parentHref.split('/')[parentHref.split('/').length -1] && hex.classList.contains("hexagon-orange")){
+                    hex.classList.add("highlighted-orange");
+                }
+            }
+
+        });
+        controlDropdown.addEventListener("mouseout", function() {
+            allHex.forEach(hex=>{
+                hex.classList.remove("highlighted");
+                if (hex.classList.contains("highlighted-red")){
+                    hex.classList.remove("highlighted-red");
+                }
+                if (hex.classList.contains("highlighted-green")){
+                    hex.classList.remove("highlighted-green");
+                }
+                if (hex.classList.contains("highlighted-orange")){
+                    hex.classList.remove("highlighted-orange");
+                }
+            })
+        });
         controlDropdown.appendChild(dropdownItem);
     });
 
@@ -78,3 +128,24 @@ function updateDropdown(filteredControls) {
         controlDropdown.classList.remove("active");
     }
 }
+
+document.addEventListener("click", (event)=>{
+    if (event.target.id != "search-dropdown" && event.target.id != "search-icon" && event.target.id != "search-bar" && !event.target.classList.contains('bi-search')){
+        controlDropdown.classList.remove("active");
+        searchBar.value = "";
+        searchBarDiv.classList.remove("search-bar-div-show");
+        controlDropdown.innerHTML = "";
+        allHex.forEach(hex=>{
+            hex.classList.remove("highlighted");
+            if (hex.classList.contains("highlighted-red")){
+                hex.classList.remove("highlighted-red");
+            }
+            if (hex.classList.contains("highlighted-green")){
+                hex.classList.remove("highlighted-green");
+            }
+            if (hex.classList.contains("highlighted-orange")){
+                hex.classList.remove("highlighted-orange");
+            }
+        })
+    }
+});

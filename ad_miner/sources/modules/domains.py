@@ -390,19 +390,26 @@ class Domains:
                 count_da[da["domain"]] += 1
             except KeyError:
                 count_da[da["domain"]] = 1
-        self.max_da_per_domain = max(count_da.values())
+        self.max_da_per_domain = max(count_da.values(), default=0)
+
+        data = []
 
         for da in self.users_nb_domain_admins:
-            da["domain"] = '<i class="bi bi-globe2"></i> ' + da["domain"]
-            da["name"] = '<i class="bi bi-gem"></i> ' + da["name"]
-            da["enterprise / schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["(Enterprise) key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            da["builtin administrators"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data = {}
+            tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + da["domain"]
+            tmp_data["name"] = '<i class="bi bi-gem"></i> ' + da["name"]
+            tmp_data["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["protected users"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Protected Users" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
+            data.append(tmp_data)
 
         grid = Grid("Domain admins")
-        grid.setheaders(["domain", "name", "enterprise / schema admin", "domain admin", "(Enterprise) key admin", "builtin administrators"])
-        grid.setData(self.users_nb_domain_admins)
+        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "protected users", "key admin", "enterprise key admin", "builtin admin"])
+        grid.setData(data)
         page.addComponent(grid)
         page.render()
 
@@ -583,17 +590,24 @@ class Domains:
             "nb_domain_controllers",
         )
         grid = Grid("List of domain controllers")
-        grid.setheaders(["domain", "name", "os"])
+        grid.setheaders(["domain", "name", "os", "last logon"])
+
+        data = []
+
+        self.computers_nb_domain_controllers = sorted(self.computers_nb_domain_controllers, key=lambda x: x["ghost"], reverse=True)
+
         for d in self.computers_nb_domain_controllers:
-            d["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
+            temp_data = {}
+            temp_data["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
             if d["ghost"]:
-                d["name"] = '<svg height="15px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M40.1 467.1l-11.2 9c-3.2 2.5-7.1 3.9-11.1 3.9C8 480 0 472 0 462.2V192C0 86 86 0 192 0S384 86 384 192V462.2c0 9.8-8 17.8-17.8 17.8c-4 0-7.9-1.4-11.1-3.9l-11.2-9c-13.4-10.7-32.8-9-44.1 3.9L269.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6l-26.6-30.5c-12.7-14.6-35.4-14.6-48.2 0L141.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6L84.2 471c-11.3-12.9-30.7-14.6-44.1-3.9zM160 192a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg> ' + d['name']
+                temp_data["name"] = '<svg height="15px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#ff595e" d="M40.1 467.1l-11.2 9c-3.2 2.5-7.1 3.9-11.1 3.9C8 480 0 472 0 462.2V192C0 86 86 0 192 0S384 86 384 192V462.2c0 9.8-8 17.8-17.8 17.8c-4 0-7.9-1.4-11.1-3.9l-11.2-9c-13.4-10.7-32.8-9-44.1 3.9L269.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6l-26.6-30.5c-12.7-14.6-35.4-14.6-48.2 0L141.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6L84.2 471c-11.3-12.9-30.7-14.6-44.1-3.9zM160 192a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg> ' + d['name']
             else:
-                d["name"] = '<i class="bi bi-server"></i> ' + d['name']
+                temp_data["name"] = '<i class="bi bi-server"></i> ' + d['name']
             if 'Windows' in d['os']:
-                d['os'] = '<i class="bi bi-windows"></i> ' + d['os']
-            d.pop('ghost', None)
-        grid.setData(self.computers_nb_domain_controllers)
+                temp_data['os'] = '<i class="bi bi-windows"></i> ' + d['os']
+            temp_data['last logon'] = days_format(d['lastLogon'])
+            data.append(temp_data)
+        grid.setData(data)
         page.addComponent(grid)
         page.render()
 

@@ -21,15 +21,23 @@
   <div class="smolcard card border-left-{{color}} shadow py-2 evolution-display" style="display: none" onclick="location.href='{{href}}';">
     <div class="card-body smolcard-body">
       <div class="sb-row no-gutters align-items-center">
-        <div
-            class="text-xs text-{{color}} font-weight-bold text-uppercase mb-1 smolcard-title">
-            {{title}}
+        <div class="container">
+          <div class="row">
+            <div
+                class="text-xs text-{{color}} font-weight-bold text-uppercase mb-1 smolcard-title col-{{width_evolution_big}} evol-col">
+                {{title}}
+            </div>
+            <div class="col-{{width_evolution_small}} evolution-percentage-div evol-col">
+              <i class="bi bi-{{arrow_dir}} icon-evolution" style="color: {{evolution_color}};"></i>
+              <span class="percentage-evolution" style="color: {{evolution_color}};">&nbsp;{{evolution_sign}}{{evolution_percent}}</span>
+            </div>
+          </div>
         </div>
         <div style="text-align: center;">
           <canvas id="card-chart-{{id}}" class="chart smol-evolution-chart" style="width: 80%"></canvas>
           <script>
             if (`{{evolution_chart_data}}`.length > 0) {
-              new Chart(document.querySelector('#card-chart-{{id}}'), {
+              allCharts.push(new Chart(document.querySelector('#card-chart-{{id}}'), {
                 type: 'line',
                 data: {
                   labels: `{{evolution_labels}}`,
@@ -83,7 +91,7 @@
                     },
                   },
                 }
-              });
+              }));
             }
             else {
               const elementToReplace = document.querySelector('#card-chart-{{id}}');

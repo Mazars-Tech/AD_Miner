@@ -8,19 +8,12 @@ from ad_miner.sources.modules.utils import DESCRIPTION_MAP, HTML_DIRECTORY
 dico_category = {
     "passwords": [
         "users_pwd_cleartext",
-        "dc_impersonation",
         "users_pwd_not_changed_since",
-        "computers_last_connexion",
         "never_expires",
-        "dormants_accounts",
-        "computers_os_obsolete",  # TODO : put here for balance, but really fits nowhere...
         "computers_without_laps",
-        "vuln_functional_level",
         "can_read_gmsapassword_of_adm",
         "users_password_not_required",
         "can_read_laps",
-        "empty_groups",
-        "empty_ous"
     ],
     "kerberos": [
         "kerberoastables",
@@ -51,10 +44,25 @@ dico_category = {
         "users_GPO_access",
         "da_to_da",
         "dangerous_paths",
-        "group_anomaly_acl",
+        "anomaly_acl",
         "has_sid_history",
-        "cross_domain_admin_privileges"
+        "cross_domain_admin_privileges",
+        "guest_accounts",
+        "up_to_date_admincount",
+        "privileged_accounts_outside_Protected_Users",
+        "pre_windows_2000_compatible_access_group"
     ],
+    "misc": [
+        "computers_os_obsolete",
+        "dormants_accounts",
+        "dc_impersonation",
+        "computers_last_connexion",
+        "vuln_functional_level",
+        "empty_groups",
+        "empty_ous",
+        "primaryGroupID_lower_than_1000"
+
+    ]
 }
 
 
@@ -157,16 +165,32 @@ class SmolCard:
         ) as line_f:
             html_raw = line_f.read()
 
-        started = False
+        startedDollars = False
+        startedDigits = False
         tmp_details = ""
-        for i in range(len(self.details)):
-            if not started and self.details[i] in string.digits:
+        for char in self.details:
+            if char == "$":
+                # Toggle the startedDollars flag but don't add the dollar to the output
+                startedDollars = not startedDollars
+                # If we end a digit sequence because of a dollar, we close the tag
+                if startedDigits:
+                    tmp_details += "</b>"
+                    startedDigits = False
+                continue
+
+            if not startedDollars and not startedDigits and char in string.digits:
                 tmp_details += "<b class='number-in-details'>"
-                started = True
-            if started and self.details[i] not in string.digits:
+                startedDigits = True
+
+            if startedDigits and char not in string.digits:
                 tmp_details += "</b>"
-                started = False
-            tmp_details += self.details[i]
+                startedDigits = False
+
+            tmp_details += char
+
+        # Add closing tag if the string ends with a number
+        if startedDigits:
+            tmp_details += "</b>"
         self.details = tmp_details
 
         if len(self.description) > 150:
@@ -179,6 +203,47 @@ class SmolCard:
             evolution_chart_data = self.evolution_data[self.id]
         except KeyError:
             evolution_chart_data = []
+        
+        if len(evolution_chart_data) >= 2:
+            percent = "%"
+            width_evolution_big = 9
+            try:
+                evolution_percent = abs(round((evolution_chart_data[-1] - evolution_chart_data[-2]) / evolution_chart_data[-2] *100, 1))
+            except ZeroDivisionError:
+                # If the stats staggers at zero, it's a great thing
+                if evolution_chart_data[-1] == 0:
+                    evolution_percent = 0.0
+                else:
+                    evolution_percent = '<i class="bi bi-infinity"></i>'
+
+            if evolution_chart_data[-1] >= evolution_chart_data[-2]:
+                # Downgrade
+                evolution_sign = "+"
+                evolution_color = "red"
+                arrow_dir = "caret-up-fill"
+            else:
+                # Upgrade
+                evolution_sign = "-"
+                evolution_color = "#03bf03"
+                arrow_dir = "caret-down-fill"
+            if isinstance(evolution_percent, float) and evolution_percent < 5:
+                # If the stats staggers at zero, it's a great thing
+                if evolution_chart_data[-1] == 0:
+                    evolution_color = "#03bf03"
+                # Neutral
+                else:
+                    evolution_color = "orange"
+            # Handles very big variations
+            if isinstance(evolution_percent, float) and evolution_percent >= 1000:
+                evolution_percent = str(round(evolution_percent / 1000, 2)) + "k"
+        else:
+            evolution_sign = ""
+            evolution_percent = ""
+            evolution_color = ""
+            arrow_dir = ""
+            percent = ""
+            width_evolution_big = 12
+
 
         template_data = {
             "category": self.category,
@@ -192,7 +257,13 @@ class SmolCard:
             "id": md5(self.description_reduced.encode('utf-8')).hexdigest()[:8],
             "rgb_color": rgb_color,
             "evolution_chart_data": evolution_chart_data,
-            "evolution_labels": self.evolution_labels
+            "evolution_labels": self.evolution_labels,
+            "evolution_sign": evolution_sign,
+            "evolution_percent": str(evolution_percent) + percent,
+            "evolution_color": evolution_color,
+            "arrow_dir": arrow_dir,
+            "width_evolution_big": width_evolution_big,
+            "width_evolution_small": 12 - width_evolution_big
         }
 
         html_line = self.fillTemplate(html_raw, template_data)
