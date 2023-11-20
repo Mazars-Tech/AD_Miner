@@ -161,8 +161,14 @@ def rating(users, domains, computers, objects, arguments):
 
     d[2 if users.number_group_ACL_anomaly > 0 else 5].append("anomaly_acl")
 
-    d[2 if len(domains.empty_groups)/len(domains.groups) > 0.40 else 3 if len(domains.empty_groups)/len(domains.groups) > 0.20 else 5].append("empty_groups")
-    d[2 if len(domains.empty_ous)/len(domains.groups) > 0.40 else 3 if len(domains.empty_ous)/len(domains.groups) > 0.20 else 5].append("empty_ous")
+    if len(domains.groups) > 0:
+        d[2 if len(domains.empty_groups)/len(domains.groups) > 0.40 else 3 if len(domains.empty_groups)/len(domains.groups) > 0.20 else 5].append("empty_groups")
+        d[2 if len(domains.empty_ous)/len(domains.groups) > 0.40 else 3 if len(domains.empty_ous)/len(domains.groups) > 0.20 else 5].append("empty_ous")
+    else:
+        d[-1].append("empty_groups")
+        d[-1].append("empty_ous")
+    
+    
 
     d[presence_of(users.has_sid_history, 2)].append("has_sid_history")
     d[rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
@@ -348,7 +354,7 @@ def hasPathToDA(
 
 
 def rate_vuln_functional_level(req):
-    if req != None:
+    if req != None and req != []:
         return min([ret["Level maturity"] for ret in req]) # TODO
     else:
         return -1

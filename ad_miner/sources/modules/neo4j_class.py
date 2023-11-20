@@ -51,6 +51,7 @@ def pre_request(arguments):
     with driver.session() as session:
         with session.begin_transaction() as tx:
             total_objects = []
+            boolean_azure = False
             for record in tx.run(
                 "MATCH (x) return labels(x), count(labels(x)) AS number_type"
             ):
@@ -61,14 +62,20 @@ def pre_request(arguments):
             ):
                 number_relations = record.data()["total_relations"]
 
+
+            for record in tx.run(
+                "MATCH (n) WHERE EXISTS(n.tenantid) return n LIMIT 1"
+            ):
+                boolean_azure = bool(record.data()['n'])
+
     driver.close()
     
-    return extract_date, total_objects, number_relations
+    return extract_date, total_objects, number_relations, boolean_azure
 
 
 
 class Neo4j:
-    def __init__(self, arguments, extract_date_int):
+    def __init__(self, arguments, extract_date_int, boolean_azure):
         # remote computers that run requests with their number of core
         if len(arguments.cluster) > 0:
             arguments.nb_chunks = 0
@@ -104,11 +111,10 @@ class Neo4j:
 
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
-        # We only use the Azure relationships when requested to do so
 
         properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations"
 
-        if arguments.azure:
+        if boolean_azure:
             properties += "|AZAddMembers|AZContains|AZContributor|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZOwns|AZPrivilegedRoleAdmin|AZResetPassword|AZUserAccessAdministrator|AZAppAdmin|AZCloudAppAdmin|AZRunsAs|AZKeyVaultContributor|AddSelf|WriteSPN|AddKeyCredentialLink|AZAddSecret|AZAvereContributor|AZExecuteCommand|AZGrant|AZGrantSelf|AZHasRole|AZMemberOf|AZOwner|AZVMAdminLogin"
 
         if arguments.rdp:
@@ -257,9 +263,14 @@ class Neo4j:
             with self.driver.session() as session:
                 with session.begin_transaction() as tx:
                     scopeQuery = request["scope_query"]
-                    scopeSize = tx.run(scopeQuery).value()[0]
+                    if tx.run(scopeQuery).value() != []:
+                        scopeSize = tx.run(scopeQuery).value()[0]
+                    else:
+                        scopeSize = 0
+
             part_number = int(self.arguments.nb_chunks)
             part_number = min(scopeSize, part_number)
+
             print(f"scope size : {str(scopeSize)} | nb chunks : {part_number}")
             items = []
             space = np.linspace(0, scopeSize, part_number + 1, dtype=int)

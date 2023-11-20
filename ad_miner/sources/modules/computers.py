@@ -355,7 +355,7 @@ class Computers:
                 page.addComponent(grid)
                 page.render()
             else:
-                print("Hey Houston, it's toto, and WE HAVE A PROBLEM")
+                print("Bug")
                 # List of computers with most users admin page (and if to handle empty cases)
 
     def genComputersWithMostAdminsPage(self):

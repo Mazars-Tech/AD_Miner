@@ -140,7 +140,7 @@ def main() -> None:
 
     prepare_render(arguments)
 
-    extract_date, total_objects, number_relations = pre_request(arguments)
+    extract_date, total_objects, number_relations, boolean_azure = pre_request(arguments)
 
     number_objects = sum([type_label["number_type"] for type_label in total_objects])
 
@@ -160,7 +160,7 @@ def main() -> None:
     if arguments.extract_date:
         extract_date = arguments.extract_date
 
-    neo4j = Neo4j(arguments, extract_date)
+    neo4j = Neo4j(arguments, extract_date, boolean_azure)
 
     if arguments.cluster:
         neo4j.verify_integrity(neo4j)

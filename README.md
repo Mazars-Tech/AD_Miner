@@ -45,7 +45,6 @@ Options:
     -p, --password          Neo4j password (default : neo5j)
     -e, --extract_date      Extract date (e.g., 20220131). Default: last logon date
     -r, --renewal_password  Password renewal policy in days. Default: 90
-    -a, --azure             Use Azure relations
     -c, --cache             Use local file for neo4j data
     -l, --level             Recursive level for path queries
     -cf, --cache_prefix     Cache file to use (in case of multiple company cache files)
