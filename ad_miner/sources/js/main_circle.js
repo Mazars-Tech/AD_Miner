@@ -1,3 +1,45 @@
+function toggleDiv(divId) {
+  console.log("change !!"+divId)
+
+  if (divId === "main_circle") {
+    document.getElementById("main_circle").style.display = "block";
+    document.getElementById("azure_circle").style.display = "none";
+
+    document.getElementById("stats-tab-title-overview").style.display = "block";
+    document.getElementById("stats-tab-title-computers").style.display = "block";
+    document.getElementById("stats-tab-title-users").style.display = "block";
+    document.getElementById("stats-tab-title-os").style.display = "block";
+    document.getElementById("stats-tab-title-azure").style.display = "none";
+
+    document.getElementById("azure").classList.remove("active");
+
+    document.getElementById("recap").classList.add("active");
+    document.getElementById("computers").classList.add("active");
+    document.getElementById("users").classList.add("active");
+    document.getElementById("os_distribution").classList.add("active");
+  }
+
+  else {
+    document.getElementById("main_circle").style.display = "none";
+    document.getElementById("azure_circle").style.display = "block";
+
+    document.getElementById("stats-tab-title-overview").style.display = "none";
+    document.getElementById("stats-tab-title-computers").style.display = "none";
+    document.getElementById("stats-tab-title-users").style.display = "none";
+    document.getElementById("stats-tab-title-os").style.display = "none";
+    document.getElementById("stats-tab-title-azure").style.display = "block";
+
+    document.getElementById("azure").classList.add("active");
+
+    document.getElementById("recap").classList.remove("active");
+    document.getElementById("computers").classList.remove("active");
+    document.getElementById("users").classList.remove("active");
+    document.getElementById("os_distribution").classList.remove("active");
+  }
+
+}
+
+
 function display_one_hexagon(name, hexa_dict) {
   var color = hexa_dict.color;
   var x = hexa_dict.position[0];
@@ -110,3 +152,25 @@ function display_all_hexagons(dico_entry) {
   $('.main_circle').append(title_misc);
 
 }
+
+var title_attack_paths = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('attack_paths')>
+    <img src="../icons/main_circle/attack_paths.svg" class="title-section shadow" style="top:20%; left: 39%""/>
+    </a>`;
+$('.azure_circle').append(title_attack_paths);
+
+
+var title_ms_graph = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('ms_graph')>
+    <img src="../icons/main_circle/ms_graph.svg" class="title-section shadow" style="top:50%; left: 70%""/>
+    </a>`;
+$('.azure_circle').append(title_ms_graph);
+
+var title_service_principal = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('service_principal')>
+    <img src="../icons/main_circle/service_principal.svg" class="title-section shadow" style="top:75%; left: 35%""/>
+    </a>`;
+$('.azure_circle').append(title_service_principal);
+
+
+var title_azure_ad_connect = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('azure_ad_connect')>
+    <img src="../icons/main_circle/azure_ad_connect.svg" class="title-section shadow" style="top:50%; left: 2.4%""/>
+    </a>`;
+$('.azure_circle').append(title_azure_ad_connect);

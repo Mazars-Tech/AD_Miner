@@ -9,7 +9,7 @@ from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category
 from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY
 
 
-def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
+def getData(arguments, neo4j, domains, computers, users, objects, azure, extract_date):
     # Place in this dict all the {{key}} from main_header.html with their respecting value
     data = {}
 
@@ -57,6 +57,10 @@ def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
         else:
             data["os_colors"].append(base_colors[i])
             i = (i + 1) % len(base_colors)
+
+    data["azure_nb_users"]= len(azure.azure_users)
+    data["azure_nb_groups"]= len(azure.azure_groups)
+    data["azure_nb_vm"]= len(azure.azure_vm)
 
 
     return data
@@ -169,7 +173,7 @@ def complete_data_evolution_time(data, raw_other_list_data):
 
 
 def create_dico_data(
-    data, arguments, domains, computers, users, objects, dico_rating_color
+    data, arguments, domains, computers, users, objects, azure, dico_rating_color
 ):
     """
     This function creates the data dictionary which is saved in json in the client's report
@@ -186,6 +190,11 @@ def create_dico_data(
             "nb_computers": len(computers.list_total_computers),
             "nb_adcs": len(computers.computers_adcs),
         },
+        "azure":  {
+            "azure_nb_users": len(azure.azure_users),
+            "azure_nb_groups": len(azure.azure_groups),
+            "azure_nb_vm": len(azure.azure_vm),
+        }
     }
 
     dico_data["value"] = {
@@ -256,7 +265,7 @@ def manage_plural(elem, text):
 
 
 def render(
-    arguments, neo4j, domains, computers, users, objects, data_rating, extract_date
+    arguments, neo4j, domains, computers, users, objects, azure, data_rating, extract_date
 ):
 
     if arguments.evolution != "":
@@ -264,11 +273,11 @@ def render(
     else:
         raw_other_list_data = None
 
-    data = getData(arguments, neo4j, domains, computers, users, objects, extract_date)
+    data = getData(arguments, neo4j, domains, computers, users, objects, azure, extract_date)
 
     dico_rating_color = rating.rating_color(data_rating)
     dico_data = create_dico_data(
-        data, arguments, domains, computers, users, objects, dico_rating_color
+        data, arguments, domains, computers, users, objects, azure, dico_rating_color
     )
 
     if raw_other_list_data != None:
@@ -339,6 +348,7 @@ def render(
         "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts not in Protected Users group",
         "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
         "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group"
+
     }
 
     descriptions = DESCRIPTION_MAP

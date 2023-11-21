@@ -17,6 +17,7 @@ from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request
 from ad_miner.sources.modules.objects import Objects
 from ad_miner.sources.modules.rating import rating
 from ad_miner.sources.modules.users import Users
+from ad_miner.sources.modules.azure import Azure 
 
 # Third party library imports
 
@@ -179,6 +180,7 @@ def main() -> None:
     computers = Computers(arguments, neo4j, domains)
     users = Users(arguments, neo4j, domains)
     objects = Objects(arguments, neo4j, domains, computers, users)
+    azure = Azure(arguments, neo4j, domains)
 
     # Generate the main page
     logger.print_success("Temporary vulnerabilities rating :")
@@ -198,6 +200,7 @@ def main() -> None:
         computers,
         users,
         objects,
+        azure,
         rating_dic,
         extract_date,
     )

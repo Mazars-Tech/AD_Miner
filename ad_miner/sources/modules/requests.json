@@ -694,5 +694,30 @@
         "name": "Unpriviledged users with admincount=1",
         "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
+    },
+    "azure_user": {
+        "name": "Get Azure Users",
+        "request":"MATCH (n:AZUser) return n.name AS Name, n.tenantid AS `Tenant ID`",
+        "filename": "azure_user",
+        "output_type": "dict"
+    },
+    "azure_groups": {
+        "name": "get Azure Groups",
+        "request": "MATCH (n:AZGroup) return n.tenantid AS `Tenant ID`, n.name AS Name, COALESCE(n.description, '-') AS Description ",
+        "filename": "azure_groups",
+        "output_type": "dict"
+    },
+    "azure_vm": {
+        "name": "get Azure VM",
+        "request": "MATCH (n:AZVM) return n.tenantid AS `Tenant ID`, n.name AS Name, n.operatingsystem AS os",
+        "filename": "azure_vm",
+        "output_type": "dict"
+    },
+    "azure_users_paths_high_target": {
+        "name": "Find all Azure Users with a Path to High Value Targets ",
+        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r*1..]->(n)) WHERE NONE (r IN relationships(p) WHERE type(r)= 'GetChanges') AND NONE (r in relationships(p) WHERE type(r)='GetChangesAll') AND NOT m=n RETURN p",
+        "filename": "azure_users_paths_high_target",
+        "output_type": "Graph"
     }
+
 }
