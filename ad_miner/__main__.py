@@ -153,7 +153,12 @@ def main() -> None:
     string_information_database = ""
 
     for type_label in total_objects:
-        string_information_database += f"{type_label['labels(x)'][0]} : {type_label['number_type']} | "
+        if 'Base' in type_label['labels(x)'][0]:
+            instance_type_label = 1
+        else:
+            instance_type_label = 0
+
+        string_information_database += f"{type_label['labels(x)'][instance_type_label]} : {type_label['number_type']} | "
 
     string_information_database += f"Relations : {number_relations}"
     logger.print_magenta(string_information_database)
@@ -184,15 +189,9 @@ def main() -> None:
 
     # Generate the main page
     logger.print_success("Temporary vulnerabilities rating :")
-    rating_dic = rating(users, domains, computers, objects, arguments)
-    for i in rating_dic.keys():
-        print(f" {i} : {rating_dic[i]}")
-
-    for i in rating_dic.keys():
-        if len(rating_dic[i]) > 0:
-            global_grade = i
-            break
-    logger.print_success(f"Global grade : {global_grade}")
+    rating_dic = rating(users, domains, computers, objects, azure, arguments)
+    print("rating :", rating_dic)
+    
     dico_name_description = main_page.render(
         arguments,
         neo4j,

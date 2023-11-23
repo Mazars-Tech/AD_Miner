@@ -62,9 +62,18 @@ dico_category = {
         "empty_ous",
         "primaryGroupID_lower_than_1000"
 
-    ]
+    ],
+    "attack_path":["azure_users_paths_high_target"],
+    "ad_connect":[],
+    "sp_mi":[],
+    "ms_graph":[],
 }
 
+category_repartition_dict = {}
+for k in ["passwords", "kerberos", "permission", "misc"]:
+    category_repartition_dict[k] = "on_premise"
+for k in ["attack_path", "ad_connect","sp_mi", "ms_graph"]:
+    category_repartition_dict[k] = "azure"
 
 class SmolCard:
     def __init__(

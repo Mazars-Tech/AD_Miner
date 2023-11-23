@@ -1,9 +1,11 @@
-function toggleDiv(divId) {
-  console.log("change !!"+divId)
 
+function toggleDiv(divId) {
   if (divId === "main_circle") {
     document.getElementById("main_circle").style.display = "block";
     document.getElementById("azure_circle").style.display = "none";
+
+    document.getElementById("global-rating-on-premise").style.display = "block";
+    document.getElementById("global-rating-azure").style.display = "none";
 
     document.getElementById("stats-tab-title-overview").style.display = "block";
     document.getElementById("stats-tab-title-computers").style.display = "block";
@@ -14,14 +16,16 @@ function toggleDiv(divId) {
     document.getElementById("azure").classList.remove("active");
 
     document.getElementById("recap").classList.add("active");
-    document.getElementById("computers").classList.add("active");
-    document.getElementById("users").classList.add("active");
-    document.getElementById("os_distribution").classList.add("active");
+    document.getElementById("recap").classList.add("show");
+    document.getElementById("recap").classList.add("fade");
+    
   }
-
   else {
     document.getElementById("main_circle").style.display = "none";
     document.getElementById("azure_circle").style.display = "block";
+
+    document.getElementById("global-rating-on-premise").style.display = "none";
+    document.getElementById("global-rating-azure").style.display = "block";
 
     document.getElementById("stats-tab-title-overview").style.display = "none";
     document.getElementById("stats-tab-title-computers").style.display = "none";
@@ -36,7 +40,6 @@ function toggleDiv(divId) {
     document.getElementById("users").classList.remove("active");
     document.getElementById("os_distribution").classList.remove("active");
   }
-
 }
 
 
@@ -74,10 +77,17 @@ function display_one_hexagon(name, hexa_dict) {
         <img src="../icons/main_circle/hexagone_${color}.svg" class="hexagon hexagon-${color}" style="${style}" custom-title="${hexa_dict.title}" custom-status="${status}"/>
     </a>`;
 
-  $('.main_circle').append(hexagon);
+  if (hexa_dict.category_repartition == "azure") {
+    $('.azure_circle').append(hexagon);
+  }
+  else {
+    $('.main_circle').append(hexagon);
+  }
+  
 }
 
 function display_all_hexagons(dico_entry) {
+  console.log(dico_entry);
   // Display all icons
   for (var key in dico_entry) {
     display_one_hexagon(key, dico_entry[key]);

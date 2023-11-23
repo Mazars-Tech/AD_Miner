@@ -538,5 +538,11 @@
     "description": "Privileged accounts not protected by the Protected Users group.",
     "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
     "poa": "Privileged accounts must be part of the Protected Users group."
+  },
+  "azure_users_paths_high_target": {
+    "title": "Find all Azure Users with a Path to High Value Targets",
+    "description": "Find all Azure Users with a Path to High Value Targets",
+    "risk": "It is dangerous to have users with a Path to High Value Targets",
+    "poa": "Review and clean up the privileges of these accounts"
   }
 }

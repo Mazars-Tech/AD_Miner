@@ -29,10 +29,12 @@
         </a>
 
         <label class="btn btn-primary">
-          <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise" autocomplete="off" checked> On Premise
+          <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise"
+            autocomplete="off" checked> On Premise
         </label>
         <label class="btn btn-primary">
-          <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off"> Azure
+          <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off">
+          Azure
         </label>
 
       </div>
@@ -44,7 +46,7 @@
             <i class="bi bi-search"></i>
           </button>
         </h1>
-        
+
         <div class="form-inline my-2 my-lg-0" id="search-bar-div">
           <div id="search-bar-div-2">
             <input class="form-control mr-sm-2" id="search-bar" type="search" placeholder="Search" aria-label="Search">
@@ -65,14 +67,16 @@
       <!-- Left column -->
       <div class="col-left">
         <!-- Rating card-->
-        <div class="card main-card-category shadow mb-3">
+
+        <!-- On premise -->
+        <div class="card main-card-category shadow mb-3" id="global-rating-on-premise">
           <div class="card-body">
             <h5 class="card-title">
-              Global Risk rating
+              On-premise Risk rating
               <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                 data-bs-title="This rating is an overall evaluation of the security level of your Active Directory based on the estimated risk of each indicator of exposure"></i>
             </h5>
-            {{global_rating}}
+            {{on_premise|global_rating}}
             <hr />
             <h6 class="card-subtitle mb-2 text-muted">
               Indicators of exposures breakdown
@@ -83,32 +87,79 @@
                   <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
                   Immediate risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(245, 75, 75)">{{immediate_risk}}</span>
+                <span class="badge rounded-pill" style="background-color: rgb(245, 75, 75)">{{on_premise|immediate_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 5px"></i>
                   Potential risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(245, 177, 75)">{{potential_risk}}</span>
+                <span class="badge rounded-pill" style="background-color: rgb(245, 177, 75)">{{on_premise|potential_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 5px"></i>
                   Minor risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(255, 221, 0)">{{minor_risk}}</span>
+                <span class="badge rounded-pill" style="background-color: rgb(255, 221, 0)">{{on_premise|minor_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 5px"></i>
                   Handled risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(91, 180, 32)">{{handled_risk}}</span>
+                <span class="badge rounded-pill" style="background-color: rgb(91, 180, 32)">{{on_premise|handled_risk}}</span>
               </li>
             </ul>
           </div>
         </div>
+
+        <!-- Azure -->
+        <div class="card main-card-category shadow mb-3" id="global-rating-azure" style="display:none">
+          <div class="card-body">
+            <h5 class="card-title">
+              Azure Risk rating
+              <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                data-bs-title="This rating is an overall evaluation of the security level of your Active Directory based on the estimated risk of each indicator of exposure"></i>
+            </h5>
+            {{azure|global_rating}}
+            <hr />
+            <h6 class="card-subtitle mb-2 text-muted">
+              Indicators of exposures breakdown
+            </h6>
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
+                  Immediate risk
+                </div>
+                <span class="badge rounded-pill" style="background-color: rgb(245, 75, 75)">{{azure|immediate_risk}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 5px"></i>
+                  Potential risk
+                </div>
+                <span class="badge rounded-pill" style="background-color: rgb(245, 177, 75)">{{azure|potential_risk}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 5px"></i>
+                  Minor risk
+                </div>
+                <span class="badge rounded-pill" style="background-color: rgb(255, 221, 0)">{{azure|minor_risk}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 5px"></i>
+                  Handled risk
+                </div>
+                <span class="badge rounded-pill" style="background-color: rgb(91, 180, 32)">{{azure|handled_risk}}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
 
         <!-- Stats card -->
         <div class="card main-card-category shadow mb-3">
@@ -119,28 +170,32 @@
                   href="#recap" aria-selected="true"><i class="bi bi-search stats-link-icon"></i>Recap</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-users" style="display:block"
-                  href="#users" aria-selected="false"><i class="bi bi-person-fill stats-link-icon"></i>Users</a>
+                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-users"
+                  style="display:block" href="#users" aria-selected="false"><i
+                    class="bi bi-person-fill stats-link-icon"></i>Users</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-computers" style="display:block"
-                  href="#computers" aria-selected="false"><i class="bi bi-pc-display stats-link-icon"></i>Computers</a>
+                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-computers"
+                  style="display:block" href="#computers" aria-selected="false"><i
+                    class="bi bi-pc-display stats-link-icon"></i>Computers</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-os" style="display:block"
-                  href="#os_distribution" aria-selected="false"><i class="bi bi-windows stats-link-icon"></i>OS</a>
+                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-os"
+                  style="display:block" href="#os_distribution" aria-selected="false"><i
+                    class="bi bi-windows stats-link-icon"></i>OS</a>
               </li>
 
               <li class="nav-item">
-                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-azure" style="display:none"
-                  href="#azure" aria-selected="false"><i class="bi bi-microsoft stats-link-icon"></i>Azure</a>
+                <a class="nav-link stats-link text-primary" data-bs-toggle="tab" id="stats-tab-title-azure"
+                  style="display:none" href="#azure" aria-selected="false"><i
+                    class="bi bi-microsoft stats-link-icon"></i>Azure</a>
               </li>
 
             </ul>
           </div>
 
           <div class="tab-content">
-            <div class="tab-pane fade show active" id="recap" role="tabpanel">
+            <div class="tab-pane active" id="recap" role="tabpanel">
               <div class="card-body" id="stats-tab-overview">
                 <h5 class="card-title stats-title">General statistics</h5>
                 <div class="d-flex justify-content-between align-items-center stats-div">
@@ -263,69 +318,46 @@
               <div class="card-body" id="stats-tab-azure">
                 <h5 class="card-title stats-title">Azure</h5>
                 <div>
-                  <div
-                  class="d-flex justify-content-between align-items-center stats-div"
-                  >
+                  <div class="d-flex justify-content-between align-items-center stats-div">
                     <div>
                       <p class="stats-text">
-                        <span class="stats-number"
-                          ><i class="bi bi-person-fill stats-icon"></i
-                          >{{azure_nb_users}}</span
-                        >
+                        <span class="stats-number"><i class="bi bi-person-fill stats-icon"></i>{{azure_nb_users}}</span>
                         Users
                       </p>
                     </div>
                     <div>
-                      <a
-                        href="azure_users.html"
-                        class="btn btn-outline-dark stats-button"
-                        >Details <i class="bi bi-box-arrow-up-right"></i
-                      ></a>
+                      <a href="azure_users.html" class="btn btn-outline-dark stats-button">Details <i
+                          class="bi bi-box-arrow-up-right"></i></a>
                     </div>
-                </div>
+                  </div>
 
-                <div
-                  class="d-flex justify-content-between align-items-center stats-div"
-                  >
+                  <div class="d-flex justify-content-between align-items-center stats-div">
                     <div>
                       <p class="stats-text">
-                        <span class="stats-number"
-                          ><i class="bi bi-person-fill stats-icon"></i
-                          >{{azure_nb_groups}}</span
-                        >
+                        <span class="stats-number"><i
+                            class="bi bi-person-fill stats-icon"></i>{{azure_nb_groups}}</span>
                         Groups
                       </p>
                     </div>
                     <div>
-                      <a
-                        href="azure_groups.html"
-                        class="btn btn-outline-dark stats-button"
-                        >Details <i class="bi bi-box-arrow-up-right"></i
-                      ></a>
+                      <a href="azure_groups.html" class="btn btn-outline-dark stats-button">Details <i
+                          class="bi bi-box-arrow-up-right"></i></a>
                     </div>
-                </div>
+                  </div>
 
 
-                <div
-                  class="d-flex justify-content-between align-items-center stats-div"
-                  >
+                  <div class="d-flex justify-content-between align-items-center stats-div">
                     <div>
                       <p class="stats-text">
-                        <span class="stats-number"
-                          ><i class="bi bi-pc-display stats-icon"></i
-                          >{{azure_nb_vm}}</span
-                        >
+                        <span class="stats-number"><i class="bi bi-pc-display stats-icon"></i>{{azure_nb_vm}}</span>
                         VMs
                       </p>
                     </div>
                     <div>
-                      <a
-                        href="azure_vm.html"
-                        class="btn btn-outline-dark stats-button"
-                        >Details <i class="bi bi-box-arrow-up-right"></i
-                      ></a>
+                      <a href="azure_vm.html" class="btn btn-outline-dark stats-button">Details <i
+                          class="bi bi-box-arrow-up-right"></i></a>
                     </div>
-                </div>
+                  </div>
 
 
                 </div>
@@ -365,10 +397,7 @@
             <div class="tab-pane fade show active" id="overview" role="tabpanel">
               <div class="card-body" id="main-tab-overview">
                 <!-- Overview -->
-                <div 
-                  class="main_circle" 
-                  id="main_circle" 
-                  style="
+                <div class="main_circle" id="main_circle" style="
                     background-image: url(../icons/main_circle/background.svg);
                     width: 750px;
                     height: 750px;
@@ -376,19 +405,15 @@
                     position: relative;
                     display: block;
                     ">
-                  </div>
-                <div
-                  class="azure_circle"
-                  id="azure_circle"
-                  style="
+                </div>
+                <div class="azure_circle" id="azure_circle" style="
                     background-image: url(../icons/main_circle/background_azure.svg);
                     width: 750px;
                     height: 750px;
                     margin: auto;
                     position: relative;
                     display:none;
-                    "
-              ></div>
+                    "></div>
               </div>
             </div>
 

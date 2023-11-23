@@ -125,7 +125,6 @@ class Azure:
 
 
     def genAzureUsersPathsHighTarget(self, domain):
-
         if self.azure_users_paths_high_target is None:
             self.azure_users_paths_high_target = []
             return

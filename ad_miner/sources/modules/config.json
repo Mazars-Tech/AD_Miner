@@ -118,6 +118,10 @@
         "primaryGroupID_lower_than_1000": "true",
         "pre_windows_2000_compatible_access_group": "true",
         "guest_accounts": "true",
-        "unpriviledged_users_with_admincount": "true"
+        "unpriviledged_users_with_admincount": "true",
+        "azure_user": "true",
+        "azure_groups": "true",
+        "azure_vm": "true",
+        "azure_users_paths_high_target": "true"
     }
 }

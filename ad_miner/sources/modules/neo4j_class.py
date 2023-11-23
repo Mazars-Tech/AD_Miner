@@ -69,6 +69,7 @@ def pre_request(arguments):
                 boolean_azure = bool(record.data()['n'])
 
     driver.close()
+    print("number relation : ", number_relations)
     
     return extract_date, total_objects, number_relations, boolean_azure
 
@@ -767,10 +768,7 @@ class Neo4j:
                 nodes = []
                 for relation in path.relationships:
                     for node in relation.nodes:
-                        label = next(
-                            iter(node.labels.difference({"Base"}))
-                        )  # e.g. : {"User","Base"} -> "User"
-
+                        label = [i for i in node.labels if 'Base' not in i][0] # e.g. : {"User","Base"} -> "User" or {"User","AZBase"} -> "User"
                         nodes.append(
                             Node(
                                 node.id,
@@ -785,7 +783,7 @@ class Neo4j:
                 nodes.append(
                     Node(
                         path.end_node.id,
-                        next(iter(path.end_node.labels.difference({"Base"}))),
+                        [i for i in path.end_node.labels if 'Base' not in i][0],
                         path.end_node["name"],
                         path.end_node["domain"],
                         "",
