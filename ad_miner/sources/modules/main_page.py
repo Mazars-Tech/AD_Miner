@@ -99,7 +99,7 @@ def complete_data_evolution_time(data, raw_other_list_data):
             "nb_groups": [],
             "nb_computers": [],
         }
-
+        # On-premise
         for k in dico_category["passwords"]:
             dico_data_evolution_time[k] = []
         for k in dico_category["kerberos"]:
@@ -107,6 +107,16 @@ def complete_data_evolution_time(data, raw_other_list_data):
         for k in dico_category["permission"]:
             dico_data_evolution_time[k] = []
         for k in dico_category["misc"]:
+            dico_data_evolution_time[k] = []
+
+        # Azure
+        for k in dico_category["attack_path"]:
+            dico_data_evolution_time[k] = []
+        for k in dico_category["ad_connect"]:
+            dico_data_evolution_time[k] = []
+        for k in dico_category["sp_mi"]:
+            dico_data_evolution_time[k] = []
+        for k in dico_category["ms_graph"]:
             dico_data_evolution_time[k] = []
 
         for k in range(len(raw_other_list_data)):
@@ -364,6 +374,8 @@ def render(
     descriptions = DESCRIPTION_MAP
     dico_name_title = {k: descriptions[k].get("title") for k in descriptions.keys()}
 
+    data["boolean_azure"] = "inline" if neo4j.boolean_azure else "none"
+
     # On premise
     data["on_premise"] = {}
 
@@ -389,8 +401,6 @@ def render(
     data["azure"]["potential_risk_list"] = data_rating["azure"][2]
     data["azure"]["minor_risk_list"] = data_rating["azure"][3]
     data["azure"]["handled_risk_list"] = data_rating["azure"][4] + data_rating["azure"][5]
-
-
 
     global_risk_controls = {
         "immediate_risk":  {"code" :"D", "colors": "245, 75, 75", "i_class": 'bi bi-exclamation-diamond-fill', "div_class": "danger", "panel_key": "list_cards_dangerous_issues", "risk_name": "Critical"},
@@ -505,8 +515,6 @@ def render(
             original = header_f.read()
             content = ""
 
-            print("toto:", data["on_premise"]["permissions_letter_grade"])
-
             i = 0
             while i < len(original):
                 if original[i] == "{" and original[i + 1] == "{":
@@ -543,6 +551,7 @@ def render(
             for category_repartition in ["on_premise", "azure"]:
                 for k in data_rating[category_repartition].keys():
                     for vuln in data_rating[category_repartition][k]:
+                        
                         if descriptions.get(vuln):
                             description = descriptions[vuln]["description"]
                         else:
@@ -556,22 +565,23 @@ def render(
                             evolution_data=data["dico_data_evolution_time"],
                             evolution_labels=data["label_evolution_time"]
                         ).render(page_f, return_html=True)
-                modal_header = open(TEMPLATES_DIRECTORY / "cards_modal_header.html", "r").read()
-                modal_footer = """
-                    </div>
-            </div>
-        <div class="modal-footer">
+
+            modal_header = open(TEMPLATES_DIRECTORY / "cards_modal_header.html", "r").read()
+            modal_footer = """
+                </div>
         </div>
-        </div>
+    <div class="modal-footer">
     </div>
     </div>
+</div>
+</div>
+            """
+            if arguments.evolution == "":
+                modal_footer += """<script>
+                document.querySelector('#flexSwitchCheckDefault').setAttribute('disabled', '');
+                document.querySelector('#switchLogScaleDiv').style.display = 'none';
+                </script>
                 """
-                if arguments.evolution == "":
-                    modal_footer += """<script>
-                    document.querySelector('#flexSwitchCheckDefault').setAttribute('disabled', '');
-                    document.querySelector('#switchLogScaleDiv').style.display = 'none';
-                    </script>
-                    """
 
             page_f.write(modal_header + cardsHtml + modal_footer)
             # html = secondary.returnHtml()

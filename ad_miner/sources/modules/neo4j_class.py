@@ -108,6 +108,8 @@ class Neo4j:
             self.parallelWriteRequest = self.parallelRequestLegacy
             self.writeRequest = self.simpleRequest
 
+        self.boolean_azure = boolean_azure
+
         extract_date = self.set_extract_date(str(extract_date_int))
 
         recursive_level = arguments.level

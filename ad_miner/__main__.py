@@ -188,10 +188,8 @@ def main() -> None:
     azure = Azure(arguments, neo4j, domains)
 
     # Generate the main page
-    logger.print_success("Temporary vulnerabilities rating :")
     rating_dic = rating(users, domains, computers, objects, azure, arguments)
-    print("rating :", rating_dic)
-    
+
     dico_name_description = main_page.render(
         arguments,
         neo4j,
