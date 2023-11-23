@@ -418,7 +418,7 @@ def render(
             if category_repartition == "on_premise": #on premise
                 categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
 
-                for control in [data["on_premise"][f"{risk_control}_list"]]:
+                for control in data["on_premise"][f"{risk_control}_list"]:
                     
                     if control in dico_category["permission"]:
                         categories["permissions"] += 1
@@ -432,7 +432,7 @@ def render(
             else:   # azure
                 categories = {"attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
 
-                for control in [data["azure"][f"{risk_control}_list"]]:
+                for control in data["azure"][f"{risk_control}_list"]:
                 
                     if control in dico_category["attack_path"]:
                         categories["attack_path"] += 1
@@ -442,9 +442,9 @@ def render(
                         categories["sp_mi"] += 1
                     elif control in dico_category["ms_graph"]:
                         categories["ms_graph"] += 1
-                
+            
             for category in categories:
-                if categories[category] > 0 and f"{category}_letter_grade" not in data:
+                if categories[category] > 0 and f"{category}_letter_grade" not in data[category_repartition]:
                     data[category_repartition][f"{category}_letter_grade"] = global_risk_controls[risk_control]["code"]
                     data[category_repartition][f"{category}_letter_color"] = global_risk_controls[risk_control]["colors"]
                     data[category_repartition][
@@ -505,7 +505,7 @@ def render(
             original = header_f.read()
             content = ""
 
-            print("toto:", data["on_premise"]["issue_or_issues"])
+            print("toto:", data["on_premise"]["permissions_letter_grade"])
 
             i = 0
             while i < len(original):

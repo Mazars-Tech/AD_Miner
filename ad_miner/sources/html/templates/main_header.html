@@ -87,28 +87,32 @@
                   <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
                   Immediate risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(245, 75, 75)">{{on_premise|immediate_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(245, 75, 75)">{{on_premise|immediate_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 5px"></i>
                   Potential risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(245, 177, 75)">{{on_premise|potential_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(245, 177, 75)">{{on_premise|potential_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 5px"></i>
                   Minor risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(255, 221, 0)">{{on_premise|minor_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(255, 221, 0)">{{on_premise|minor_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 5px"></i>
                   Handled risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(91, 180, 32)">{{on_premise|handled_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(91, 180, 32)">{{on_premise|handled_risk}}</span>
               </li>
             </ul>
           </div>
@@ -133,14 +137,16 @@
                   <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
                   Immediate risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(245, 75, 75)">{{azure|immediate_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(245, 75, 75)">{{azure|immediate_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 5px"></i>
                   Potential risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(245, 177, 75)">{{azure|potential_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(245, 177, 75)">{{azure|potential_risk}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
@@ -154,7 +160,8 @@
                   <i class="bi bi-check-circle-fill" style="color: rgb(91, 180, 32); margin-right: 5px"></i>
                   Handled risk
                 </div>
-                <span class="badge rounded-pill" style="background-color: rgb(91, 180, 32)">{{azure|handled_risk}}</span>
+                <span class="badge rounded-pill"
+                  style="background-color: rgb(91, 180, 32)">{{azure|handled_risk}}</span>
               </li>
             </ul>
           </div>
@@ -374,16 +381,30 @@
         <div class="card main-card-category shadow mb-3">
           <div class="card-header">
             <ul class="nav nav-tabs card-header-tabs">
+
               <li class="nav-item">
                 <a class="nav-link active main-link text-primary" id="main-tab-title-overview" data-bs-toggle="tab"
                   aria-selected="true" href="#overview" role="tab"><i
                     class="bi bi-search main-link-icon"></i>Overview</a>
               </li>
+
+              <!-- On-premise -->
               <li class="nav-item">
-                <a class="nav-link main-link text-primary" id="main-tab-title-breakdown" aria-selected="false"
-                  data-bs-toggle="tab" href="#exposure" role="tab"><i
+                <a class="nav-link main-link text-primary" id="main-tab-title-breakdown-on-premise"
+                  aria-selected="false" data-bs-toggle="tab" href="#exposure-on-premise" role="tab"><i
                     class="bi bi-ui-checks-grid main-link-icon"></i>Indicators of exposure breakdown</a>
               </li>
+
+              <!-- Azure -->
+              <li class="nav-item">
+                <a class="nav-link main-link text-primary" id="main-tab-title-breakdown-azure" aria-selected="false"
+                  data-bs-toggle="tab" href="#exposure-azure" role="tab" style="display:none"><i
+                    class="bi bi-ui-checks-grid main-link-icon"></i>Indicators of exposure breakdown</a>
+              </li>
+
+
+
+
 
               <li class="nav-item" style="display:{{boolean_evolution_over_time}}">
                 <a class="nav-link main-link text-primary" id="main-tab-title-evolution" aria-selected="false"
@@ -417,10 +438,12 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="exposure" role="tabpanel">
+            <!-- On-premise -->
+            <div class="tab-pane fade" id="exposure-on-premise" role="tabpanel">
+
               <div class="row" style="margin-bottom: 15px">
                 <div class="col-graph-main-left">
-                  <canvas id="chart-details-main"></canvas>
+                  <canvas id="chart-details-main-on-premise"></canvas>
                 </div>
                 <div class="col-graph-main-right">
                   <br />
@@ -428,7 +451,7 @@
                     Your infrastructure's exposure to cyberattacks is rated:
                   </h5>
                   <br />
-                  {{global_rating}}
+                  {{on_premise|global_rating}}
                   <br />
                   <ul style="
                         text-align: justify;
@@ -438,8 +461,8 @@
                     <li>
                       You have
                       <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 3px"></i>
-                      <span style="font-weight: 700">{{immediate_risk}} critical
-                        {{vuln_text_major_risk}}</span>
+                      <span style="font-weight: 700">{{on_premise|immediate_risk}} critical
+                        {{on_premise|vuln_text_major_risk}}</span>
                       : these must be addressed as soon as possible.
                     </li>
                     <br />
@@ -447,8 +470,8 @@
                       You have
                       <i class="bi bi-exclamation-triangle-fill"
                         style="color: rgb(245, 177, 75); margin-right: 3px"></i>
-                      <span style="font-weight: 700">{{potential_risk}} major
-                        {{vuln_text_major_risk}}</span>
+                      <span style="font-weight: 700">{{on_premise|potential_risk}} major
+                        {{on_premise|vuln_text_major_risk}}</span>
                       : these should be fixed quickly as they could
                       potentially lead to a full compromission.
                     </li>
@@ -459,36 +482,111 @@
               <div class="row" style="margin-bottom: 10px">
                 <div class="col-graph-details">
                   <div>
-                    <canvas id="chart-details-1" class="chart-details"></canvas>
+                    <canvas id="chart-details-1-on-premise" class="chart-details"></canvas>
                     <h5 class="card-title chart-details-title">
                       Permissions
                     </h5>
                   </div>
-                  <div>{{permissions_graph_summary}}</div>
+                  <div>{{on_premise|permissions_graph_summary}}</div>
                 </div>
                 <div class="col-graph-details">
                   <div>
-                    <canvas id="chart-details-2" class="chart-details"></canvas>
+                    <canvas id="chart-details-2-on-premise" class="chart-details"></canvas>
                     <h5 class="card-title chart-details-title">Passwords</h5>
                   </div>
-                  <div>{{passwords_graph_summary}}</div>
+                  <div>{{on_premise|passwords_graph_summary}}</div>
                 </div>
                 <div class="col-graph-details">
                   <div>
-                    <canvas id="chart-details-3" class="chart-details"></canvas>
+                    <canvas id="chart-details-3-on-premise" class="chart-details"></canvas>
                     <h5 class="card-title chart-details-title">Kerberos</h5>
                   </div>
-                  <div>{{kerberos_graph_summary}}</div>
+                  <div>{{on_premise|kerberos_graph_summary}}</div>
                 </div>
                 <div class="col-graph-details">
                   <div>
-                    <canvas id="chart-details-4" class="chart-details"></canvas>
+                    <canvas id="chart-details-4-on-premise" class="chart-details"></canvas>
                     <h5 class="card-title chart-details-title">Misc</h5>
                   </div>
-                  <div>{{misc_graph_summary}}</div>
+                  <div>{{on_premise|misc_graph_summary}}</div>
                 </div>
               </div>
             </div>
+
+            <div class="tab-pane fade" id="exposure-azure" role="tabpanel">
+
+              <div class="row" style="margin-bottom: 15px">
+                <div class="col-graph-main-left">
+                  <canvas id="chart-details-main-azure"></canvas>
+                </div>
+                <div class="col-graph-main-right">
+                  <br />
+                  <h5 class="card-title">
+                    Your infrastructure's exposure to cyberattacks is rated:
+                  </h5>
+                  <br />
+                  {{azure|global_rating}}
+                  <br />
+                  <ul style="
+                        text-align: justify;
+                        font-size: 18px;
+                        margin-right: 30px;
+                      ">
+                    <li>
+                      You have
+                      <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 3px"></i>
+                      <span style="font-weight: 700">{{azure|immediate_risk}} critical
+                        {{azure|vuln_text_major_risk}}</span>
+                      : these must be addressed as soon as possible.
+                    </li>
+                    <br />
+                    <li>
+                      You have
+                      <i class="bi bi-exclamation-triangle-fill"
+                        style="color: rgb(245, 177, 75); margin-right: 3px"></i>
+                      <span style="font-weight: 700">{{azure|potential_risk}} major
+                        {{azure|vuln_text_major_risk}}</span>
+                      : these should be fixed quickly as they could
+                      potentially lead to a full compromission.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <hr />
+              <div class="row" style="margin-bottom: 10px">
+                <div class="col-graph-details">
+                  <div>
+                    <canvas id="chart-details-1-azure" class="chart-details"></canvas>
+                    <h5 class="card-title chart-details-title">
+                      Attack Paths
+                    </h5>
+                  </div>
+                  <div>{{azure|attack_path_graph_summary}}</div>
+                </div>
+                <div class="col-graph-details">
+                  <div>
+                    <canvas id="chart-details-2-azure" class="chart-details"></canvas>
+                    <h5 class="card-title chart-details-title">Azure AD Connect</h5>
+                  </div>
+                  <div>{{azure|ad_connect_graph_summary}}</div>
+                </div>
+                <div class="col-graph-details">
+                  <div>
+                    <canvas id="chart-details-3-azure" class="chart-details"></canvas>
+                    <h5 class="card-title chart-details-title">MS Graph</h5>
+                  </div>
+                  <div>{{azure|ms_graph_graph_summary}}</div>
+                </div>
+                <div class="col-graph-details">
+                  <div>
+                    <canvas id="chart-details-4-azure" class="chart-details"></canvas>
+                    <h5 class="card-title chart-details-title">Service Principal / Managed Identity</h5>
+                  </div>
+                  <div>{{azure|sp_mi_graph_summary}}</div>
+                </div>
+              </div>
+            </div>
+
 
             <div class="tab-pane fade" id="evolution" role="tabpanel">
               <div>
@@ -866,7 +964,8 @@
         </div>
 
         <!-- Azure -->
-        <div class="card main-card-category shadow limit-height mb-3 overview" id="right-col-azure" style="display:none">
+        <div class="card main-card-category shadow limit-height mb-3 overview" id="right-col-azure"
+          style="display:none">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
@@ -1288,9 +1387,9 @@
     Chart.register(centerTextDoughnutPlugin);
     Chart.register(ShadowPlugin);
 
-    // Main breakdown chart
-    const ctxBreakdownMain = document.querySelector('#chart-details-main');
-    new Chart(ctxBreakdownMain, {
+    // On-prem charts
+    const OnPremiseMain = document.querySelector('#chart-details-main-on-premise');
+    new Chart(OnPremiseMain, {
       type: 'doughnut',
       data: {
         labels: ['Critical', 'Major', 'Minor', 'Handled'],
@@ -1298,7 +1397,7 @@
           {
             label: 'Vulnerabilities',
             cutout: '60%',
-            data: `{{main_graph_data}}`,
+            data: `{{on_premise|main_graph_data}}`,
             backgroundColor: [
               'rgba(245, 75, 75, 0.9)',
               'rgba(245, 177, 75, 0.9)',
@@ -1317,8 +1416,8 @@
         },
         elements: {
           center: {
-            text: '{{main_letter_grade}}',
-            color: 'rgb({{main_letter_color}})',
+            text: '{{on_premise|main_letter_grade}}',
+            color: 'rgb({{on_premise|main_letter_color}})',
             fontStyle: 'Arial',
             fontSize: '70px',
           },
@@ -1332,9 +1431,8 @@
       },
     });
 
-    // Main details chart
-    const ctxDetail1 = document.querySelector('#chart-details-1');
-    new Chart(ctxDetail1, {
+    const OnPremise1 = document.querySelector('#chart-details-1-on-premise');
+    new Chart(OnPremise1, {
       type: 'doughnut',
       data: {
         labels: ['Critical', 'Major', 'Minor', 'Handled'],
@@ -1342,7 +1440,7 @@
           {
             label: 'Vulnerabilities',
             cutout: '60%',
-            data: `{{permissions_data}}`,
+            data: `{{on_premise|permissions_data}}`,
             backgroundColor: [
               'rgba(245, 75, 75, 0.9)',
               'rgba(245, 177, 75, 0.9)',
@@ -1361,8 +1459,8 @@
         },
         elements: {
           center: {
-            text: '{{permissions_letter_grade}}',
-            color: 'rgb({{permissions_letter_color}})',
+            text: '{{on_premise|permissions_letter_grade}}',
+            color: 'rgb({{on_premise|permissions_letter_color}})',
             fontStyle: 'Arial',
             fontSize: '50px',
           },
@@ -1376,8 +1474,8 @@
       },
     });
 
-    const ctxDetail2 = document.querySelector('#chart-details-2');
-    new Chart(ctxDetail2, {
+    const OnPremise2 = document.querySelector('#chart-details-2-on-premise');
+    new Chart(OnPremise2, {
       type: 'doughnut',
       data: {
         labels: ['Critical', 'Major', 'Minor', 'Handled'],
@@ -1385,7 +1483,7 @@
           {
             label: 'Vulnerabilities',
             cutout: '60%',
-            data: `{{passwords_data}}`,
+            data: `{{on_premise|passwords_data}}`,
             backgroundColor: [
               'rgba(245, 75, 75, 0.9)',
               'rgba(245, 177, 75, 0.9)',
@@ -1404,8 +1502,8 @@
         },
         elements: {
           center: {
-            text: '{{passwords_letter_grade}}',
-            color: 'rgb({{passwords_letter_color}})',
+            text: '{{on_premise|passwords_letter_grade}}',
+            color: 'rgb({{on_premise|passwords_letter_color}})',
             fontStyle: 'Arial',
             fontSize: '50px',
           },
@@ -1419,8 +1517,8 @@
       },
     });
 
-    const ctxDetail3 = document.querySelector('#chart-details-3');
-    new Chart(ctxDetail3, {
+    const Onpremise3 = document.querySelector('#chart-details-3-on-premise');
+    new Chart(Onpremise3, {
       type: 'doughnut',
       data: {
         labels: ['Critical', 'Major', 'Minor', 'Handled'],
@@ -1428,7 +1526,7 @@
           {
             label: 'Vulnerabilities',
             cutout: '60%',
-            data: `{{kerberos_data}}`,
+            data: `{{on_premise|kerberos_data}}`,
             backgroundColor: [
               'rgba(245, 75, 75, 0.9)',
               'rgba(245, 177, 75, 0.9)',
@@ -1447,8 +1545,8 @@
         },
         elements: {
           center: {
-            text: '{{kerberos_letter_grade}}',
-            color: 'rgb({{kerberos_letter_color}})',
+            text: '{{on_premise|kerberos_letter_grade}}',
+            color: 'rgb({{on_premise|kerberos_letter_color}})',
             fontStyle: 'Arial',
             fontSize: '50px',
           },
@@ -1462,9 +1560,8 @@
       },
     });
 
-
-    const ctxDetail4 = document.querySelector('#chart-details-4');
-    new Chart(ctxDetail4, {
+    const Onpremise4 = document.querySelector('#chart-details-4-on-premise');
+    new Chart(Onpremise4, {
       type: 'doughnut',
       data: {
         labels: ['Critical', 'Major', 'Minor', 'Handled'],
@@ -1472,7 +1569,7 @@
           {
             label: 'Vulnerabilities',
             cutout: '60%',
-            data: `{{misc_data}}`,
+            data: `{{on_premise|misc_data}}`,
             backgroundColor: [
               'rgba(245, 75, 75, 0.9)',
               'rgba(245, 177, 75, 0.9)',
@@ -1491,8 +1588,8 @@
         },
         elements: {
           center: {
-            text: '{{misc_letter_grade}}',
-            color: 'rgb({{misc_letter_color}})',
+            text: '{{on_premise|misc_letter_grade}}',
+            color: 'rgb({{on_premise|misc_letter_color}})',
             fontStyle: 'Arial',
             fontSize: '50px',
           },
@@ -1506,6 +1603,221 @@
       },
     });
 
+    // Azure charts
+    const AzureMain = document.querySelector('#chart-details-main-azure');
+    new Chart(AzureMain, {
+      type: 'doughnut',
+      data: {
+        labels: ['Critical', 'Major', 'Minor', 'Handled'],
+        datasets: [
+          {
+            label: 'Vulnerabilities',
+            cutout: '60%',
+            data: `{{azure|main_graph_data}}`,
+            backgroundColor: [
+              'rgba(245, 75, 75, 0.9)',
+              'rgba(245, 177, 75, 0.9)',
+              'rgba(255, 221, 0, 0.9)',
+              'rgba(91, 180, 32, 0.9)',
+            ],
+          },
+        ],
+      },
+      options: {
+        animation: {
+          duration: 0,
+        },
+        layout: {
+          padding: 15,
+        },
+        elements: {
+          center: {
+            text: '{{azure|main_letter_grade}}',
+            color: 'rgb({{azure|main_letter_color}})',
+            fontStyle: 'Arial',
+            fontSize: '70px',
+          },
+        },
+        plugins: {
+          shadow_plugin: false,
+          legend: {
+            display: false,
+          },
+        },
+      },
+    });
+
+    const Azure1 = document.querySelector('#chart-details-1-azure');
+    new Chart(Azure1, {
+      type: 'doughnut',
+      data: {
+        labels: ['Critical', 'Major', 'Minor', 'Handled'],
+        datasets: [
+          {
+            label: 'Vulnerabilities',
+            cutout: '60%',
+            data: `{{azure|attack_path_data}}`,
+            backgroundColor: [
+              'rgba(245, 75, 75, 0.9)',
+              'rgba(245, 177, 75, 0.9)',
+              'rgba(255, 221, 0, 0.9)',
+              'rgba(91, 180, 32, 0.9)',
+            ],
+          },
+        ],
+      },
+      options: {
+        animation: {
+          duration: 0,
+        },
+        layout: {
+          padding: 10,
+        },
+        elements: {
+          center: {
+            text: '{{azure|attack_path_letter_grade}}',
+            color: 'rgb({{azure|attack_path_letter_color}})',
+            fontStyle: 'Arial',
+            fontSize: '50px',
+          },
+        },
+        plugins: {
+          shadow_plugin: false,
+          legend: {
+            display: false,
+          },
+        },
+      },
+    });
+
+    const Azure2 = document.querySelector('#chart-details-2-azure');
+    new Chart(Azure2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Critical', 'Major', 'Minor', 'Handled'],
+        datasets: [
+          {
+            label: 'Vulnerabilities',
+            cutout: '60%',
+            data: `{{azure|ad_connect_data}}`,
+            backgroundColor: [
+              'rgba(245, 75, 75, 0.9)',
+              'rgba(245, 177, 75, 0.9)',
+              'rgba(255, 221, 0, 0.9)',
+              'rgba(91, 180, 32, 0.9)',
+            ],
+          },
+        ],
+      },
+      options: {
+        animation: {
+          duration: 0,
+        },
+        layout: {
+          padding: 10,
+        },
+        elements: {
+          center: {
+            text: '{{azure|ad_connect_letter_grade}}',
+            color: 'rgb({{azure|ad_connect_letter_color}})',
+            fontStyle: 'Arial',
+            fontSize: '50px',
+          },
+        },
+        plugins: {
+          shadow_plugin: false,
+          legend: {
+            display: false,
+          },
+        },
+      },
+    });
+
+    const Azure3 = document.querySelector('#chart-details-3-azure');
+    new Chart(Azure3, {
+      type: 'doughnut',
+      data: {
+        labels: ['Critical', 'Major', 'Minor', 'Handled'],
+        datasets: [
+          {
+            label: 'Vulnerabilities',
+            cutout: '60%',
+            data: `{{azure|ms_graph_data}}`,
+            backgroundColor: [
+              'rgba(245, 75, 75, 0.9)',
+              'rgba(245, 177, 75, 0.9)',
+              'rgba(255, 221, 0, 0.9)',
+              'rgba(91, 180, 32, 0.9)',
+            ],
+          },
+        ],
+      },
+      options: {
+        animation: {
+          duration: 0,
+        },
+        layout: {
+          padding: 10,
+        },
+        elements: {
+          center: {
+            text: '{{azure|ms_graph_letter_grade}}',
+            color: 'rgb({{azure|ms_graph_letter_color}})',
+            fontStyle: 'Arial',
+            fontSize: '50px',
+          },
+        },
+        plugins: {
+          shadow_plugin: false,
+          legend: {
+            display: false,
+          },
+        },
+      },
+    });
+
+    const Azure4 = document.querySelector('#chart-details-4-azure');
+    new Chart(Azure4, {
+      type: 'doughnut',
+      data: {
+        labels: ['Critical', 'Major', 'Minor', 'Handled'],
+        datasets: [
+          {
+            label: 'Vulnerabilities',
+            cutout: '60%',
+            data: `{{azure|sp_mi_data}}`,
+            backgroundColor: [
+              'rgba(245, 75, 75, 0.9)',
+              'rgba(245, 177, 75, 0.9)',
+              'rgba(255, 221, 0, 0.9)',
+              'rgba(91, 180, 32, 0.9)',
+            ],
+          },
+        ],
+      },
+      options: {
+        animation: {
+          duration: 0,
+        },
+        layout: {
+          padding: 10,
+        },
+        elements: {
+          center: {
+            text: '{{azure|sp_mi_letter_grade}}',
+            color: 'rgb({{azure|sp_mi_letter_color}})',
+            fontStyle: 'Arial',
+            fontSize: '50px',
+          },
+        },
+        plugins: {
+          shadow_plugin: false,
+          legend: {
+            display: false,
+          },
+        },
+      },
+    });
 
     // Tooltip management
     const tooltipTriggerList = document.querySelectorAll(

@@ -10,6 +10,9 @@ function toggleDiv(divId) {
     document.getElementById("right-col-on-prem").style.display = "block";
     document.getElementById("right-col-azure").style.display = "none";
 
+    document.getElementById("main-tab-title-breakdown-on-premise").style.display = "block";
+    document.getElementById("main-tab-title-breakdown-azure").style.display = "none";
+
     document.getElementById("stats-tab-title-overview").style.display = "block";
     document.getElementById("stats-tab-title-computers").style.display = "block";
     document.getElementById("stats-tab-title-users").style.display = "block";
@@ -32,6 +35,9 @@ function toggleDiv(divId) {
 
     document.getElementById("right-col-on-prem").style.display = "none";
     document.getElementById("right-col-azure").style.display = "block";
+
+    document.getElementById("main-tab-title-breakdown-on-premise").style.display = "none";
+    document.getElementById("main-tab-title-breakdown-azure").style.display = "block";
 
     document.getElementById("stats-tab-title-overview").style.display = "none";
     document.getElementById("stats-tab-title-computers").style.display = "none";
