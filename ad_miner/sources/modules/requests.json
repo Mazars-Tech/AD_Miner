@@ -599,12 +599,12 @@
     },
     "anomaly_acl_1": {
         "name": "anomaly_acl_1",
-        "request": "MATCH (gg) WHERE NOT gg:Group with gg as g MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN n.name,g.name,type(r2),LABELS(g)[0]",
+        "request": "MATCH (gg) WHERE NOT gg:Group with gg as g MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN n.name,g.name,type(r2),LABELS(g)",
         "output_type": "dict"
     },
     "anomaly_acl_2": {
         "name": "anomaly_acl_2",
-        "request": "MATCH (gg:Group) WHERE EXISTS(gg.members_count) with gg as g order by gg.members_count DESC MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN g.members_count,n.name,g.name,type(r2),LABELS(g)[0] order by g.members_count DESC",
+        "request": "MATCH (gg:Group) WHERE EXISTS(gg.members_count) with gg as g order by gg.members_count DESC MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN g.members_count,n.name,g.name,type(r2),LABELS(g) order by g.members_count DESC",
         "output_type": "dict"
     },
     "get_empty_groups": {
