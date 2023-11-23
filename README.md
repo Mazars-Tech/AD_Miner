@@ -61,6 +61,8 @@ In the graph pages, you can right-click on the graph nodes to cluster them or to
     <img src="doc/img/right_click.png" style="height:150px">
 </p>
 
+If you have azure, an azure-specific Dashbord appears automatically (still under development)
+
 ## Evolution ##
 
 If you have multiple AD-Miner reports over time, you can easily track the evolution with the `--evolution` argument: each AD-Miner report generates a JSON data file alongside the `index.html` file. You just need to gather these different JSON files into a single folder and specify the path to that folder after the `--evolution` argument.
