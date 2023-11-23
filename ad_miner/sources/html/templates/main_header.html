@@ -826,42 +826,83 @@
 
       <!-- Right column -->
       <div class="col-right">
-        <div class="card main-card-category shadow limit-height mb-3 overview">
+
+        <!-- On-premise -->
+        <div class="card main-card-category shadow limit-height mb-3 overview" id="right-col-on-prem">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
-              <span class="threats-number">{{immediate_risk}}</span> Dangerous
-              {{issue_or_issues}}
+              <span class="threats-number">{{on_premise|immediate_risk}}</span> Dangerous
+              {{on_premise|issue_or_issues}}
             </h5>
             <h6 class="card-subtitle mb-2 text-muted">
               Must be solved as soon as possible
             </h6>
 
-            <div class="threats-list">{{list_cards_dangerous_issues}}</div>
+            <div class="threats-list">{{on_premise|list_cards_dangerous_issues}}</div>
 
             <br />
             <h5 class="card-title">
               <i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 5px"></i>
-              <span class="threats-number">{{potential_risk}}</span>
-              {{alert_or_alerts}}
+              <span class="threats-number">{{on_premise|potential_risk}}</span>
+              {{on_premise|alert_or_alerts}}
             </h5>
             <h6 class="card-subtitle mb-2 text-muted">
               These issues should be looked into shortly
             </h6>
-            <div class="threats-list">{{list_cards_alert_issues}}</div>
+            <div class="threats-list">{{on_premise|list_cards_alert_issues}}</div>
 
             <br />
             <h5 class="card-title">
               <i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 5px"></i>
-              <span class="threats-number">{{minor_risk}}</span>
-              {{minor_alert_or_alerts}}
+              <span class="threats-number">{{on_premise|minor_risk}}</span>
+              {{on_premise|minor_alert_or_alerts}}
             </h5>
             <h6 class="card-subtitle mb-2 text-muted">
               Solve these issues to reach a better security level
             </h6>
-            <div class="threats-list">{{list_cards_minor_alert_issues}}</div>
+            <div class="threats-list">{{on_premise|list_cards_minor_alert_issues}}</div>
           </div>
         </div>
+
+        <!-- Azure -->
+        <div class="card main-card-category shadow limit-height mb-3 overview" id="right-col-azure" style="display:none">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
+              <span class="threats-number">{{azure|immediate_risk}}</span> Dangerous
+              {{azure|issue_or_issues}}
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              Must be solved as soon as possible
+            </h6>
+
+            <div class="threats-list">{{azure|list_cards_dangerous_issues}}</div>
+
+            <br />
+            <h5 class="card-title">
+              <i class="bi bi-exclamation-triangle-fill" style="color: rgb(245, 177, 75); margin-right: 5px"></i>
+              <span class="threats-number">{{azure|potential_risk}}</span>
+              {{azure|alert_or_alerts}}
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              These issues should be looked into shortly
+            </h6>
+            <div class="threats-list">{{azure|list_cards_alert_issues}}</div>
+
+            <br />
+            <h5 class="card-title">
+              <i class="bi bi-dash-circle-fill" style="color: rgb(255, 221, 0); margin-right: 5px"></i>
+              <span class="threats-number">{{azure|minor_risk}}</span>
+              {{azure|minor_alert_or_alerts}}
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              Solve these issues to reach a better security level
+            </h6>
+            <div class="threats-list">{{azure|list_cards_minor_alert_issues}}</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

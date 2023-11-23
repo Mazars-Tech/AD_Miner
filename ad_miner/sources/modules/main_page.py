@@ -504,8 +504,9 @@ def render(
             # Every ` char will be skipped
             original = header_f.read()
             content = ""
-    
-            print("toto", data["on_premise"]["global_rating"])
+
+            print("toto:", data["on_premise"]["issue_or_issues"])
+
             i = 0
             while i < len(original):
                 if original[i] == "{" and original[i + 1] == "{":
