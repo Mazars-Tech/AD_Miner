@@ -5,7 +5,7 @@ from operator import add
 from urllib.parse import quote
 
 from ad_miner.sources.modules import rating
-from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category, category_repartition_dict
+from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category, dico_category_invert, category_repartition_dict
 from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY
 
 
@@ -126,32 +126,44 @@ def complete_data_evolution_time(data, raw_other_list_data):
                 f"{date_k[-4:]}-{date_k[3:5]}-{date_k[:2]}"
             )
 
-            dico_color_category = raw_other_list_data[k]["color_category"]
+            dico_color_category_origin = raw_other_list_data[k]["color_category"]
+
+            dico_color_category = {"on_premise":{}, "azure":{}}
+            for key in dico_color_category_origin:
+                category_repartition = category_repartition_dict[dico_category_invert[key]]
+                dico_color_category[category_repartition][key] = dico_color_category_origin[key]
+
+
+            value_immediate_risk = {"on_premise":0, "azure":0}
+            value_potential_risk = {"on_premise":0, "azure":0}
+            value_minor_risk = {"on_premise":0, "azure":0}
+            value_handled_risk = {"on_premise":0, "azure":0}
+            value_not_evaluated_risk = {"on_premise":0, "azure":0}
+
+            for name_label in dico_color_category_origin:
+
+                for key in [*dico_category]:
+                    for value_instance in range(len(dico_category[key])):
+                        if dico_category[key][value_instance] == name_label:
+                            category_repartition  = category_repartition_dict[key]
+
+                if dico_color_category[category_repartition][name_label] == "red":
+                    value_immediate_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "orange":
+                    value_potential_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "yellow":
+                    value_minor_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "green":
+                    value_handled_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "grey":
+                    value_not_evaluated_risk[category_repartition] += 1
+
             for category_repartition in ["on_premise", "azure"]:
-
-                value_immediate_risk = 0
-                value_potential_risk = 0
-                value_minor_risk = 0
-                value_handled_risk = 0
-                value_not_evaluated_risk = 0
-
-                for name_label in dico_color_category[category_repartition]:
-                    if dico_color_category[category_repartition][name_label] == "red":
-                        value_immediate_risk += 1
-                    elif dico_color_category[category_repartition][name_label] == "orange":
-                        value_potential_risk += 1
-                    elif dico_color_category[category_repartition][name_label] == "yellow":
-                        value_minor_risk += 1
-                    elif dico_color_category[category_repartition][name_label] == "green":
-                        value_handled_risk += 1
-                    elif dico_color_category[category_repartition][name_label] == "grey":
-                        value_not_evaluated_risk += 1
-
-                list_immediate_risk[category_repartition].append(value_immediate_risk)
-                list_potential_risk[category_repartition].append(value_potential_risk)
-                list_minor_risk[category_repartition].append(value_minor_risk)
-                list_handled_risk[category_repartition].append(value_handled_risk)
-                list_not_evaluated_risk[category_repartition].append(value_not_evaluated_risk)
+                list_immediate_risk[category_repartition].append(value_immediate_risk[category_repartition])
+                list_potential_risk[category_repartition].append(value_potential_risk[category_repartition])
+                list_minor_risk[category_repartition].append(value_minor_risk[category_repartition])
+                list_handled_risk[category_repartition].append(value_handled_risk[category_repartition])
+                list_not_evaluated_risk[category_repartition].append(value_not_evaluated_risk[category_repartition])
 
             for key in dico_data_evolution_time:
                 if key in [
@@ -270,7 +282,7 @@ def create_dico_data(
         # Azure
         "azure_paths_high_target": len(azure.azure_users_paths_high_target),
     }
-    dico_data["color_category"] = dico_rating_color
+    dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["on_premise"]}
 
     return dico_data
 

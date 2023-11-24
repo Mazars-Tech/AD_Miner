@@ -69,6 +69,11 @@ dico_category = {
     "ms_graph":[],
 }
 
+dico_category_invert = {}
+for key in dico_category:
+    for value in dico_category[key]:
+        dico_category_invert[value] = key
+
 category_repartition_dict = {}
 for k in ["passwords", "kerberos", "permission", "misc"]:
     category_repartition_dict[k] = "on_premise"
