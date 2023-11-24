@@ -188,11 +188,11 @@ def complete_data_evolution_time(data, raw_other_list_data):
         data["boolean_evolution_over_time"] = "none"
         data["dico_data_evolution_time"] = {}
 
-    data["value_evolution_time_immediate_risk"] = list_immediate_risk
-    data["value_evolution_time_potential_risk"] = list_potential_risk
-    data["value_evolution_time_minor_risk"] = list_minor_risk
-    data["value_evolution_time_handled_risk"] = list_handled_risk
-    data["value_not_evaluated_time_handled_risk"] = list_not_evaluated_risk
+    data["value_evolution_time_immediate_risk"] = list_immediate_risk["on_premise"]+list_immediate_risk["azure"]
+    data["value_evolution_time_potential_risk"] = list_potential_risk["on_premise"]+list_potential_risk["azure"]
+    data["value_evolution_time_minor_risk"] = list_minor_risk["on_premise"]+list_potential_risk["azure"]
+    data["value_evolution_time_handled_risk"] = list_handled_risk["on_premise"]+list_potential_risk["azure"]
+    data["value_not_evaluated_time_handled_risk"] = list_not_evaluated_risk["on_premise"]+list_potential_risk["azure"]
 
     return data
 
@@ -282,7 +282,7 @@ def create_dico_data(
         # Azure
         "azure_paths_high_target": len(azure.azure_users_paths_high_target),
     }
-    dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["on_premise"]}
+    dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["azure"]}
 
     return dico_data
 
