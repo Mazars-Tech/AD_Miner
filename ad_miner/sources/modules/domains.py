@@ -62,6 +62,12 @@ class Domains:
         self.dico_ghost_computer = dico_ghost_computer
 
         self.users_dormant_accounts = neo4j.all_requests["dormant_accounts"]["result"]
+        self.users_not_connected_for_3_months = ([
+            user["name"]
+            for user in self.users_dormant_accounts
+            if user["days"] > 90
+        ] if self.users_dormant_accounts is not None else None)
+
         self.users_pwd_not_changed_since = neo4j.all_requests["password_last_change"][
             "result"
         ]
@@ -82,9 +88,9 @@ class Domains:
         self.groups = neo4j.all_requests["nb_groups"]["result"]
 
         dico_ghost_user = {}
-        if self.users_pwd_not_changed_since_3months != None:
-            for dico in self.users_pwd_not_changed_since_3months:
-                dico_ghost_user[dico["user"]] = True
+        if self.users_not_connected_for_3_months != None:
+            for username in self.users_not_connected_for_3_months:
+                dico_ghost_user[username] = True
         self.dico_ghost_user = dico_ghost_user
         dico_dc_computer = {}
         if self.computers_nb_domain_controllers != None:
