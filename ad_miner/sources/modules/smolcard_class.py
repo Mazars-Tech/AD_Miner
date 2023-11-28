@@ -64,9 +64,9 @@ dico_category = {
 
     ],
     "attack_path":["azure_users_paths_high_target"],
-    "ad_connect":[],
+    "ad_connect":["azure_aadconnect_users"],
     "sp_mi":[],
-    "ms_graph":[],
+    "ms_graph":["azure_ms_graph_controllers"],
 }
 
 dico_category_invert = {}

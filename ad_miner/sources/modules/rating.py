@@ -190,6 +190,8 @@ def rating(users, domains, computers, objects, azure, arguments):
     
     # Azure
     d["azure"][presence_of(azure.azure_users_paths_high_target, 3)].append("azure_users_paths_high_target")
+    d["azure"][presence_of(azure.azure_ms_graph_controllers, 1)].append("azure_ms_graph_controllers")
+    d["azure"][presence_of(azure.azure_aadconnect_users, 3)].append("azure_aadconnect_users")
     
     return d
 
