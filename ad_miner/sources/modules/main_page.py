@@ -566,7 +566,6 @@ def render(
             # descriptions = json.load(open('description.json'))
             # print(rating_dic)
             cardsHtml = ""
-            #print("toto : ", data["dico_data_evolution_time"])
             for category_repartition in ["on_premise", "azure"]:
                 for k in data_rating[category_repartition].keys():
                     for vuln in data_rating[category_repartition][k]:
@@ -576,7 +575,6 @@ def render(
                         else:
                             description = vuln
 
-                        print("toto : ", str(k))
                         cardsHtml += SmolCard(
                             id=vuln,
                             criticity=str(k),
