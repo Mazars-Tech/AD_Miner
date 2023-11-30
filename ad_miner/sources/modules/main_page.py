@@ -282,7 +282,7 @@ def create_dico_data(
         "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
         
         # Azure
-        "azure_paths_high_target": len(azure.azure_users_paths_high_target),
+        "azure_users_paths_high_target": len(azure.azure_users_paths_high_target),
         "azure_ms_graph_controllers": len(azure.azure_ms_graph_controllers),
         "azure_aadconnect_users": len(azure.azure_aadconnect_users),
     }
@@ -566,6 +566,7 @@ def render(
             # descriptions = json.load(open('description.json'))
             # print(rating_dic)
             cardsHtml = ""
+            #print("toto : ", data["dico_data_evolution_time"])
             for category_repartition in ["on_premise", "azure"]:
                 for k in data_rating[category_repartition].keys():
                     for vuln in data_rating[category_repartition][k]:
@@ -574,6 +575,8 @@ def render(
                             description = descriptions[vuln]["description"]
                         else:
                             description = vuln
+
+                        print("toto : ", str(k))
                         cardsHtml += SmolCard(
                             id=vuln,
                             criticity=str(k),
