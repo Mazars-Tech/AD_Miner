@@ -9,6 +9,7 @@ from ad_miner.sources.modules.graph_class import Graph
 from ad_miner.sources.modules.grid_class import Grid
 from ad_miner.sources.modules.histogram_class import Histogram
 from ad_miner.sources.modules.node_neo4j import Node
+from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.page_class import Page
 from ad_miner.sources.modules.utils import (days_format, grid_data_stringify,
                                            timer_format)
@@ -159,6 +160,7 @@ class Domains:
         self.empty_groups = neo4j.all_requests["get_empty_groups"]["result"]
         self.empty_ous = neo4j.all_requests["get_empty_ous"]["result"]
 
+        self.kud = neo4j.all_requests["kud"]["result"]
 
         self.computers_to_domain_admin = {}
         self.users_to_domain_admin = {}
@@ -196,6 +198,8 @@ class Domains:
         # init variables : var[domain] = list
 
         self.paths_to_ou_handlers = {}
+        self.kud_graphs = {}
+        self.kud_list = []
 
         for domain in self.domains:
 
@@ -239,10 +243,7 @@ class Domains:
         self.generatePathToDa()
 
         # self.generatePathToDcsync()
-
-        self.generatePathToUnconstrainedDelegation()
-
-        self.generatePathToUnconstrainedDelegation_2()
+        self.generatePathToKUD()
 
         self.generateDomainMapTrust()
 
@@ -1027,229 +1028,63 @@ class Domains:
             self.domain_map_trust,
         )
 
-    def generatePathToUnconstrainedDelegation(self):
-        if self.objects_to_unconstrained_delegation is None:
+    def generatePathToKUD(self):
+        if self.kud is None:
             return
-        logger.print_debug("Generate paths to unconstrained delegations")
-        for path in self.objects_to_unconstrained_delegation:
+        logger.print_debug("Generate paths to Kerberos Unconstrained Delegations")
 
-            if "User" in path.nodes[0].labels:
-                self.users_to_unconstrained_delegation[path.nodes[-1].domain].append(
-                    path
-                )
-            elif "Computer" in path.nodes[0].labels:
-                self.computers_to_unconstrained_delegation[path.nodes[-1].domain].append(
-                    path
-                )
-            elif "Group" in path.nodes[0].labels:
-                self.groups_to_unconstrained_delegation[path.nodes[-1].domain].append(
-                    path
-                )
-            elif "OU" in path.nodes[0].labels:
-                self.ou_to_unconstrained_delegation[path.nodes[-1].domain].append(
-                    path)
-            elif "GPO" in path.nodes[0].labels:
-                self.gpo_to_unconstrained_delegation[path.nodes[-1].domain].append(
-                    path)
-
-        for domain in self.domains:
-            domain = domain[0]
-            logger.print_debug("Doing domain " + domain)
-            if len(self.users_to_unconstrained_delegation[domain]):
-                logger.print_debug("... from users")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_users_to_unconstrained_delegation",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.users_to_unconstrained_delegation[domain],
-                )
-            if len(self.computers_to_unconstrained_delegation[domain]):
-                logger.print_debug("... from Computers")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_computers_to_unconstrained_delegation",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.computers_to_unconstrained_delegation[domain],
-                )
-            if len(self.groups_to_unconstrained_delegation[domain]):
-                logger.print_debug("... from Groups")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_groups_to_unconstrained_delegation",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.groups_to_unconstrained_delegation[domain],
-                )
-            if len(self.ou_to_unconstrained_delegation[domain]):
-                logger.print_debug("... from OUs")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_OU_to_unconstrained_delegation",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.ou_to_unconstrained_delegation[domain],
-                )
-            if len(self.gpo_to_unconstrained_delegation[domain]):
-                logger.print_debug("... from GPOs")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_GPO_to_unconstrained_delegation",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.gpo_to_unconstrained_delegation[domain],
-                )
-
-        # generating graph object to unconstrained delegation grid
+        for path in self.kud:
+            if not self.kud_graphs.get(path.nodes[-1].name):
+                self.kud_graphs[path.nodes[-1].name] = [path]
+            else:
+                self.kud_graphs[path.nodes[-1].name].append(path)
+            
         page = Page(
             self.arguments.cache_prefix,
-            "graph_path_objects_to_unconstrained_delegation",
-            "Path to unconstrained delegation",
-            "graph_path_objects_to_unconstrained_delegation",
+            "non-dc_with_unconstrained_delegations",
+            "Path to Unconstrained Delegations",
+            "non-dc_with_unconstrained_delegations",
         )
-        grid = Grid("Numbers of path to domain admin per domain and objects")
+        grid = Grid("Numbers of path to domain admin using Kerberos Unconstrained Delegations")
         grid_data = []
-        for domain in self.domains:
-            domain = domain[0]
+        
+        self.kud_list = self.kud_graphs.keys()
+
+        for end_node in self.kud_list :
+            # if len(self.kud_graphs[end_node]):
+            node = self.kud_graphs[end_node][0].nodes[-1]
+            domain = node.domain
+            end = Node(
+                        id=42424243, labels="Domain", name=domain, domain="end", relation_type="Relay"
+                    )
+            path = Path([self.kud_graphs[end_node][0].nodes[-1], end])
+            self.kud_graphs[end_node].append(path)
+
+            self.createGraphPage(
+                self.arguments.cache_prefix,
+                    end_node  + "_kud_graph",
+                    "Paths to Unconstrained Delegations",
+                    "graph_path_objects_to_unconstrained_delegation_users",
+                    self.kud_graphs[end_node]
+                )
+
             tmp_data = {}
-            tmp_data["Domain"] = domain
-            tmp_data["Users"] = {
-                "value": len(self.users_to_unconstrained_delegation[domain]),
-                "link": "%s_users_to_unconstrained_delegation.html" % quote(str(domain)),
-            }
-            tmp_data["Computers"] = {
-                "value": len(self.computers_to_unconstrained_delegation[domain]),
-                "link": "%s_computers_to_unconstrained_delegation.html" % quote(str(domain)),
-            }
-            tmp_data["Groups"] = {
-                "value": len(self.groups_to_unconstrained_delegation[domain]),
-                "link": "%s_groups_to_unconstrained_delegation.html" % quote(str(domain)),
-            }
-            tmp_data["Ou"] = {
-                "value": len(self.ou_to_unconstrained_delegation[domain]),
-                "link": "%s_OU_to_unconstrained_delegation.html" % quote(str(domain)),
-            }
-            tmp_data["GPO"] = {
-                "value": len(self.gpo_to_unconstrained_delegation[domain]),
-                "link": "%s_GPO_to_unconstrained_delegation.html" % quote(str(domain)),
-            }
+            
+            if node.labels == "User":
+                pretty_name = f'<i class="bi bi-person-fill"></i> {end_node}'
+            elif node.labels == "Computer":
+                pretty_name = f'<i class="bi bi-pc-display"></i> {end_node}'
+            else:
+                pretty_name = end_node
+
+            tmp_data["Configured for Kerberos Unconstrained Delegation"] = pretty_name
+            tmp_data["Compromise Paths"] = grid_data_stringify({
+                "value": f'{len(self.kud_graphs[end_node])} <i class="bi bi-shuffle 000001"></i>',
+                "link": "%s_kud_graph.html" % quote(str(end_node)),
+            })
+        
             grid_data.append(tmp_data)
-        headers = ["Domain", "Users", "Computers", "Groups", "Ou", "GPO"]
-        grid.setheaders(headers)
-        grid.setData(grid_data)
-        page.addComponent(grid)
-        page.render()
-
-    def generatePathToUnconstrainedDelegation_2(self):
-        if self.objects_to_unconstrained_delegation_2 is None:
-            return
-        logger.print_debug("Generating path to unconstrained 2nd phase ????")
-        for path in self.objects_to_unconstrained_delegation_2:
-
-            if "User" in path.nodes[0].labels:
-                self.users_to_unconstrained_delegation_2[path.nodes[-1].domain].append(
-                    path
-                )
-            elif "Computer" in path.nodes[0].labels:
-                self.computers_to_unconstrained_delegation_2[
-                    path.nodes[-1].domain
-                ].append(path)
-            elif "Group" in path.nodes[0].labels:
-                self.groups_to_unconstrained_delegation_2[path.nodes[-1].domain].append(
-                    path
-                )
-            elif "OU" in path.nodes[0].labels:
-                self.ou_to_unconstrained_delegation_2[path.nodes[-1].domain].append(
-                    path)
-            elif "GPO" in path.nodes[0].labels:
-                self.gpo_to_unconstrained_delegation_2[path.nodes[-1].domain].append(
-                    path
-                )
-
-        for domain in self.domains:
-            domain = domain[0]
-            if len(self.users_to_unconstrained_delegation_2[domain]):
-                logger.print_debug("... from users")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_users_to_unconstrained_delegation_users",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.users_to_unconstrained_delegation_2[domain],
-                )
-            if len(self.computers_to_unconstrained_delegation_2[domain]):
-                logger.print_debug("... from Computers")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_computers_to_unconstrained_delegation_users",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.computers_to_unconstrained_delegation_2[domain],
-                )
-            if len(self.groups_to_unconstrained_delegation_2[domain]):
-                logger.print_debug("... from Groups")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_groups_to_unconstrained_delegation_users",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.groups_to_unconstrained_delegation_2[domain],
-                )
-            if len(self.ou_to_unconstrained_delegation_2[domain]):
-                logger.print_debug("... from OUs")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_OU_to_unconstrained_delegation_users",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.ou_to_unconstrained_delegation_2[domain],
-                )
-            if len(self.gpo_to_unconstrained_delegation_2[domain]):
-                logger.print_debug("... from GPOs")
-                self.createGraphPage(
-                    self.arguments.cache_prefix,
-                    domain + "_GPO_to_unconstrained_delegation_users",
-                    "Paths to unconstrained delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.gpo_to_unconstrained_delegation_2[domain],
-                )
-
-        # generating graph object to unconstrained delegation grid
-        page = Page(
-            self.arguments.cache_prefix,
-            "graph_path_objects_to_unconstrained_delegation_users",
-            "Path to unconstrained delegation",
-            "graph_path_objects_to_unconstrained_delegation_users",
-        )
-        grid = Grid("Numbers of path to domain admin per domain and objects")
-        grid_data = []
-        for domain in self.domains:
-            domain = domain[0]
-            tmp_data = {}
-            tmp_data["Domain"] = domain
-            tmp_data["Users"] = {
-                "value": len(self.users_to_unconstrained_delegation_2[domain]),
-                "link": "%s_users_to_unconstrained_delegation_users.html" % quote(str(domain)),
-            }
-            tmp_data["Computers"] = {
-                "value": len(self.computers_to_unconstrained_delegation_2[domain]),
-                "link": "%s_computers_to_unconstrained_delegation_users.html" % quote(str(domain)),
-            }
-            tmp_data["Groups"] = {
-                "value": len(self.groups_to_unconstrained_delegation_2[domain]),
-                "link": "%s_groups_to_unconstrained_delegation_users.html" % quote(str(domain)),
-            }
-            tmp_data["Ou"] = {
-                "value": len(self.ou_to_unconstrained_delegation_2[domain]),
-                "link": "%s_OU_to_unconstrained_delegation_users.html" % quote(str(domain)),
-            }
-            tmp_data["GPO"] = {
-                "value": len(self.gpo_to_unconstrained_delegation_2[domain]),
-                "link": "%s_GPO_to_unconstrained_delegation_users.html" % quote(str(domain)),
-            }
-            grid_data.append(tmp_data)
-        headers = ["Domain", "Users", "Computers", "Groups", "Ou", "GPO"]
+        headers = ["Configured for Kerberos Unconstrained Delegation", "Compromise Paths"]
         grid.setheaders(headers)
         grid.setData(grid_data)
         page.addComponent(grid)

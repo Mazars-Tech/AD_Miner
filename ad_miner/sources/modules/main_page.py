@@ -195,8 +195,8 @@ def create_dico_data(
         "kerberoastables": len(users.users_kerberoastable_users) if users.users_kerberoastable_users else 0,
         "as_rep": len(users.users_kerberos_as_rep) if users.users_kerberos_as_rep else 0,
         "non-dc_with_unconstrained_delegations": len(
-            computers.computers_non_dc_unconstrained_delegations
-        ) if computers.computers_non_dc_unconstrained_delegations else 0,
+            domains.kud_list
+        ) if domains.kud_list else 0,
         "users_constrained_delegations": len(computers.users_constrained_delegations) if computers.users_constrained_delegations else 0,
         "krb_last_change": max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set], default=0),
         "users_admin_of_computers": len(users.users_admin_computer_count) if users.users_admin_computer_count else 0,
@@ -295,7 +295,7 @@ def render(
         "users_pwd_not_changed_since": f"{dico_data['value']['users_pwd_not_changed_since']} unchanged passwords > {int((neo4j.password_renewal)/30)} months",
         "kerberoastables": f"{dico_data['value']['kerberoastables']} kerberoastable accounts",
         "as_rep": f"{dico_data['value']['as_rep']} accounts are AS-REP-roastable",
-        "non-dc_with_unconstrained_delegations": f"{dico_data['value']['non-dc_with_unconstrained_delegations']} non-DC with unconstrained delegations",
+        "non-dc_with_unconstrained_delegations": f"{dico_data['value']['non-dc_with_unconstrained_delegations']} objects with unconstrained delegations",
         "users_constrained_delegations": f"{dico_data['value']['users_constrained_delegations']} users with constrained delegations",
         "krb_last_change": f"krbtgt not updated in > {dico_data['value']['krb_last_change']} days",
         "users_admin_of_computers": f"{dico_data['value']['users_admin_of_computers']} users with admin privs.",

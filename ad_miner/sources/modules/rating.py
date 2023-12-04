@@ -28,10 +28,10 @@ def rating(users, domains, computers, objects, arguments):
             criticity=2,
         )
     ].append("krb_last_change")
-    d[containsDAs(users.users_kerberoastable_users)].append("kerberoastables")
-    d[containsDAs(users.users_kerberos_as_rep)].append("as_rep")
-    d[
-        presence_of(computers.list_computers_unconstrained_delegations, criticity=2)
+    d["on_premise"][containsDAs(users.users_kerberoastable_users)].append("kerberoastables")
+    d["on_premise"][containsDAs(users.users_kerberos_as_rep)].append("as_rep")
+    d["on_premise"][
+        presence_of(domains.kud_list, criticity=1)
     ].append("non-dc_with_unconstrained_delegations")
     d[constrainedDelegation(computers.users_constrained_delegations)].append(
         "users_constrained_delegations"
