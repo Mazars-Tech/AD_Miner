@@ -570,13 +570,13 @@
     "poa": "Review and clean up the privileges of these accounts to lower the risk of compromission"
   },
   "azure_ms_graph_controllers": {
-    "title": "All direct Controllers of MS Graph",
+    "title": "Direct Controllers of MS Graph",
     "description": "Accounts with privileged access to Microsoft Graph",
     "risk": "Malicious actors can create privileged rights on Microsoft Graph to obtain persistence",
     "poa": "The CISA recommends checking Graph API permissions for threat actors as part of detecting post compromise residual access"
   },
   "azure_aadconnect_users": {
-    "title": "All Users and Azure Users possibly related to AADConnect",
+    "title": "Users possibly related to AADConnect",
     "description": "All Users and Azure Users possibly related to AADConnect",
     "risk": "If the list of users linked to AADConnect does not respect the principle of least privilege, this increases the attack surface.",
     "poa": "Review and clean up the liste users related to AADConnect"
