@@ -539,10 +539,46 @@
     "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
     "poa": "Privileged accounts must be part of the Protected Users group."
   },
+  "azure_users": {
+    "title": "Azure users",
+    "description": "Exhaustive list of all users in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_admin": {
+    "title": "Azure administrators",
+    "description": "List of all administrators in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_groups": {
+    "title": "Azure groups",
+    "description": "List of all groups in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_vm": {
+    "title": "Azure virtual machines",
+    "description": "List of all virtual machines in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
   "azure_users_paths_high_target": {
-    "title": "Find all Azure Users with a Path to High Value Targets",
-    "description": "Find all Azure Users with a Path to High Value Targets",
-    "risk": "It is dangerous to have users with a Path to High Value Targets",
-    "poa": "Review and clean up the privileges of these accounts"
+    "title": "Azure users with a path to high value targets",
+    "description": "All Azure users that can compromise a high value target", 
+    "risk": "Some of these paths could lead to a partial or full compromission of the tenant",
+    "poa": "Review and clean up the privileges of these accounts to lower the risk of compromission"
+  },
+  "azure_ms_graph_controllers": {
+    "title": "All direct Controllers of MS Graph",
+    "description": "Accounts with privileged access to Microsoft Graph",
+    "risk": "Malicious actors can create privileged rights on Microsoft Graph to obtain persistence",
+    "poa": "The CISA recommends checking Graph API permissions for threat actors as part of detecting post compromise residual access"
+  },
+  "azure_aadconnect_users": {
+    "title": "All Users and Azure Users possibly related to AADConnect",
+    "description": "All Users and Azure Users possibly related to AADConnect",
+    "risk": "If the list of users linked to AADConnect does not respect the principle of least privilege, this increases the attack surface.",
+    "poa": "Review and clean up the liste users related to AADConnect"
   }
 }

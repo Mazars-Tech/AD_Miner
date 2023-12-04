@@ -59,6 +59,7 @@ def getData(arguments, neo4j, domains, computers, users, objects, azure, extract
             i = (i + 1) % len(base_colors)
 
     data["azure_nb_users"]= len(azure.azure_users)
+    data["azure_nb_admin"]= len(azure.azure_admin)
     data["azure_nb_groups"]= len(azure.azure_groups)
     data["azure_nb_vm"]= len(azure.azure_vm)
 
@@ -217,6 +218,7 @@ def create_dico_data(
         },
         "azure":  {
             "azure_nb_users": len(azure.azure_users),
+            "azure_nb_admin": len(azure.azure_admin),
             "azure_nb_groups": len(azure.azure_groups),
             "azure_nb_vm": len(azure.azure_vm),
         }
@@ -280,7 +282,9 @@ def create_dico_data(
         "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
         
         # Azure
-        "azure_paths_high_target": len(azure.azure_users_paths_high_target),
+        "azure_users_paths_high_target": len(azure.azure_users_paths_high_target),
+        "azure_ms_graph_controllers": len(azure.azure_ms_graph_controllers),
+        "azure_aadconnect_users": len(azure.azure_aadconnect_users),
     }
     dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["azure"]}
 
@@ -380,7 +384,9 @@ def render(
         "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group",
         
         #azure
-        "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets"
+        "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets",
+        "azure_ms_graph_controllers": f"{len(azure.azure_ms_graph_controllers)} paths to MS Graph controllers",
+        "azure_aadconnect_users": f"{len(azure.azure_aadconnect_users)} users with AADConnect session",
     }
 
     descriptions = DESCRIPTION_MAP
@@ -568,6 +574,7 @@ def render(
                             description = descriptions[vuln]["description"]
                         else:
                             description = vuln
+
                         cardsHtml += SmolCard(
                             id=vuln,
                             criticity=str(k),
@@ -668,10 +675,10 @@ def render(
                 [85, 30]
             ],
             #azure
-            "attack_path": [[5,50]],
-            "ad_connect": [],
+            "attack_path": [[10, 50]],
+            "ad_connect": [[35, 20]],
             "sp_mi":[],
-            "ms_graph":[],
+            "ms_graph":[[60, 80]],
         }
 
         dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}

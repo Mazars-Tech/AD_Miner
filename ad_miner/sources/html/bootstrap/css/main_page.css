@@ -272,7 +272,7 @@ a:link {
     filter: brightness(2.5);
 }
 
-#hexa-main-div {
+.hexa-main-div {
     position: absolute;
     top:42%;
     left:35.5%;
