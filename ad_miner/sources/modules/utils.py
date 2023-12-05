@@ -63,13 +63,6 @@ def args():
         help="Password renewal policy in days. Default: 90",
     )
     parser.add_argument(
-        "-a",
-        "--azure",
-        default=False,
-        help="Use Azure relations",
-        action="store_true",
-    )
-    parser.add_argument(
         "-c",
         "--cache",
         default=False,

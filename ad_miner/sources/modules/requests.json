@@ -13,7 +13,7 @@
     },
     "delete_unresolved": {
         "name": "Delete objects for which SID could not resolved",
-        "request": "MATCH (n) WHERE (NOT EXISTS(n.domain) AND NOT (n:Domain)) OR NOT EXISTS(n.name) DETACH DELETE n",
+        "request": "MATCH (n) WHERE ((NOT EXISTS(n.domain) AND NOT (n:Domain)) OR NOT EXISTS(n.name)) AND NOT EXISTS(n.tenantid) DETACH DELETE n",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -599,12 +599,12 @@
     },
     "anomaly_acl_1": {
         "name": "anomaly_acl_1",
-        "request": "MATCH (gg) WHERE NOT gg:Group with gg as g MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN n.name,g.name,type(r2),LABELS(g)[0]",
+        "request": "MATCH (gg) WHERE NOT gg:Group with gg as g MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN n.name,g.name,type(r2),LABELS(g)",
         "output_type": "dict"
     },
     "anomaly_acl_2": {
         "name": "anomaly_acl_2",
-        "request": "MATCH (gg:Group) WHERE EXISTS(gg.members_count) with gg as g order by gg.members_count DESC MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN g.members_count,n.name,g.name,type(r2),LABELS(g)[0] order by g.members_count DESC",
+        "request": "MATCH (gg:Group) WHERE EXISTS(gg.members_count) with gg as g order by gg.members_count DESC MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN g.members_count,n.name,g.name,type(r2),LABELS(g) order by g.members_count DESC",
         "output_type": "dict"
     },
     "get_empty_groups": {
@@ -694,5 +694,48 @@
         "name": "Unpriviledged users with admincount=1",
         "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
+    },
+    "azure_user": {
+        "name": "Get Azure Users",
+        "request":"MATCH (n:AZUser) RETURN n.name AS Name, n.tenantid AS `Tenant ID`, n.onpremisesyncenabled AS onpremisesynced, n.onpremisesecurityidentifier AS SID",
+        "filename": "azure_user",
+        "output_type": "dict"
+    },
+    "azure_admin": {
+        "name": "Get Azure Admins",
+        "request":"MATCH p =(n)-[r:AZGlobalAdmin*1..]->(m) RETURN n.name AS Name, n.tenantid AS `Tenant ID`",
+        "filename": "azure_admin",
+        "output_type": "dict"
+    },
+    "azure_groups": {
+        "name": "get Azure Groups",
+        "request": "MATCH (n:AZGroup) RETURN n.tenantid AS `Tenant ID`, n.name AS Name, COALESCE(n.description, '-') AS Description ",
+        "filename": "azure_groups",
+        "output_type": "dict"
+    },
+    "azure_vm": {
+        "name": "get Azure VM",
+        "request": "MATCH (n:AZVM) RETURN n.tenantid AS `Tenant ID`, n.name AS Name, n.operatingsystem AS os",
+        "filename": "azure_vm",
+        "output_type": "dict"
+    },
+    "azure_users_paths_high_target": {
+        "name": "Find all Azure Users with a Path to High Value Targets ",
+        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r*1..]->(n)) WHERE NONE (r IN relationships(p) WHERE type(r)= 'GetChanges') AND NONE (r in relationships(p) WHERE type(r)='GetChangesAll') AND NOT m=n RETURN p",
+        "filename": "azure_users_paths_high_target",
+        "output_type": "Graph"
+    },
+    "azure_ms_graph_controllers": {
+        "name": "Return all direct Controllers of MS Graph",
+        "request":"MATCH p = (n)-[r:AZAddOwner|AZAddSecret|AZAppAdmin|AZCloudAppAdmin|AZMGAddOwner|AZMGAddSecret|AZOwns]->(g:AZServicePrincipal {appdisplayname: \"Microsoft Graph\"}) RETURN p",
+        "filename": "azure_ms_graph_controllers",
+        "output_type": "Graph"
+    },
+    "azure_aadconnect_users": {
+        "name": "Return all Users and Azure Users possibly related to AADConnect",
+        "request":"MATCH (u) WHERE (u:User OR u:AZUser) AND (u.name =~ '(?i)^MSOL_|.*AADConnect.*' OR u.userprincipalname =~ '(?i)^sync_.*') OPTIONAL MATCH (u)-[:HasSession]->(s:Session) RETURN u.name AS Name, s AS Session, u.tenantid AS `Tenant ID`",
+        "filename": "azure_aadconnect_users",
+        "output_type": "dict"
     }
+
 }

@@ -1470,16 +1470,19 @@ class Users:
         anomaly_acl_extract = []
 
         for k in range(len(self.anomaly_acl)):
-            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{self.anomaly_acl[k]['LABELS(g)[0]']}"
-            if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
+
+            label = [i for i in self.anomaly_acl[k]['LABELS(g)'] if "Base" not in i][0]
+            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}"
+            
+            if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == label:
                 formated_data[name_label_instance]["targets"].append(self.anomaly_acl[k]["n.name"])
-            elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
+            elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == label:
                 formated_data[name_label_instance]["type"] += f" | {self.anomaly_acl[k]['type(r2)']}"
             else:
                 # it is possible to have an OU and a Group with the same name for example, that's why it is necessary to have the name + the label as key
                 formated_data[name_label_instance] = { 
                     "name": self.anomaly_acl[k]["g.name"],
-                    "label": self.anomaly_acl[k]["LABELS(g)[0]"],
+                    "label": label,
                     "type": self.anomaly_acl[k]["type(r2)"],
                     "members_count": self.anomaly_acl[k]["g.members_count"],
                     "targets": [self.anomaly_acl[k]["n.name"]],
