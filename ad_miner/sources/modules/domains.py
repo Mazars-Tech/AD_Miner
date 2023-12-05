@@ -1053,9 +1053,10 @@ class Domains:
         for end_node in self.kud_list :
             # if len(self.kud_graphs[end_node]):
             node = self.kud_graphs[end_node][0].nodes[-1]
+            node.relation_type = "UnconstrainedDelegations"
             domain = node.domain
             end = Node(
-                        id=42424243, labels="Domain", name=domain, domain="end", relation_type="Relay"
+                        id=42424243, labels="Domain", name=domain, domain="end", relation_type="UnconstrainedDelegations"
                     )
             path = Path([self.kud_graphs[end_node][0].nodes[-1], end])
             self.kud_graphs[end_node].append(path)

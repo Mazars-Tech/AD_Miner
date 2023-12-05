@@ -509,8 +509,9 @@
     },
     "kud": {
         "name": "Shortest paths to objects configured for KUD",
-        "request": "MATCH (n) WHERE (n:Computer) OR (n:User AND n.enabled=true) MATCH p=shortestPath((n)-[:$properties*1..$recursive_level]->(m{target_kud:true})) WHERE NOT n=m AND (((n.is_da IS NULL OR n.is_da=FALSE) AND (n.is_dc IS NULL OR n.is_dc=FALSE)) OR (NOT m.domain CONTAINS '.' + n.domain AND n.domain <> m.domain)) RETURN p",
-        "output_type": "Graph"
+        "request": "MATCH (n) WHERE (n:Computer) OR (n:User AND n.enabled=true) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties*1..$recursive_level]->(m{target_kud:true})) WHERE NOT n=m AND (((n.is_da IS NULL OR n.is_da=FALSE) AND (n.is_dc IS NULL OR n.is_dc=FALSE)) OR (NOT m.domain CONTAINS '.' + n.domain AND n.domain <> m.domain)) RETURN DISTINCT(p)",
+        "output_type": "Graph",
+        "scope_query": "MATCH (n) WHERE (n:Computer OR (n:User AND n.enabled=true))  AND (n.is_da IS NULL OR n.is_da=FALSE)   AND (n.is_dc IS NULL OR n.is_dc=FALSE) RETURN count(n)"
         },
     "nb_computers_laps": {
         "name": "Number of computers with laps",
