@@ -62,9 +62,23 @@ dico_category = {
         "empty_ous",
         "primaryGroupID_lower_than_1000"
 
-    ]
+    ],
+    "attack_path":["azure_users_paths_high_target"],
+    "ad_connect":["azure_aadconnect_users"],
+    "sp_mi":[],
+    "ms_graph":["azure_ms_graph_controllers"],
 }
 
+dico_category_invert = {}
+for key in dico_category:
+    for value in dico_category[key]:
+        dico_category_invert[value] = key
+
+category_repartition_dict = {}
+for k in ["passwords", "kerberos", "permission", "misc"]:
+    category_repartition_dict[k] = "on_premise"
+for k in ["attack_path", "ad_connect","sp_mi", "ms_graph"]:
+    category_repartition_dict[k] = "azure"
 
 class SmolCard:
     def __init__(
@@ -254,7 +268,7 @@ class SmolCard:
             "description": self.description,
             "description_reduced": self.description_reduced,
             "details": self.details,
-            "id": md5(self.description_reduced.encode('utf-8')).hexdigest()[:8],
+            "id": md5(self.title.encode('utf-8')).hexdigest()[:8],
             "rgb_color": rgb_color,
             "evolution_chart_data": evolution_chart_data,
             "evolution_labels": self.evolution_labels,

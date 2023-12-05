@@ -17,6 +17,7 @@ from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request
 from ad_miner.sources.modules.objects import Objects
 from ad_miner.sources.modules.rating import rating
 from ad_miner.sources.modules.users import Users
+from ad_miner.sources.modules.azure import Azure 
 
 # Third party library imports
 
@@ -140,7 +141,7 @@ def main() -> None:
 
     prepare_render(arguments)
 
-    extract_date, total_objects, number_relations = pre_request(arguments)
+    extract_date, total_objects, number_relations, boolean_azure = pre_request(arguments)
 
     number_objects = sum([type_label["number_type"] for type_label in total_objects])
 
@@ -164,7 +165,7 @@ def main() -> None:
     if arguments.extract_date:
         extract_date = arguments.extract_date
 
-    neo4j = Neo4j(arguments, extract_date)
+    neo4j = Neo4j(arguments, extract_date, boolean_azure)
 
     if arguments.cluster:
         neo4j.verify_integrity(neo4j)
@@ -183,18 +184,11 @@ def main() -> None:
     computers = Computers(arguments, neo4j, domains)
     users = Users(arguments, neo4j, domains)
     objects = Objects(arguments, neo4j, domains, computers, users)
+    azure = Azure(arguments, neo4j, domains)
 
     # Generate the main page
-    logger.print_success("Temporary vulnerabilities rating :")
-    rating_dic = rating(users, domains, computers, objects, arguments)
-    for i in rating_dic.keys():
-        print(f" {i} : {rating_dic[i]}")
+    rating_dic = rating(users, domains, computers, objects, azure, arguments)
 
-    for i in rating_dic.keys():
-        if len(rating_dic[i]) > 0:
-            global_grade = i
-            break
-    logger.print_success(f"Global grade : {global_grade}")
     dico_name_description = main_page.render(
         arguments,
         neo4j,
@@ -202,6 +196,7 @@ def main() -> None:
         computers,
         users,
         objects,
+        azure,
         rating_dic,
         extract_date,
     )

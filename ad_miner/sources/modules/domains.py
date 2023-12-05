@@ -632,9 +632,7 @@ class Domains:
         graph.addGhostUsers(self.dico_ghost_user)
 
         page.addComponent(graph)
-        # print("rendering graphpage")
         page.render()
-        # print("finshed rednering graphpage")
 
     def generatePathToDa(
         self, file_variable="da", file_variable2="admin"

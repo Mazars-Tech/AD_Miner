@@ -5,11 +5,11 @@ from operator import add
 from urllib.parse import quote
 
 from ad_miner.sources.modules import rating
-from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category
+from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category, dico_category_invert, category_repartition_dict
 from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY
 
 
-def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
+def getData(arguments, neo4j, domains, computers, users, objects, azure, extract_date):
     # Place in this dict all the {{key}} from main_header.html with their respecting value
     data = {}
 
@@ -58,6 +58,11 @@ def getData(arguments, neo4j, domains, computers, users, objects, extract_date):
             data["os_colors"].append(base_colors[i])
             i = (i + 1) % len(base_colors)
 
+    data["azure_nb_users"]= len(azure.azure_users)
+    data["azure_nb_admin"]= len(azure.azure_admin)
+    data["azure_nb_groups"]= len(azure.azure_groups)
+    data["azure_nb_vm"]= len(azure.azure_vm)
+
 
     return data
 
@@ -77,11 +82,11 @@ def get_raw_other_data(arguments):
 def complete_data_evolution_time(data, raw_other_list_data):
     data["label_evolution_time"] = []
 
-    list_immediate_risk = []
-    list_potential_risk = []
-    list_minor_risk = []
-    list_handled_risk = []
-    list_not_evaluated_risk = []
+    list_immediate_risk = {"on_premise":[], "azure":[]}
+    list_potential_risk = {"on_premise":[], "azure":[]}
+    list_minor_risk = {"on_premise":[], "azure":[]}
+    list_handled_risk = {"on_premise":[], "azure":[]}
+    list_not_evaluated_risk = {"on_premise":[], "azure":[]}
 
     if raw_other_list_data != None:
 
@@ -95,7 +100,7 @@ def complete_data_evolution_time(data, raw_other_list_data):
             "nb_groups": [],
             "nb_computers": [],
         }
-
+        # On-premise
         for k in dico_category["passwords"]:
             dico_data_evolution_time[k] = []
         for k in dico_category["kerberos"]:
@@ -105,36 +110,61 @@ def complete_data_evolution_time(data, raw_other_list_data):
         for k in dico_category["misc"]:
             dico_data_evolution_time[k] = []
 
-        for k in range(len(raw_other_list_data)):
-            value_immediate_risk = 0
-            value_potential_risk = 0
-            value_minor_risk = 0
-            value_handled_risk = 0
-            value_not_evaluated_risk = 0
+        # Azure
+        for k in dico_category["attack_path"]:
+            dico_data_evolution_time[k] = []
+        for k in dico_category["ad_connect"]:
+            dico_data_evolution_time[k] = []
+        for k in dico_category["sp_mi"]:
+            dico_data_evolution_time[k] = []
+        for k in dico_category["ms_graph"]:
+            dico_data_evolution_time[k] = []
 
+        for k in range(len(raw_other_list_data)):
+            
             date_k = raw_other_list_data[k]["datetime"]
             data["label_evolution_time"].append(
                 f"{date_k[-4:]}-{date_k[3:5]}-{date_k[:2]}"
             )
 
-            dico_color_category = raw_other_list_data[k]["color_category"]
-            for name_label in dico_color_category:
-                if dico_color_category[name_label] == "red":
-                    value_immediate_risk += 1
-                elif dico_color_category[name_label] == "orange":
-                    value_potential_risk += 1
-                elif dico_color_category[name_label] == "yellow":
-                    value_minor_risk += 1
-                elif dico_color_category[name_label] == "green":
-                    value_handled_risk += 1
-                elif dico_color_category[name_label] == "grey":
-                    value_not_evaluated_risk += 1
+            dico_color_category_origin = raw_other_list_data[k]["color_category"]
 
-            list_immediate_risk.append(value_immediate_risk)
-            list_potential_risk.append(value_potential_risk)
-            list_minor_risk.append(value_minor_risk)
-            list_handled_risk.append(value_handled_risk)
-            list_not_evaluated_risk.append(value_not_evaluated_risk)
+            dico_color_category = {"on_premise":{}, "azure":{}}
+            for key in dico_color_category_origin:
+                category_repartition = category_repartition_dict[dico_category_invert[key]]
+                dico_color_category[category_repartition][key] = dico_color_category_origin[key]
+
+
+            value_immediate_risk = {"on_premise":0, "azure":0}
+            value_potential_risk = {"on_premise":0, "azure":0}
+            value_minor_risk = {"on_premise":0, "azure":0}
+            value_handled_risk = {"on_premise":0, "azure":0}
+            value_not_evaluated_risk = {"on_premise":0, "azure":0}
+
+            for name_label in dico_color_category_origin:
+
+                for key in [*dico_category]:
+                    for value_instance in range(len(dico_category[key])):
+                        if dico_category[key][value_instance] == name_label:
+                            category_repartition  = category_repartition_dict[key]
+
+                if dico_color_category[category_repartition][name_label] == "red":
+                    value_immediate_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "orange":
+                    value_potential_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "yellow":
+                    value_minor_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "green":
+                    value_handled_risk[category_repartition] += 1
+                elif dico_color_category[category_repartition][name_label] == "grey":
+                    value_not_evaluated_risk[category_repartition] += 1
+
+            for category_repartition in ["on_premise", "azure"]:
+                list_immediate_risk[category_repartition].append(value_immediate_risk[category_repartition])
+                list_potential_risk[category_repartition].append(value_potential_risk[category_repartition])
+                list_minor_risk[category_repartition].append(value_minor_risk[category_repartition])
+                list_handled_risk[category_repartition].append(value_handled_risk[category_repartition])
+                list_not_evaluated_risk[category_repartition].append(value_not_evaluated_risk[category_repartition])
 
             for key in dico_data_evolution_time:
                 if key in [
@@ -159,17 +189,17 @@ def complete_data_evolution_time(data, raw_other_list_data):
         data["boolean_evolution_over_time"] = "none"
         data["dico_data_evolution_time"] = {}
 
-    data["value_evolution_time_immediate_risk"] = list_immediate_risk
-    data["value_evolution_time_potential_risk"] = list_potential_risk
-    data["value_evolution_time_minor_risk"] = list_minor_risk
-    data["value_evolution_time_handled_risk"] = list_handled_risk
-    data["value_not_evaluated_time_handled_risk"] = list_not_evaluated_risk
+    data["value_evolution_time_immediate_risk"] = list_immediate_risk["on_premise"]+list_immediate_risk["azure"]
+    data["value_evolution_time_potential_risk"] = list_potential_risk["on_premise"]+list_potential_risk["azure"]
+    data["value_evolution_time_minor_risk"] = list_minor_risk["on_premise"]+list_potential_risk["azure"]
+    data["value_evolution_time_handled_risk"] = list_handled_risk["on_premise"]+list_potential_risk["azure"]
+    data["value_not_evaluated_time_handled_risk"] = list_not_evaluated_risk["on_premise"]+list_potential_risk["azure"]
 
     return data
 
 
 def create_dico_data(
-    data, arguments, domains, computers, users, objects, dico_rating_color
+    data, arguments, domains, computers, users, objects, azure, dico_rating_color
 ):
     """
     This function creates the data dictionary which is saved in json in the client's report
@@ -186,9 +216,16 @@ def create_dico_data(
             "nb_computers": len(computers.list_total_computers),
             "nb_adcs": len(computers.computers_adcs),
         },
+        "azure":  {
+            "azure_nb_users": len(azure.azure_users),
+            "azure_nb_admin": len(azure.azure_admin),
+            "azure_nb_groups": len(azure.azure_groups),
+            "azure_nb_vm": len(azure.azure_vm),
+        }
     }
 
     dico_data["value"] = {
+        #On-premise
         "users_pwd_cleartext": len(users.users_pwd_cleartext) if users.users_pwd_cleartext else 0,
         "dc_impersonation": users.users_dc_impersonation_count if users.users_dc_impersonation_count else 0,
         "users_pwd_not_changed_since": len(domains.users_pwd_not_changed_since_3months) if domains.users_pwd_not_changed_since_3months else 0,
@@ -242,9 +279,14 @@ def create_dico_data(
         "privileged_accounts_outside_Protected_Users": len([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]]),
         "rid_singularities": users.rid_singularities,
         "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group),
-        "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]])
+        "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
+        
+        # Azure
+        "azure_users_paths_high_target": len(azure.azure_users_paths_high_target),
+        "azure_ms_graph_controllers": len(azure.azure_ms_graph_controllers),
+        "azure_aadconnect_users": len(azure.azure_aadconnect_users),
     }
-    dico_data["color_category"] = dico_rating_color
+    dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["azure"]}
 
     return dico_data
 
@@ -256,7 +298,7 @@ def manage_plural(elem, text):
 
 
 def render(
-    arguments, neo4j, domains, computers, users, objects, data_rating, extract_date
+    arguments, neo4j, domains, computers, users, objects, azure, data_rating, extract_date
 ):
 
     if arguments.evolution != "":
@@ -264,11 +306,12 @@ def render(
     else:
         raw_other_list_data = None
 
-    data = getData(arguments, neo4j, domains, computers, users, objects, extract_date)
+    data = getData(arguments, neo4j, domains, computers, users, objects, azure, extract_date)
 
     dico_rating_color = rating.rating_color(data_rating)
+
     dico_data = create_dico_data(
-        data, arguments, domains, computers, users, objects, dico_rating_color
+        data, arguments, domains, computers, users, objects, azure, dico_rating_color
     )
 
     if raw_other_list_data != None:
@@ -338,23 +381,44 @@ def render(
         "up_to_date_admincount": f"{dico_data['value']['priviledge_users_without_admincount']} priviledged accounts without admincount and {dico_data['value']['unpriviledged_users_with_admincount']} unpriviledged accounts with admincount",
         "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts not in Protected Users group",
         "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
-        "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group"
+        "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group",
+        
+        #azure
+        "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets",
+        "azure_ms_graph_controllers": f"{len(azure.azure_ms_graph_controllers)} paths to MS Graph controllers",
+        "azure_aadconnect_users": f"{len(azure.azure_aadconnect_users)} users with AADConnect session",
     }
 
     descriptions = DESCRIPTION_MAP
     dico_name_title = {k: descriptions[k].get("title") for k in descriptions.keys()}
 
+    data["boolean_azure"] = "inline" if neo4j.boolean_azure else "none"
 
-    # I didn't look at why the rating was returning duplicates, but it should be corrected rather than deleting the duplicates stupidly
-    data["immediate_risk"] = len(data_rating[1])
-    data["potential_risk"] = len(data_rating[2])
-    data["minor_risk"] = len(data_rating[3])
-    data["handled_risk"] = len(data_rating[4] + data_rating[5])
+    # On premise
+    data["on_premise"] = {}
 
-    data["immediate_risk_list"] = data_rating[1]
-    data["potential_risk_list"] = data_rating[2]
-    data["minor_risk_list"] = data_rating[3]
-    data["handled_risk_list"] = data_rating[4] + data_rating[5]
+    data["on_premise"]["immediate_risk"] = len(data_rating["on_premise"][1])
+    data["on_premise"]["potential_risk"] = len(data_rating["on_premise"][2])
+    data["on_premise"]["minor_risk"] = len(data_rating["on_premise"][3])
+    data["on_premise"]["handled_risk"] = len(data_rating["on_premise"][4] + data_rating["on_premise"][5])
+
+    data["on_premise"]["immediate_risk_list"] = data_rating["on_premise"][1]
+    data["on_premise"]["potential_risk_list"] = data_rating["on_premise"][2]
+    data["on_premise"]["minor_risk_list"] = data_rating["on_premise"][3]
+    data["on_premise"]["handled_risk_list"] = data_rating["on_premise"][4] + data_rating["on_premise"][5]
+
+    # Azure
+    data["azure"] = {}
+
+    data["azure"]["immediate_risk"] = len(data_rating["azure"][1])
+    data["azure"]["potential_risk"] = len(data_rating["azure"][2])
+    data["azure"]["minor_risk"] = len(data_rating["azure"][3])
+    data["azure"]["handled_risk"] = len(data_rating["azure"][4] + data_rating["azure"][5])
+
+    data["azure"]["immediate_risk_list"] = data_rating["azure"][1]
+    data["azure"]["potential_risk_list"] = data_rating["azure"][2]
+    data["azure"]["minor_risk_list"] = data_rating["azure"][3]
+    data["azure"]["handled_risk_list"] = data_rating["azure"][4] + data_rating["azure"][5]
 
     global_risk_controls = {
         "immediate_risk":  {"code" :"D", "colors": "245, 75, 75", "i_class": 'bi bi-exclamation-diamond-fill', "div_class": "danger", "panel_key": "list_cards_dangerous_issues", "risk_name": "Critical"},
@@ -362,74 +426,105 @@ def render(
         "minor_risk":      {"code" :"B", "colors": "255, 221, 0", "i_class": 'bi bi-dash-circle-fill', "div_class": "yellow", "panel_key": "list_cards_minor_alert_issues", "risk_name": "Minor"},
         "handled_risk":    {"code" :"A", "colors": "91, 180, 32", "i_class": 'bi bi-check-circle-fill', "div_class": "success", "panel_key": "", "risk_name": ""}
     }
-    data["permissions_data"] = []
-    data["passwords_data"] = []
-    data["kerberos_data"] = []
-    data["misc_data"] = []
-    data["global_rating"] = ""
-    for risk_control in global_risk_controls:
-        categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
-        for control in data[f"{risk_control}_list"]:
-            if control in dico_category["permission"]:
-                categories["permissions"] += 1
-            elif control in dico_category["passwords"]:
-                categories["passwords"] += 1
-            elif control in dico_category["misc"]:
-                categories["misc"] += 1
-            elif control in dico_category["kerberos"]:
-                categories["kerberos"] += 1
-        for category in categories:
-            if categories[category] > 0 and f"{category}_letter_grade" not in data:
-                data[f"{category}_letter_grade"] = global_risk_controls[risk_control]["code"]
-                data[f"{category}_letter_color"] = global_risk_controls[risk_control]["colors"]
-                data[
-                    f"{category}_graph_summary"
-                ] = f"""
-                    <p><i class="{global_risk_controls[risk_control]["i_class"]}" style="color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;"></i>
-                        <span>{categories[category]}</span> {global_risk_controls[risk_control]["risk_name"]} {manage_plural(categories[category], ("Vulnerability", "Vulnerabilities"))}
-                    </p>"""
-            data[f"{category}_data"].append(categories[category])
-        
-        # Setting global risk info
-        if not data["global_rating"] and data[risk_control] > 0:
-            data["global_rating"] = f"""
-                <div class="alert alert-{global_risk_controls[risk_control]["div_class"]} d-flex align-items-center global-rating" role="alert">
-                        <i class="{global_risk_controls[risk_control]["i_class"]} rating-icon"></i>
-                        <div class="rating-text">
-                        {global_risk_controls[risk_control]["risk_name"].upper()}
+    data["on_premise"]["permissions_data"] = []
+    data["on_premise"]["passwords_data"] = []
+    data["on_premise"]["kerberos_data"] = []
+    data["on_premise"]["misc_data"] = []
+
+    #azure
+    data["azure"]["attack_path_data"] = []
+    data["azure"]["ad_connect_data"] = []
+    data["azure"]["sp_mi_data"] = []
+    data["azure"]["ms_graph_data"] = []
+
+    data["on_premise"]["global_rating"] = ""
+    data["azure"]["global_rating"] = ""
+
+    for category_repartition in ["on_premise", "azure"]:
+        for risk_control in global_risk_controls:
+
+            if category_repartition == "on_premise": #on premise
+                categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
+
+                for control in data["on_premise"][f"{risk_control}_list"]:
+                    
+                    if control in dico_category["permission"]:
+                        categories["permissions"] += 1
+                    elif control in dico_category["passwords"]:
+                        categories["passwords"] += 1
+                    elif control in dico_category["misc"]:
+                        categories["misc"] += 1
+                    elif control in dico_category["kerberos"]:
+                        categories["kerberos"] += 1
+
+            else:   # azure
+                categories = {"attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
+
+                for control in data["azure"][f"{risk_control}_list"]:
+                
+                    if control in dico_category["attack_path"]:
+                        categories["attack_path"] += 1
+                    elif control in dico_category["ad_connect"]:
+                        categories["ad_connect"] += 1
+                    elif control in dico_category["sp_mi"]:
+                        categories["sp_mi"] += 1
+                    elif control in dico_category["ms_graph"]:
+                        categories["ms_graph"] += 1
+            
+            for category in categories:
+                if categories[category] > 0 and f"{category}_letter_grade" not in data[category_repartition]:
+                    data[category_repartition][f"{category}_letter_grade"] = global_risk_controls[risk_control]["code"]
+                    data[category_repartition][f"{category}_letter_color"] = global_risk_controls[risk_control]["colors"]
+                    data[category_repartition][
+                        f"{category}_graph_summary"
+                    ] = f"""
+                        <p><i class="{global_risk_controls[risk_control]["i_class"]}" style="color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;"></i>
+                            <span>{categories[category]}</span> {global_risk_controls[risk_control]["risk_name"]} {manage_plural(categories[category], ("Vulnerability", "Vulnerabilities"))}
+                        </p>"""
+                data[category_repartition][f"{category}_data"].append(categories[category])
+            
+            # Setting global risk info
+            if not data[category_repartition]["global_rating"] and data[category_repartition][risk_control] > 0:
+                data[category_repartition]["global_rating"] = f"""
+                    <div class="alert alert-{global_risk_controls[risk_control]["div_class"]} d-flex align-items-center global-rating" role="alert">
+                            <i class="{global_risk_controls[risk_control]["i_class"]} rating-icon"></i>
+                            <div class="rating-text">
+                            {global_risk_controls[risk_control]["risk_name"].upper()}
+                            </div>
                         </div>
-                    </div>
-            """
-            data["main_letter_grade"] = global_risk_controls[risk_control]["code"]
-            data["main_letter_color"] = global_risk_controls[risk_control]["colors"]
-
-        # Creating cards of the right panel
-        if (global_risk_controls[risk_control]["panel_key"]):
-            data[global_risk_controls[risk_control]["panel_key"]] = ""
-            red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
-            for issue in data[f"{risk_control}_list"]:
-                custom_title = dico_name_description[issue].replace("$", "")
-                data[
-                    global_risk_controls[risk_control]["panel_key"]
-                ] += f"""
-                    <a href="{issue}.html">
-                        <div class="card threat-card" custom-title="{custom_title}" custom-status="{red_status}">
-                            <div class="card-body">
-                                <h6 class="card-title">{dico_name_title[issue]}</h6>
-                            </div>
-                            <span class="position-absolute top-0 start-100 translate-middle p-2 border border-light rounded-circle"
-                            style="background-color: rgb({global_risk_controls[risk_control]["colors"]});">
-                            </span>
-                            </div>
-                    </a>
                 """
+                data[category_repartition]["main_letter_grade"] = global_risk_controls[risk_control]["code"]
+                data[category_repartition]["main_letter_color"] = global_risk_controls[risk_control]["colors"]
 
-    data["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["permissions_data"], data["kerberos_data"], data["passwords_data"], data["misc_data"])]
+            # Creating cards of the right panel
+            if (global_risk_controls[risk_control]["panel_key"]):
+                data[category_repartition][global_risk_controls[risk_control]["panel_key"]] = ""
+                red_status = f"""<i class='{global_risk_controls[risk_control]["i_class"]}' style='color: rgb({global_risk_controls[risk_control]["colors"]}); margin-right: 3px;'></i> {risk_control.replace("_", " ").capitalize()}"""
+                for issue in data[category_repartition][f"{risk_control}_list"]:
+                    custom_title = dico_name_description[issue].replace("$", "")
+                    data[category_repartition][
+                        global_risk_controls[risk_control]["panel_key"]
+                    ] += f"""
+                        <a href="{issue}.html">
+                            <div class="card threat-card" custom-title="{custom_title}" custom-status="{red_status}">
+                                <div class="card-body">
+                                    <h6 class="card-title">{dico_name_title[issue]}</h6>
+                                </div>
+                                <span class="position-absolute top-0 start-100 translate-middle p-2 border border-light rounded-circle"
+                                style="background-color: rgb({global_risk_controls[risk_control]["colors"]});">
+                                </span>
+                                </div>
+                        </a>
+                    """
 
-    data["issue_or_issues"] = manage_plural(data["immediate_risk"], ("issue", "issues"))
-    data["vuln_text_major_risk"] = manage_plural(data["potential_risk"], ("vulnerability", "vulnerabilities"))
-    data["alert_or_alerts"] = manage_plural(data["potential_risk"], ("Alert", "Alerts"))
-    data["minor_alert_or_alerts"] = manage_plural(data["minor_risk"], ("Minor issue", "Minor issues"))
+        data[category_repartition]["issue_or_issues"] = manage_plural(data[category_repartition]["immediate_risk"], ("issue", "issues"))
+        data[category_repartition]["vuln_text_major_risk"] = manage_plural(data[category_repartition]["potential_risk"], ("vulnerability", "vulnerabilities"))
+        data[category_repartition]["alert_or_alerts"] = manage_plural(data[category_repartition]["potential_risk"], ("Alert", "Alerts"))
+        data[category_repartition]["minor_alert_or_alerts"] = manage_plural(data[category_repartition]["minor_risk"], ("Minor issue", "Minor issues"))
+    
+    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permissions_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
+    data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["attack_path_data"], data["azure"]["ad_connect_data"], data["azure"]["sp_mi_data"], data["azure"]["ms_graph_data"])]
+
 
     with open("./render_%s/html/index.html" % arguments.cache_prefix, "w") as page_f:
         with (TEMPLATES_DIRECTORY / "main_header.html").open(mode='r') as header_f:
@@ -437,6 +532,7 @@ def render(
             # Every ` char will be skipped
             original = header_f.read()
             content = ""
+
             i = 0
             while i < len(original):
                 if original[i] == "{" and original[i + 1] == "{":
@@ -447,7 +543,14 @@ def render(
                         j += 1
                     key += original[i + j]
                     try:
-                        content += str(data[key])
+                        if "on_premise|" in key:
+                            content += str(data["on_premise"][key.split("on_premise|")[1]])
+
+                        elif "azure|" in key:
+                            content += str(data["azure"][key.split("azure|")[1]])
+                        else:
+                            content += str(data[key])
+
                     except KeyError:
                         content += "N/A"
                     i += len(key) + 4
@@ -463,29 +566,33 @@ def render(
             # descriptions = json.load(open('description.json'))
             # print(rating_dic)
             cardsHtml = ""
-            for k in data_rating.keys():
-                for vuln in data_rating[k]:
-                    if descriptions.get(vuln):
-                        description = descriptions[vuln]["description"]
-                    else:
-                        description = vuln
-                    cardsHtml += SmolCard(
-                        id=vuln,
-                        criticity=str(k),
-                        href=f"{vuln}.html",
-                        description=description,
-                        details=dico_name_description.get(vuln),
-                        evolution_data=data["dico_data_evolution_time"],
-                        evolution_labels=data["label_evolution_time"]
-                    ).render(page_f, return_html=True)
+            for category_repartition in ["on_premise", "azure"]:
+                for k in data_rating[category_repartition].keys():
+                    for vuln in data_rating[category_repartition][k]:
+                        
+                        if descriptions.get(vuln):
+                            description = descriptions[vuln]["description"]
+                        else:
+                            description = vuln
+
+                        cardsHtml += SmolCard(
+                            id=vuln,
+                            criticity=str(k),
+                            href=f"{vuln}.html",
+                            description=description,
+                            details=dico_name_description.get(vuln),
+                            evolution_data=data["dico_data_evolution_time"],
+                            evolution_labels=data["label_evolution_time"]
+                        ).render(page_f, return_html=True)
+
             modal_header = open(TEMPLATES_DIRECTORY / "cards_modal_header.html", "r").read()
             modal_footer = """
-                  </div>
+                </div>
         </div>
-      <div class="modal-footer">
-      </div>
+    <div class="modal-footer">
     </div>
-  </div>
+    </div>
+</div>
 </div>
             """
             if arguments.evolution == "":
@@ -566,22 +673,28 @@ def render(
                 [81, 39],
                 [82, 62],
                 [85, 30]
-            ]
+            ],
+            #azure
+            "attack_path": [[10, 50]],
+            "ad_connect": [[35, 20]],
+            "sp_mi":[],
+            "ms_graph":[[60, 80]],
         }
 
-        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0}
+        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
 
         for category in dico_category:
             for indicator in dico_category[category]:
 
-                if dico_rating_color.get(indicator):
-                    color = dico_rating_color[indicator]
+                if dico_rating_color[category_repartition_dict[category]].get(indicator):
+                    color = dico_rating_color[category_repartition_dict[category]][indicator]
                 else:
                     color = "grey"
 
                 dico_js[indicator] = {
                     "color": color,
                     "name": dico_name_title[indicator],
+                    "category_repartition": category_repartition_dict[category],
                     "link": quote(str(indicator)) + ".html",
                     "category": category,
                     "position": dico_position[category][
