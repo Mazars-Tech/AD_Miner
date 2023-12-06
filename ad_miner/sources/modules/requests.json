@@ -763,7 +763,7 @@
     },
     "azure_last_passwd_change": {
         "name": "Last password change on Azure and on premise",
-        "request":"MATCH (u:User {enabled:TRUE}),(a:AZUser) WHERE a.onpremisesecurityidentifier = u.objectid RETURN DISTINCT(u.name) AS Name, toInteger(($extract_date - u.pwdlastset )/ 86400) AS `Last password set on premise`, a.pwdlastset AS `Last password set on Azure`",
+        "request":"MATCH (u:User {enabled:TRUE}),(a:AZUser) WHERE a.onpremisesecurityidentifier = u.objectid RETURN DISTINCT(u.name) AS Name, toInteger(($extract_date - u.pwdlastset )/ 86400) AS `Last password set on premise`, toInteger(($extract_date - (datetime('1970-01-01T00:00:00').epochMillis + duration.inSeconds(datetime('1970-01-01T00:00:00'), a.pwdlastset).seconds)) / 86400) AS `Last password set on Azure`",
         "filename": "azure_last_passwd_change",
         "output_type": "dict"
     },

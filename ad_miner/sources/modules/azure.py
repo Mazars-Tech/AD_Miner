@@ -359,11 +359,11 @@ class Azure:
         data = []
         for user in self.azure_last_passwd_change:
             onprem = user["Last password set on premise"]
-            onazure = int((self.neo4j.extract_date - datetime.strptime(user["Last password set on Azure"], "%Y-%m-%dT%H:%M:%SZ").timestamp()) / 86400)
+            onazure = user["Last password set on Azure"]
             diff = int(abs(onprem - onazure))
             if diff > 1:
                 data.append({
-                    "Name": '<i class="bi bi-gem"></i> ' + user["Name"],
+                    "Name": '<i class="bi bi-person-fill"></i> ' + user["Name"],
                     "Last password set on premise": days_format(onprem),
                     "Last password set on Azure": days_format(onazure),
                     "Difference": days_format(diff)
