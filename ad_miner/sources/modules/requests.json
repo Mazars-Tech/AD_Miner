@@ -769,13 +769,13 @@
     },
     "azure_dormant_accounts": {
         "name": "Azure dormant accounts",
-        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon",
+        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon, toInteger(($extract_date - u.whencreated)/86400) AS whencreated",
         "filename": "azure_dormant_accounts",
         "output_type": "dict"
     },
     "azure_accounts_disabled_on_prem": {
         "name": "Azure accounts that are disabled on premise",
-        "request":"MATCH (a:AZUser{enabled:TRUE}),(u:User{enabled:FALSE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, u.name AS `On premise name`",
+        "request":"MATCH (a:AZUser{enabled:TRUE}),(u:User{enabled:FALSE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise` UNION MATCH (a:AZUser{enabled:FALSE}),(u:User{enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise`",
         "filename": "azure_accounts_disabled_on_prem",
         "output_type": "dict"
     },

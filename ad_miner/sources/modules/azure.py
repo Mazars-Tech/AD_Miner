@@ -296,12 +296,6 @@ class Azure:
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     })
                 })
-            else:
-                data.append({
-                    "Name": '<i class="bi bi-person-bounding-box"></i> ' + role["Name"],
-                    "Description": role["Description"],
-                    "Access to role": "-"
-                })
         self.azure_roles_entry_nodes = set(self.azure_roles_entry_nodes)
         grid.setheaders(["Name", "Description", "Access to role"])
 
@@ -354,6 +348,7 @@ class Azure:
 
     def genAzureLastPasswdSet(self):
         if self.azure_last_passwd_change is None:
+            self.azure_last_passwd_change_strange = []
             return 
 
         page = Page(self.arguments.cache_prefix, "azure_last_passwd_change", "Incoherent last password change both on Azure and on premise", "azure_last_passwd_change")
@@ -395,10 +390,11 @@ class Azure:
                 self.azure_dormant_accounts_90_days.append(user)
                 data.append({
                     "Name": '<i class="bi bi-person-fill"></i> ' + user["Name"],
-                    "Last logon": days_format(user["lastlogon"])
+                    "Last logon": days_format(user["lastlogon"]),
+                    "Creation date": days_format(user["whencreated"])
                 })
 
-        grid.setheaders(["Name", "Last logon"])
+        grid.setheaders(["Name", "Last logon", "Creation date"])
 
         grid.setData(data)
         page.addComponent(grid)
@@ -409,16 +405,16 @@ class Azure:
         if self.azure_accounts_disabled_on_prem is None:
             return 
 
-        page = Page(self.arguments.cache_prefix, "azure_accounts_disabled_on_prem", "Enabled Azure accounts that are synced to a disabled on premise account", "azure_accounts_disabled_on_prem")
-        grid = Grid("Enabled Azure accounts that are synced to a disabled on premise account")
+        page = Page(self.arguments.cache_prefix, "azure_accounts_disabled_on_prem", "Synced Azure accounts with different enabled status", "azure_accounts_disabled_on_prem")
+        grid = Grid("Synced Azure accounts with different enabled status")
 
         data = []
         for user in self.azure_accounts_disabled_on_prem:
             data.append({
                 "Azure name": '<i class="bi bi-person-fill"></i> ' + user["Azure name"],
-                "Enabled on Azure": '<i class="bi bi-check-square"></i>',
+                "Enabled on Azure": '<i class="bi bi-check-square"></i>' if user["Enabled on Azure"] is True else '<i class="bi bi-square"></i>',
                 "On premise name": '<i class="bi bi-person"></i> ' + user["On premise name"],
-                "Enabled on premise": '<i class="bi bi-square"></i>'
+                "Enabled on premise": '<i class="bi bi-check-square"></i>' if user["Enabled on premise"] is True else '<i class="bi bi-square"></i>'
             })
 
         grid.setheaders(["Azure name", "Enabled on Azure", "On premise name", "Enabled on premise"])
