@@ -721,7 +721,7 @@
     },
     "azure_users_paths_high_target": {
         "name": "Find all Azure Users with a Path to High Value Targets ",
-        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r*1..]->(n)) WHERE NONE (r IN relationships(p) WHERE type(r)= 'GetChanges') AND NONE (r in relationships(p) WHERE type(r)='GetChangesAll') AND NOT m=n RETURN p",
+        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r:$properties*1..$recursive_level]->(n)) WHERE NONE (r IN relationships(p) WHERE type(r)= 'GetChanges') AND NONE (r in relationships(p) WHERE type(r)='GetChangesAll') AND NOT m=n RETURN p",
         "filename": "azure_users_paths_high_target",
         "output_type": "Graph"
     },
@@ -785,4 +785,5 @@
         "filename": "azure_accounts_not_found_on_prem",
         "output_type": "dict"
     }
+
 }
