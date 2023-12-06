@@ -110,7 +110,7 @@ class Neo4j:
 
         self.boolean_azure = boolean_azure
 
-        extract_date = self.set_extract_date(str(extract_date_int))
+        self.extract_date = self.set_extract_date(str(extract_date_int))
 
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
@@ -142,7 +142,7 @@ class Neo4j:
                 )
                 # Replace variables with their values in requests
                 variables_to_replace = {
-                    "$extract_date": int(extract_date),
+                    "$extract_date": int(self.extract_date),
                     "$password_renewal": int(self.password_renewal),
                     "$properties": properties,
                     "$recursive_level": int(recursive_level),

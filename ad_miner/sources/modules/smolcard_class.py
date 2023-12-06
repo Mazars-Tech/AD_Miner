@@ -63,10 +63,24 @@ dico_category = {
         "primaryGroupID_lower_than_1000"
 
     ],
-    "attack_path":["azure_users_paths_high_target"],
-    "ad_connect":["azure_aadconnect_users"],
-    "sp_mi":[],
-    "ms_graph":["azure_ms_graph_controllers"],
+    "attack_path":[
+        "azure_users_paths_high_target",
+        "azure_admin_on_prem"
+        ],
+    "ad_connect":[
+        "azure_aadconnect_users",
+        "azure_roles"
+        ],
+    "sp_mi":[
+        "azure_reset_passwd",
+        "azure_last_passwd_change",
+        "azure_dormant_accounts"
+    ],
+    "ms_graph":[
+        "azure_ms_graph_controllers",
+        "azure_accounts_disabled_on_prem",
+        "azure_accounts_not_found_on_prem"
+        ],
 }
 
 dico_category_invert = {}

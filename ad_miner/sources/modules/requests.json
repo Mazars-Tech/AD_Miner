@@ -736,6 +736,53 @@
         "request":"MATCH (u) WHERE (u:User OR u:AZUser) AND (u.name =~ '(?i)^MSOL_|.*AADConnect.*' OR u.userprincipalname =~ '(?i)^sync_.*') OPTIONAL MATCH (u)-[:HasSession]->(s:Session) RETURN u.name AS Name, s AS Session, u.tenantid AS `Tenant ID`",
         "filename": "azure_aadconnect_users",
         "output_type": "dict"
+    },
+    "azure_admin_on_prem": {
+        "name": "Return all Azure admins that are also on premise admins",
+        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.Name",
+        "filename": "azure_admin_on_prem",
+        "output_type": "dict"
+    },
+    "azure_role_listing": {
+        "name": "List of all Azure roles",
+        "request":"MATCH (a:AZRole) return distinct a.name AS Name, a.description AS Description",
+        "filename": "azure_role_listing",
+        "output_type": "dict"
+    },
+    "azure_role_paths": {
+        "name": "Paths to the Azure roles",
+        "request":"MATCH p=(a:AZUser)-[r:AZHasRole]->(x) return distinct p",
+        "filename": "azure_role_paths",
+        "output_type": "Graph"
+    },
+    "azure_reset_passwd": {
+        "name": "Azure accounts that can reset passwords",
+        "request":"MATCH p=(n)-[r:AZResetPassword]->(m) return distinct p",
+        "filename": "azure_reset_passwd",
+        "output_type": "Graph"
+    },
+    "azure_last_passwd_change": {
+        "name": "Last password change on Azure and on premise",
+        "request":"MATCH (u:User {enabled:TRUE}),(a:AZUser) WHERE a.onpremisesecurityidentifier = u.objectid RETURN DISTINCT(u.name) AS Name, toInteger(($extract_date - u.pwdlastset )/ 86400) AS `Last password set on premise`, a.pwdlastset AS `Last password set on Azure`",
+        "filename": "azure_last_passwd_change",
+        "output_type": "dict"
+    },
+    "azure_dormant_accounts": {
+        "name": "Azure dormant accounts",
+        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon",
+        "filename": "azure_dormant_accounts",
+        "output_type": "dict"
+    },
+    "azure_accounts_disabled_on_prem": {
+        "name": "Azure accounts that are disabled on premise",
+        "request":"MATCH (a:AZUser{enabled:TRUE}),(u:User{enabled:FALSE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, u.name AS `On premise name`",
+        "filename": "azure_accounts_disabled_on_prem",
+        "output_type": "dict"
+    },
+    "azure_accounts_not_found_on_prem": {
+        "name": "Azure accounts that are synced but do not exist on premise",
+        "request":"MATCH (azUser:AZUser{onpremisesyncenabled:true}) WHERE NOT EXISTS {MATCH (user:User) WHERE user.objectid = azUser.onpremisesecurityidentifier} return azUser.name AS Name",
+        "filename": "azure_accounts_not_found_on_prem",
+        "output_type": "dict"
     }
-
 }

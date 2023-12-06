@@ -125,6 +125,14 @@
         "azure_vm": "true",
         "azure_users_paths_high_target": "true",
         "azure_ms_graph_controllers": "true",
-        "azure_aadconnect_users": "true"
+        "azure_aadconnect_users": "true",
+        "azure_admin_on_prem": "true",
+        "azure_role_listing": "true",
+        "azure_role_paths": "true",
+        "azure_reset_passwd": "true",
+        "azure_last_passwd_change": "true",
+        "azure_dormant_accounts": "true",
+        "azure_accounts_disabled_on_prem": "true",
+        "azure_accounts_not_found_on_prem": "true"
     }
 }
