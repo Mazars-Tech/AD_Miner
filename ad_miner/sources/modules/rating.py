@@ -195,7 +195,7 @@ def rating(users, domains, computers, objects, azure, arguments):
     d["azure"][presence_of(azure.azure_admin_on_prem, 1)].append("azure_admin_on_prem")
     d["azure"][presence_of(azure.azure_roles_entry_nodes, 2)].append("azure_roles")
     d["azure"][presence_of(azure.reset_passwd.keys(), 2)].append("azure_reset_passwd")
-    d["azure"][presence_of(azure.azure_last_passwd_change, 3)].append("azure_last_passwd_change")
+    d["azure"][presence_of(azure.azure_last_passwd_change_strange, 3)].append("azure_last_passwd_change")
     d["azure"][presence_of(azure.azure_dormant_accounts, 3)].append("azure_dormant_accounts")
     d["azure"][presence_of(azure.azure_accounts_disabled_on_prem, 3)].append("azure_accounts_disabled_on_prem")
     d["azure"][presence_of(azure.azure_accounts_not_found_on_prem, 3)].append("azure_accounts_not_found_on_prem")

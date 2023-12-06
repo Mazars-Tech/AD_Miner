@@ -288,7 +288,7 @@ def create_dico_data(
         "azure_admin_on_prem": len(azure.azure_admin_on_prem),
         "azure_roles": len(azure.azure_roles_entry_nodes),
         "azure_reset_passwd": len(azure.reset_passwd.keys()),
-        "azure_last_passwd_change": len(azure.azure_last_passwd_change),
+        "azure_last_passwd_change": len(azure.azure_last_passwd_change_strange),
         "azure_dormant_accounts": len(azure.azure_dormant_accounts_90_days),
         "azure_accounts_disabled_on_prem": len(azure.azure_accounts_disabled_on_prem),
         "azure_accounts_not_found_on_prem": len(azure.azure_accounts_not_found_on_prem)
@@ -397,7 +397,7 @@ def render(
         "azure_admin_on_prem": f"{len(azure.azure_admin_on_prem)} admins on Azure and on premise",
         "azure_roles": f"{len(azure.azure_roles_entry_nodes)} users have access to Azure roles",
         "azure_reset_passwd": f"{len(azure.reset_passwd.keys())} users can reset passwords",
-        "azure_last_passwd_change": f"{len(azure.azure_last_passwd_change)} users have unusual last password change",
+        "azure_last_passwd_change": f"{len(azure.azure_last_passwd_change_strange)} users have unusual last password change",
         "azure_dormant_accounts": f"{len(azure.azure_dormant_accounts_90_days)} dormant accounts",
         "azure_accounts_disabled_on_prem": f"{len(azure.azure_accounts_disabled_on_prem)} Azure accounts are disabled on prem.",
         "azure_accounts_not_found_on_prem": f"{len(azure.azure_accounts_not_found_on_prem)} Azure accounts are non-existant on prem."

@@ -360,11 +360,13 @@ class Azure:
         grid = Grid("Incoherent last password change both on Azure and on premise")
 
         data = []
+        self.azure_last_passwd_change_strange = []
         for user in self.azure_last_passwd_change:
             onprem = user["Last password set on premise"]
             onazure = user["Last password set on Azure"]
             diff = int(abs(onprem - onazure))
             if diff > 1:
+                self.azure_last_passwd_change_strange.append(user)
                 data.append({
                     "Name": '<i class="bi bi-person-fill"></i> ' + user["Name"],
                     "Last password set on premise": days_format(onprem),
