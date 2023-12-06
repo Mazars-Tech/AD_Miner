@@ -286,6 +286,12 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "set_synced_OP_user_AZ_user": {
+        "name": "Set relationships between On premiser User and Azure User",
+        "request": "MATCH (a:AZUser),(u:User) WHERE a.onpremid = u.objectid MERGE (a)-[:Synced]->(u) MERGE (u)-[:Synced]->(a)",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "nb_domain_collected": {
         "name": "Count number of domains collected",
         "request": "MATCH (m:Domain)-[r]->() RETURN distinct(COALESCE(m.domain, m.name))",
