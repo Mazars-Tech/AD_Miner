@@ -125,6 +125,8 @@
         "azure_vm": "true",
         "azure_users_paths_high_target": "true",
         "azure_ms_graph_controllers": "true",
-        "azure_aadconnect_users": "true"
+        "azure_aadconnect_users": "true",
+        "kud":"true",
+        "set_target_kud":"true"
     }
 }
