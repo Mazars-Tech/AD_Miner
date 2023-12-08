@@ -3,6 +3,8 @@ import os
 from datetime import datetime
 from operator import add
 from urllib.parse import quote
+from numpy import pi, cos, sin, linspace
+from random import randint
 
 from ad_miner.sources.modules import rating
 from ad_miner.sources.modules.smolcard_class import SmolCard, dico_category, dico_category_invert, category_repartition_dict
@@ -303,6 +305,46 @@ def manage_plural(elem, text):
     if elem > 1:
         return text[1]
     return text[0]
+
+
+def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> list[list[float]]:
+    hex_pos = []
+    hex_offset = 2.5 #  Half of the hex size (pos is top left)
+
+    # harcoded values of concentric arcs for hexagon placement
+    arc_distances = [23, 33, 42]
+
+    n_arcs = len(arc_distances)
+    angle = angle_end - angle_start
+    arcs_lengths = [angle * arc_distance for arc_distance in arc_distances]
+    total_length = sum(arcs_lengths)
+
+    hex_per_arc = [int(n_hexagons * le / total_length) for le in arcs_lengths]
+    if sum(hex_per_arc) < n_hexagons:
+        hex_per_arc[-2] += 1
+    while sum(hex_per_arc) < n_hexagons:
+        hex_per_arc[-1] += 1
+
+    for i in range(n_arcs):
+        to_place = hex_per_arc[i]
+        if to_place == 0:
+            continue
+
+        rad = arc_distances[i]
+        d_theta = angle / to_place
+        angles = [angle_start + (i + 0.5) * d_theta for i in range(to_place)]
+        for j in range(to_place):
+            rleft, rtop = randint(0, 1000), randint(0, 1000)
+            rleft, rtop = (rleft - 500) / 700, (rtop - 500) / 700
+
+            left = 50 + rad * cos(angles[j]) - hex_offset + rleft
+            top = 50 - rad * sin(angles[j]) - hex_offset + rtop
+
+            hex_pos.append([top, left])
+
+    return hex_pos
+
+
 
 
 def render(
@@ -631,87 +673,88 @@ def render(
 
         dico_js = {}
 
-        # permission : top, passwords : left, kerberos : right, misc : bottom
-        dico_position = {
-            "passwords": [
-                [54, 25],
-                [80, 17],
-                [70, 20],
-                [70, 12],
-                [53, 10],
-                [66, 31],
-                [78, 24],
-            ],
-            "kerberos": [
-                [60, 89],
-                [64, 63],
-                [81, 71],
-                [70, 80],
-                [70, 70],
-                [77, 79],
-                [55, 82],
-                [54, 71],
+        angles = {"passwords": (-2*pi/3, -pi),
+                  "kerberos": (0, -pi/3),
+                  "permission": (0, pi),
+                  "misc": (-pi/3, -2*pi/3),
+                  "attack_path": (pi/4, 3*pi/4),
+                  "ad_connect": (3*pi/4, 5*pi/4),
+                  "sp_mi": (-pi/4, -3*pi/4),
+                  "ms_graph": (-pi/4, pi/4)}
 
-            ],
-            "permission": [
-                [19, 65],
-                [8, 28],
-                [34, 14],
-                [28, 60],
-                [5, 50],
-                [43, 10],
-                [18, 80],
-                [10, 66],
-                [16, 20],
-                [22, 14],
-                [26, 75],
-                [6, 34],
-                [7, 58],
-                [27, 36],
-                [41, 25],
-                [42, 90],
-                [25, 48],
-                [30, 25],
-                [30, 68],
-                [16, 72],
-                [15, 33],
-                [5, 42],
-                [40, 80],
-                [42, 69],
-                [30, 85]
-            ],
-            "misc": [
-                [70, 41],
-                [89, 38],
-                [90, 55],
-                [75, 58],
-                [72, 50],
-                [81, 39],
-                [82, 62],
-                [85, 30]
-            ],
-            #azure
-            "attack_path": [
-                [10, 50],
-                [20, 30],
-                [15, 70]
-                ],
-            "ad_connect": [
-                [35, 20],
-                [65, 10],
-                [40, 8]
-                ],
-            "sp_mi":[
-                [85, 65],
-                [90, 45],
-                [78, 25]
-            ],
-            "ms_graph":[
-                [60, 80],
-                [35, 70],
-                [40, 85]
-                ],
-        }
+        dico_position = {}
+
+        for category in dico_category:
+            number_of_controls = len(dico_category[category])
+            dico_position[category] = get_hexagons_pos(number_of_controls,
+                                                       angles[category][0],
+                                                       angles[category][1])
+
+        # # permission : top, passwords : left, kerberos : right, misc : bottom
+        # dico_position = {
+        #     "passwords": [
+        #         [54, 25],
+        #         [80, 17],
+        #         [70, 20],
+        #         [70, 12],
+        #         [53, 10],
+        #         [66, 31],
+        #         [78, 24],
+        #     ],
+        #     "kerberos": [
+        #         [60, 89],
+        #         [64, 63],
+        #         [81, 71],
+        #         [70, 80],
+        #         [70, 70],
+        #         [77, 79],
+        #         [55, 82],
+        #         [54, 71],
+
+        #     ],
+        #     "permission": [
+        #         [19, 65],
+        #         [8, 28],
+        #         [34, 14],
+        #         [28, 60],
+        #         [5, 50],
+        #         [43, 10],
+        #         [18, 80],
+        #         [10, 66],
+        #         [16, 20],
+        #         [22, 14],
+        #         [26, 75],
+        #         [6, 34],
+        #         [7, 58],
+        #         [27, 36],
+        #         [41, 25],
+        #         [42, 90],
+        #         [25, 48],
+        #         [30, 25],
+        #         [30, 68],
+        #         [16, 72],
+        #         [15, 33],
+        #         [5, 42],
+        #         [40, 80],
+        #         [42, 69],
+        #         [30, 85]
+        #     ],
+        #     "misc": [
+        #         [70, 41],
+        #         [89, 38],
+        #         [90, 55],
+        #         [75, 58],
+        #         [72, 50],
+        #         [81, 39],
+        #         [82, 62],
+        #         [85, 30]
+        #     ],
+        #     #azure
+        #     "attack_path": [[10, 50]],
+        #     "ad_connect": [[35, 20]],
+        #     "sp_mi":[],
+        #     "ms_graph":[[60, 80]],
+        # }
 
         dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
 
