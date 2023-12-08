@@ -45,6 +45,7 @@
         "set_groups_indirect_admin_2": "true",
         "set_groups_indirect_admin_3": "true",
         "set_groups_indirect_admin_4": "true",
+        "set_synced_OP_user_AZ_user": "true",
         "nb_domain_collected": "true",
         "get_count_of_member_admin_group": "true",
         "get_users_linked_admin_group": "true",
