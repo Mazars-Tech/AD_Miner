@@ -220,9 +220,9 @@
   },
 
   "non-dc_with_unconstrained_delegations": {
-    "title": "Accounts with unconstrained delegations",
-    "description": "These accounts are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "title": "Objects with unconstrained delegations",
+    "description": "These objects are allowed to connect to any service with the identity of another user who connected to them.",
+    "risk": "These objects can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 

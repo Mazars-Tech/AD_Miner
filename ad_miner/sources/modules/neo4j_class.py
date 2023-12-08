@@ -9,7 +9,7 @@ from pathlib import Path as pathlib
 from ad_miner.sources.modules import istarmap  # import to apply patch # noqa
 import numpy as np
 import tqdm
-from neo4j import GraphDatabase
+import neo4j  # TO REPLACE BY 'from neo4j import GraphDatabase' after neo4j fix
 
 from ad_miner.sources.modules import cache_class, logger
 from ad_miner.sources.modules.graph_class import Graph
@@ -18,6 +18,31 @@ from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.utils import timer_format
 
 MODULES_DIRECTORY = pathlib(__file__).parent
+
+# 🥒 This is a quick import of a fix from @Sopalinge
+# 🥒 Following code should be removed when neo4j implements
+# 🥒 serialization of neo4j datetime objects
+GraphDatabase = neo4j.GraphDatabase
+
+
+def temporary_fix(cls):
+    return (
+        cls.__class__,
+        (
+            cls.year,
+            cls.month,
+            cls.day,
+            cls.hour,
+            cls.minute,
+            cls.second,
+            cls.nanosecond,
+            cls.tzinfo,
+        ),
+    )
+
+
+neo4j.time.DateTime.__reduce__ = temporary_fix
+# End of temporary dirty fix 🥒
 
 
 def pre_request(arguments):
@@ -62,17 +87,15 @@ def pre_request(arguments):
             ):
                 number_relations = record.data()["total_relations"]
 
-
             for record in tx.run(
                 "MATCH (n) WHERE EXISTS(n.tenantid) return n LIMIT 1"
             ):
-                boolean_azure = bool(record.data()['n'])
+                boolean_azure = bool(record.data()["n"])
 
     driver.close()
     print("number relation : ", number_relations)
-    
-    return extract_date, total_objects, number_relations, boolean_azure
 
+    return extract_date, total_objects, number_relations, boolean_azure
 
 
 class Neo4j:
@@ -115,7 +138,7 @@ class Neo4j:
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
 
-        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword"
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced"
 
         if boolean_azure:
             properties += "|AZAKSContributor|AZAddMembers|AZAddOwner|AZAddSecret|AZAutomationContributor|AZAvereContributor|AZCloudAppAdmin|AZContains|AZContributor|AZExecuteCommand|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZHasRole|AZKeyVaultContributor|AZLogicAppContributor|AZMGAddMember|AZMGAddOwner|AZMGAddSecret|AZMGAppRoleAssignment_ReadWrite_All|AZMGApplication_ReadWrite_All|AZMGDirectory_ReadWrite_All|AZMGGrantAppRoles|AZMGGrantRole|AZMGGroupMember_ReadWrite_All|AZMGGroup_ReadWrite_All|AZMGRoleManagement_ReadWrite_Directory|AZMGServicePrincipalEndpoint_ReadWrite_All|AZManagedIdentity|AZMemberOf|AZNodeResourceGroup|AZOwner|AZOwns|AZPrivilegedAuthAdmin|AZPrivilegedRoleAdmin|AZResetPassword|AZRunAs|AZScopedTo|AZUserAccessAdministrator|AZVMAdminLogin|AZVMContributor|AZWebsiteContributor"
