@@ -93,7 +93,6 @@ class Computers:
         self.generateComputersListPage()
         self.generateADCSListPage()
         self.genObsoleteOSPage()
-        self.genNonDCWithUnconstrainedPage()
         self.genUsersConstrainedPage()
         self.genComputersAdminOfPages()
         self.genComputersWithMostAdminsPage()
@@ -231,28 +230,6 @@ class Computers:
         page.addComponent(grid)
         page.render()
         self.list_computers_os_obsolete = cleaned_data
-
-    # Non DC computers and users with unconstrained delegations
-    def genNonDCWithUnconstrainedPage(self):
-        if self.list_computers_unconstrained_delegations is None:
-            return
-        page = Page(
-            self.arguments.cache_prefix,
-            "non-dc_with_unconstrained_delegations",
-            "Non-DC with unconstrained delegations",
-            "non-dc_with_unconstrained_delegations",
-        )
-        grid = Grid("Non-DC with unconstrained delegations")
-        grid.setheaders(["domain", "name"])
-        for d in self.computers_non_dc_unconstrained_delegations:
-            d["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
-            d["name"] = '<i class="bi bi-pc-display"></i> ' + d["name"]
-        for d in self.users_non_dc_unconstrained_delegations:
-            d["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
-            d["name"] = '<i class="bi bi-person-fill"></i> ' + d["name"]
-        grid.setData(self.computers_non_dc_unconstrained_delegations + self.users_non_dc_unconstrained_delegations)
-        page.addComponent(grid)
-        page.render()
 
 
     # Users with constrained delegations

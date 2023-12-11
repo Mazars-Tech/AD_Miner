@@ -153,12 +153,11 @@ def main() -> None:
     string_information_database = ""
 
     for type_label in total_objects:
-        if 'Base' in type_label['labels(x)'][0]:
-            instance_type_label = 1
-        else:
-            instance_type_label = 0
+        if 'Base' in type_label['labels(x)']: type_label['labels(x)'].remove('Base')
+        if 'AZBase' in type_label['labels(x)']: type_label['labels(x)'].remove('AZBase')
 
-        string_information_database += f"{type_label['labels(x)'][instance_type_label]} : {type_label['number_type']} | "
+        if len(type_label['labels(x)']) != 0:
+            string_information_database += f"{type_label['labels(x)'][0]} : {type_label['number_type']} | "
 
     string_information_database += f"Relations : {number_relations}"
     logger.print_magenta(string_information_database)

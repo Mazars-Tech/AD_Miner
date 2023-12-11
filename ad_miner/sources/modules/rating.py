@@ -40,7 +40,7 @@ def rating(users, domains, computers, objects, azure, arguments):
     d["on_premise"][containsDAs(users.users_kerberoastable_users)].append("kerberoastables")
     d["on_premise"][containsDAs(users.users_kerberos_as_rep)].append("as_rep")
     d["on_premise"][
-        presence_of(computers.list_computers_unconstrained_delegations, criticity=2)
+        presence_of(domains.kud_list, criticity=1)
     ].append("non-dc_with_unconstrained_delegations")
     d["on_premise"][constrainedDelegation(computers.users_constrained_delegations)].append(
         "users_constrained_delegations"
