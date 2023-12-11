@@ -479,8 +479,8 @@ class Users:
                 u = couple["u"]
                 g = couple["gg"]
 
-                start = Node(couple["idu"], "User", u["name"], u["domain"], "MemberOf")
-                end = Node(couple["idg"], "Group", g["name"], g["domain"], "")
+                start = Node(couple["idu"], "User", u["name"], u["domain"], None, "MemberOf")
+                end = Node(couple["idg"], "Group", g["name"], g["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "MemberOf"
@@ -494,8 +494,8 @@ class Users:
                 g = couple["g"]
                 gg = couple["gg"]
 
-                start = Node(couple["idg"], "Group", g["name"], g["domain"], "MemberOf")
-                end = Node(couple["idgg"], "Group", gg["name"], gg["domain"], "")
+                start = Node(couple["idg"], "Group", g["name"], g["domain"], None, "MemberOf")
+                end = Node(couple["idgg"], "Group", gg["name"], gg["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "MemberOf"
@@ -508,8 +508,8 @@ class Users:
                 g = couple["g"]
                 c = couple["c"]
 
-                start = Node(couple["idg"], "Group", g["name"], g["domain"], "AdminTo")
-                end = Node(couple["idc"], "Computer", c["name"], c["domain"], "")
+                start = Node(couple["idg"], "Group", g["name"], g["domain"], None, "AdminTo")
+                end = Node(couple["idc"], "Computer", c["name"], c["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "AdminTo"
@@ -522,8 +522,8 @@ class Users:
                 g = couple["g"]
                 c = couple["c"]
 
-                start = Node(couple["idg"], "User", g["name"], g["domain"], "AdminTo")
-                end = Node(couple["idc"], "Computer", c["name"], c["domain"], "")
+                start = Node(couple["idg"], "User", g["name"], g["domain"], None, "AdminTo")
+                end = Node(couple["idc"], "Computer", c["name"], c["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "AdminTo"

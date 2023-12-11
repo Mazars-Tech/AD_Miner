@@ -199,6 +199,7 @@ def rating(users, domains, computers, objects, azure, arguments):
     d["azure"][presence_of(azure.azure_dormant_accounts, 3)].append("azure_dormant_accounts")
     d["azure"][presence_of(azure.azure_accounts_disabled_on_prem, 3)].append("azure_accounts_disabled_on_prem")
     d["azure"][presence_of(azure.azure_accounts_not_found_on_prem, 3)].append("azure_accounts_not_found_on_prem")
+    d["azure"][1 if azure.azure_total_cross_ga_da_compromission > 0 else 5].append("azure_cross_ga_da")
     
     return d
 

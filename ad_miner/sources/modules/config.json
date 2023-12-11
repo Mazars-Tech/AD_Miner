@@ -119,6 +119,7 @@
         "pre_windows_2000_compatible_access_group": "true",
         "guest_accounts": "true",
         "unpriviledged_users_with_admincount": "true",
+        "azure_set_gag": "true",
         "azure_user": "true",
         "azure_admin": "true",
         "azure_groups": "true",
@@ -133,6 +134,9 @@
         "azure_last_passwd_change": "true",
         "azure_dormant_accounts": "true",
         "azure_accounts_disabled_on_prem": "true",
-        "azure_accounts_not_found_on_prem": "true"
+        "azure_accounts_not_found_on_prem": "true",
+        "azure_tenants": "true",
+        "azure_ga_to_ga": "true",
+        "azure_cross_ga_da": "true"
     }
 }

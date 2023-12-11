@@ -622,5 +622,11 @@
     "description": "Azure accounts that are synced to an non-existing on premise account",
     "risk": "This anomaly may indicate a misconfiguration in the synchronization of accounts.",
     "poa": "Ensure that this situation is not a symptom of a bigger misconfiguration."
+  },
+  "azure_cross_ga_da": {
+    "title": "Compromission paths between cloud and on premise admins",
+    "description": "Paths from Azure admins that leads to on premise admins compromission and vice-versa",
+    "risk": "With these paths, a attacker that would have compromised one environment can directly compromise the other one (either cloud or on premise).",
+    "poa": "Limit the existence of these paths by limiting the synchronization between administration accounts."
   }
 }

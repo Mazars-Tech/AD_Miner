@@ -1292,7 +1292,7 @@ class Domains:
                     #     id=88888, nodes=[node_to_add, path.nodes[0]], type="Relay"
                     # )
                     node_to_add = Node(
-                        id=42424243, labels="Computer", name=admin_computer, domain="start", relation_type="Relay"
+                        id=42424243, labels="Computer", name=admin_computer, domain="start", tenant_id=None, relation_type="Relay"
                     )
                     path.nodes.insert(0, node_to_add)
                     path_to_generate.append(path)
@@ -1318,7 +1318,7 @@ class Domains:
                 if path.nodes[0].name in computers:
                 #if path.start_node.name in computers:
                     node_to_add = Node(
-                        id=42424243, labels="User", name=admin_user, domain="start", relation_type="AdminTo"
+                        id=42424243, labels="User", name=admin_user, domain="start", tenant_id=None, relation_type="AdminTo"
                     )
                     # relation = Relation(
                     #     id=88888, nodes=[node_to_add, path.start_node], type="AdminTo"

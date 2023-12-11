@@ -291,7 +291,8 @@ def create_dico_data(
         "azure_last_passwd_change": len(azure.azure_last_passwd_change_strange),
         "azure_dormant_accounts": len(azure.azure_dormant_accounts_90_days),
         "azure_accounts_disabled_on_prem": len(azure.azure_accounts_disabled_on_prem),
-        "azure_accounts_not_found_on_prem": len(azure.azure_accounts_not_found_on_prem)
+        "azure_accounts_not_found_on_prem": len(azure.azure_accounts_not_found_on_prem),
+        "azure_cross_ga_da": azure.azure_total_cross_ga_da_compromission
     }
     dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["azure"]}
 
@@ -400,7 +401,8 @@ def render(
         "azure_last_passwd_change": f"{len(azure.azure_last_passwd_change_strange)} users have unusual last password change",
         "azure_dormant_accounts": f"{len(azure.azure_dormant_accounts_90_days)} dormant accounts",
         "azure_accounts_disabled_on_prem": f"{len(azure.azure_accounts_disabled_on_prem)} Azure accounts are disabled on prem.",
-        "azure_accounts_not_found_on_prem": f"{len(azure.azure_accounts_not_found_on_prem)} Azure accounts are non-existant on prem."
+        "azure_accounts_not_found_on_prem": f"{len(azure.azure_accounts_not_found_on_prem)} Azure accounts are non-existant on prem.",
+        "azure_cross_ga_da": f"{azure.azure_total_cross_ga_da_compromission} domain{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} & tenant{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} are cross compromisable"
     }
 
     descriptions = DESCRIPTION_MAP

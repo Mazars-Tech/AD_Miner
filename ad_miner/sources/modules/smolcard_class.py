@@ -69,7 +69,8 @@ dico_category = {
         ],
     "ad_connect":[
         "azure_aadconnect_users",
-        "azure_roles"
+        "azure_roles",
+        "azure_cross_ga_da"
         ],
     "sp_mi":[
         "azure_reset_passwd",

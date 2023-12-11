@@ -286,6 +286,12 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "set_synced_OP_user_AZ_user": {
+        "name": "Set relationships between On premiser User and Azure User",
+        "request": "MATCH (a:AZUser),(u:User) WHERE a.onpremid = u.objectid MERGE (a)-[:Synced]->(u) MERGE (u)-[:Synced]->(a)",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "nb_domain_collected": {
         "name": "Count number of domains collected",
         "request": "MATCH (m:Domain)-[r]->() RETURN distinct(COALESCE(m.domain, m.name))",
@@ -695,6 +701,12 @@
         "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
     },
+    "azure_set_gag": {
+        "name": "Set gag=TRUE to Global admin group",
+        "request": "MATCH (a:AZRole) WHERE a.name STARTS WITH 'GLOBAL ADMINISTRATOR@' SET a.is_gag=TRUE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "azure_user": {
         "name": "Get Azure Users",
         "request":"MATCH (n:AZUser) RETURN n.name AS Name, n.tenantid AS `Tenant ID`, n.onpremisesyncenabled AS onpremisesynced, n.onpremisesecurityidentifier AS SID",
@@ -721,7 +733,7 @@
     },
     "azure_users_paths_high_target": {
         "name": "Find all Azure Users with a Path to High Value Targets ",
-        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r:$properties*1..$recursive_level]->(n)) WHERE NONE (r IN relationships(p) WHERE type(r)= 'GetChanges') AND NONE (r in relationships(p) WHERE type(r)='GetChangesAll') AND NOT m=n RETURN p",
+        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r:$properties*1..$recursive_level]->(n)) WHERE NOT m=n RETURN p",
         "filename": "azure_users_paths_high_target",
         "output_type": "Graph"
     },
@@ -784,6 +796,20 @@
         "request":"MATCH (azUser:AZUser{onpremisesyncenabled:true}) WHERE NOT EXISTS {MATCH (user:User) WHERE user.objectid = azUser.onpremisesecurityidentifier} return azUser.name AS Name",
         "filename": "azure_accounts_not_found_on_prem",
         "output_type": "dict"
+    },
+    "azure_tenants": {
+        "name": "Get all Azure tenants",
+        "request": "MATCH (t:AZTenant) RETURN t.name AS Name, t.tenantid AS ID",
+        "output_type": "dict"
+    },
+    "azure_ga_to_ga": {
+        "name": "Paths between two global admins belonging to different tenants",
+        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties*1..$recursive_level]->(gg:AZRole{is_gag:TRUE})) WHERE g<>gg AND g.tenantid <> gg.tenantid RETURN p",
+        "output_type": "Graph"
+    },
+    "azure_cross_ga_da": {
+        "name": "Paths between tenants admin and domain admins",
+        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties*1..$recursive_level]->(gg:Group{is_dag:TRUE})) RETURN p UNION MATCH p=allShortestPaths((gg:Group{is_dag:TRUE})-[r:$properties*1..$recursive_level]->(g:AZRole{is_gag:TRUE})) RETURN p",
+        "output_type": "Graph"
     }
-
 }

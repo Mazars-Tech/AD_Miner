@@ -30,6 +30,8 @@ class Azure:
         logger.print_debug("Computing Azure objects")
         self.neo4j = neo4j
 
+        self.tenant_id_name = {}
+
         self.azure_users = neo4j.all_requests["azure_user"]["result"]
         self.azure_admin = neo4j.all_requests["azure_admin"]["result"]
         self.azure_groups = neo4j.all_requests["azure_groups"]["result"]
@@ -45,12 +47,18 @@ class Azure:
         self.azure_dormant_accounts = neo4j.all_requests["azure_dormant_accounts"]["result"]
         self.azure_accounts_disabled_on_prem = neo4j.all_requests["azure_accounts_disabled_on_prem"]["result"]
         self.azure_accounts_not_found_on_prem = neo4j.all_requests["azure_accounts_not_found_on_prem"]["result"]
+        self.azure_tenants = neo4j.all_requests["azure_tenants"]["result"]
+        self.azure_ga_to_ga = neo4j.all_requests["azure_ga_to_ga"]["result"]
+        self.azure_cross_ga_da = neo4j.all_requests["azure_cross_ga_da"]["result"]
 
         # Generate all the azure-related pages
         self.genAzureUsers()
         self.genAzureAdmin()
         self.genAzureGroups()
         self.genAzureVM()
+
+        # Utils
+        self.setTenantIDName()
 
         self.genAzureUsersPathsHighTarget(domain)
         self.genAzureMSGraphController(domain)
@@ -62,6 +70,8 @@ class Azure:
         self.genAzureDormantAccounts()
         self.genAzureDisabledAccountsOnPrem()
         self.genAzureNotFoundAccountsOnPrem()
+        #self.genAzureGAToGA()
+        self.genAzureCrossGADA(domain)
 
 
     @staticmethod
@@ -80,6 +90,11 @@ class Azure:
 
         page.addComponent(graph)
         page.render()
+
+
+    def setTenantIDName(self):
+        for tenant in self.azure_tenants:
+            self.tenant_id_name[tenant["ID"]] = tenant["Name"]
 
 
     def genAzureUsers(self):
@@ -444,3 +459,103 @@ class Azure:
         grid.setData(data)
         page.addComponent(grid)
         page.render()
+
+    """
+    # TODO CANNOT BE TESTED NOW
+    def genAzureGAToGA(self):
+        
+    """
+
+    def genAzureCrossGADA(self, domains):
+        self.azure_total_cross_ga_da_compromission = 0
+        if self.azure_cross_ga_da is None:
+            return 
+        # Create the page
+        page = Page(
+            self.arguments.cache_prefix,
+            "azure_cross_ga_da",
+            "Paths between Azure admins and on premise admins",
+            "azure_cross_ga_da",
+        )
+        # Create the grid
+        grid = Grid("Paths between Azure admins and on premise admins")
+        # Add the headers
+        headers = ["Domain / Tenant"]
+        for tenant_id in self.tenant_id_name.keys():
+            headers.append(self.tenant_id_name[tenant_id])
+        
+        paths_sorted_per_domain = {}
+        for domain in domains.collected_domains:
+            domain = domain[0]
+            paths_sorted_per_domain[domain] = {}
+            # We re-do the loop for easier code reading
+            for tenant_id in self.tenant_id_name.keys():
+                paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]] = {"GA_to_DA": [],
+                                                              "DA_to_GA": []}
+
+        for path in self.azure_cross_ga_da:
+            # Case where starting point is Azure
+            if path.nodes[0].tenant_id != None:
+                domain = path.nodes[-1].domain
+                tenant_id = path.nodes[0].tenant_id
+                paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]]["GA_to_DA"].append(path)
+            # Case where starting point is on premise
+            else:
+                domain = path.nodes[0].domain
+                tenant_id = path.nodes[-1].tenant_id
+                paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]]["DA_to_GA"].append(path)
+        
+        data = []
+        for domain in paths_sorted_per_domain.keys():
+            row1 = {"Domain / Tenant": domain}
+            row2 = {"Domain / Tenant": domain}
+            for tenant_id in self.tenant_id_name.keys():
+                count1 = len(paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]]["GA_to_DA"])
+                count2 = len(paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]]["DA_to_GA"])
+                sortClass1 = str(count1).zfill(6)
+                sortClass2 = str(count2).zfill(6)
+                hash1 = md5((tenant_id + domain).encode()).hexdigest()
+                hash2 = md5((domain + tenant_id).encode()).hexdigest()
+                if count1 > 0:
+                    row1[self.tenant_id_name[tenant_id]] = grid_data_stringify({
+                            "link": f"azure_cross_ga_da_{hash1}.html",
+                            "value": f"{count1} Azure ⇨ On-prem path{'s' if count1 > 1 else ''}",
+                            "before_link": f"<i class='bi bi-shuffle {sortClass1}' aria-hidden='true'></i>"
+                        })
+                    self.createGraphPage(
+                        self.arguments.cache_prefix,
+                        f"azure_cross_ga_da_{hash1}",
+                        f"Paths from {self.tenant_id_name[tenant_id]} to {domain}",
+                        "azure_cross_ga_da",
+                        paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]]["GA_to_DA"],
+                        domains,
+                    )
+                    self.azure_total_cross_ga_da_compromission += 1
+                else:
+                    row1[self.tenant_id_name[tenant_id]] = "-"
+                if count2 > 0:
+                    row2[self.tenant_id_name[tenant_id]] = grid_data_stringify({
+                            "link": f"azure_cross_ga_da_{hash2}.html",
+                            "value": f"{count2} On-prem ⇨ Azure path{'s' if count2 > 1 else ''}",
+                            "before_link": f"<i class='bi bi-shuffle {sortClass2}' aria-hidden='true'></i>"
+                        })
+                    self.createGraphPage(
+                        self.arguments.cache_prefix,
+                        f"azure_cross_ga_da_{hash2}",
+                        f"Paths from {domain} to {self.tenant_id_name[tenant_id]}",
+                        "azure_cross_ga_da",
+                        paths_sorted_per_domain[domain][self.tenant_id_name[tenant_id]]["DA_to_GA"],
+                        domains,
+                    )
+                    self.azure_total_cross_ga_da_compromission += 1
+                else:
+                    row2[self.tenant_id_name[tenant_id]] = "-"
+            data.append(row1)
+            data.append(row2)
+        
+        grid.setheaders(headers)
+        grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+
