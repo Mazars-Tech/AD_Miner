@@ -251,7 +251,7 @@
     },
     "set_is_adcs": {
         "name": "Set is_adcs to ADCS servers",
-        "request": "MATCH (g:Group) WHERE g.name STARTS WITH 'CERT PUBLISHERS@' MATCH (c:Computer)-[r:MemberOf*1..4]->(g) SET c.is_adcs=TRUE RETURN c.domain AS domain, c.name AS name", 
+        "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH '-517' MATCH (c:Computer)-[r:MemberOf*1..4]->(g) SET c.is_adcs=TRUE RETURN c.domain AS domain, c.name AS name", 
         "output_type": "dict",
         "is_a_write_request": "true"
     },
