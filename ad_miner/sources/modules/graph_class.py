@@ -73,14 +73,13 @@ class Graph:
                     attribute2 = "none"
 
 
-                list_labels = ["User", "Foreignsecurityprincipal", "GPO", "Computer", "OU", "Group", "Domain", "Container", "Unknown", "Group_cluster"]
-                if "AZ" == path.nodes[i].labels[:2]:
-                    start_letter=2
-                else:
-                    start_letter=0
+                list_labels = ["User", "Foreignsecurityprincipal", "GPO", "Computer", "OU", "Group", "Domain", "Container", "Unknown", "Group_cluster", "Device", "AZTenant", "AZRole"]
 
-                if path.nodes[i].labels[start_letter:] in list_labels:
-                    label_instance = path.nodes[i].labels[start_letter:]
+
+                if path.nodes[i].labels in list_labels:
+                    label_instance = path.nodes[i].labels
+                elif path.nodes[i].labels[2:] in list_labels:
+                    label_instance = path.nodes[i].labels[2:]
                 else:
                     label_instance = "Unknown"
 
