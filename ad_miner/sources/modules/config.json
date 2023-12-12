@@ -133,7 +133,7 @@
         "azure_role_listing": "true",
         "azure_role_paths": "true",
         "azure_reset_passwd": "true",
-        "azure_last_passwd_change": "true",
+        "azure_last_passwd_change": "false",
         "azure_dormant_accounts": "true",
         "azure_accounts_disabled_on_prem": "true",
         "azure_accounts_not_found_on_prem": "true",
