@@ -657,7 +657,7 @@
     },
     "unpriv_users_to_GPO_user_not_enforced": {
         "name": "Compromisable GPOs to users (not enforced)",
-        "request": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND ANY(w in LABELS(x) WHERE w = \"OU\")) RETURN p",
+        "request": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND (x:OU)) RETURN p",
         "output_type": "Graph",
         "scope_query": "MATCH (n:User{enabled:true}) WHERE n.name IS NOT NULL RETURN count(n)",
         "_comment": "This is a request for the --gpo_low option"
@@ -671,14 +671,14 @@
     },
     "unpriv_users_to_GPO_computer_not_enforced": {
         "name": "Compromisable GPOs to computers (not enforced)",
-        "request": "MATCH (n:Computer) WITH n ORDER BY n.name WITH n SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND ANY(w in LABELS(x) WHERE w = \"OU\")) RETURN p",
+        "request": "MATCH (n:Computer) WITH n ORDER BY n.name WITH n SKIP PARAM1 LIMIT PARAM2 MATCH p = (g:GPO{dangerous_inbound:true})-[r1:GPLink{enforced:false}]->(container1)-[r2:Contains*1..]->(n) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND (x:OU)) RETURN p",
         "output_type": "Graph",
         "scope_query": "MATCH (n:Computer) RETURN count(n)",
         "_comment": "This is a request for the --gpo_low option"
     },
     "unpriv_users_to_GPO": {
         "name": "Non privileged users to GPO",
-        "request": "MATCH (g:GPO) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 OPTIONAL MATCH (g)-[r1:GPLink {enforced:false}]->(container1) WITH g,container1 OPTIONAL MATCH (g)-[r2:GPLink {enforced:true}]->(container2) WITH g,container1,container2 OPTIONAL MATCH p = (g)-[r1:GPLink]->(container1)-[r2:Contains*1..8]->(n1:Computer) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND ANY(w in LABELS(x) WHERE w = \"OU\")) WITH g,p,container2,n1 OPTIONAL MATCH p2 = (g)-[r1:GPLink]->(container2)-[r2:Contains*1..8]->(n2:Computer) RETURN p",
+        "request": "MATCH (g:GPO) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 OPTIONAL MATCH (g)-[r1:GPLink {enforced:false}]->(container1) WITH g,container1 OPTIONAL MATCH (g)-[r2:GPLink {enforced:true}]->(container2) WITH g,container1,container2 OPTIONAL MATCH p = (g)-[r1:GPLink]->(container1)-[r2:Contains*1..8]->(n1:Computer) WHERE NONE(x in NODES(p) WHERE x.blocksinheritance = true AND (x:OU)) WITH g,p,container2,n1 OPTIONAL MATCH p2 = (g)-[r1:GPLink]->(container2)-[r2:Contains*1..8]->(n2:Computer) RETURN p",
         "output_type": "Graph",
         "scope_query": "MATCH (g:GPO) RETURN COUNT(g)",
         "_comment": "this is the normal version of the GPO request"
