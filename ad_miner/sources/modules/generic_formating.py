@@ -11,8 +11,6 @@ def clean_label(label_list):
 
     if len(label_list) == 0:
         return ""
-    elif len(label_list) == 1:
-        return label_list[0]
     else:
         return label_list[0]
 
