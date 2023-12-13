@@ -120,6 +120,9 @@
         "pre_windows_2000_compatible_access_group": "true",
         "guest_accounts": "true",
         "unpriviledged_users_with_admincount": "true",
+        "kud":"true",
+        "set_target_kud":"true",
+        "azure_set_gag": "true",
         "azure_user": "true",
         "azure_admin": "true",
         "azure_groups": "true",
@@ -127,7 +130,16 @@
         "azure_users_paths_high_target": "true",
         "azure_ms_graph_controllers": "true",
         "azure_aadconnect_users": "true",
-        "kud":"true",
-        "set_target_kud":"true"
+        "azure_admin_on_prem": "true",
+        "azure_role_listing": "true",
+        "azure_role_paths": "true",
+        "azure_reset_passwd": "true",
+        "azure_last_passwd_change": "false",
+        "azure_dormant_accounts": "true",
+        "azure_accounts_disabled_on_prem": "true",
+        "azure_accounts_not_found_on_prem": "true",
+        "azure_tenants": "true",
+        "azure_ga_to_ga": "true",
+        "azure_cross_ga_da": "true"
     }
 }

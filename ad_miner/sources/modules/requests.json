@@ -713,6 +713,12 @@
         "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
     },
+    "azure_set_gag": {
+        "name": "Set gag=TRUE to Global admin group",
+        "request": "MATCH (a:AZRole) WHERE a.name STARTS WITH 'GLOBAL ADMINISTRATOR@' SET a.is_gag=TRUE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "azure_user": {
         "name": "Get Azure Users",
         "request":"MATCH (n:AZUser) RETURN n.name AS Name, n.tenantid AS `Tenant ID`, n.onpremisesyncenabled AS onpremisesynced, n.onpremisesecurityidentifier AS SID",
@@ -754,6 +760,68 @@
         "request":"MATCH (u) WHERE (u:User OR u:AZUser) AND (u.name =~ '(?i)^MSOL_|.*AADConnect.*' OR u.userprincipalname =~ '(?i)^sync_.*') OPTIONAL MATCH (u)-[:HasSession]->(s:Session) RETURN u.name AS Name, s AS Session, u.tenantid AS `Tenant ID`",
         "filename": "azure_aadconnect_users",
         "output_type": "dict"
+    },
+    "azure_admin_on_prem": {
+        "name": "Return all Azure admins that are also on premise admins",
+        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.Name",
+        "filename": "azure_admin_on_prem",
+        "output_type": "dict"
+    },
+    "azure_role_listing": {
+        "name": "List of all Azure roles",
+        "request":"MATCH (a:AZRole) return distinct a.name AS Name, a.description AS Description",
+        "filename": "azure_role_listing",
+        "output_type": "dict"
+    },
+    "azure_role_paths": {
+        "name": "Paths to the Azure roles",
+        "request":"MATCH p=(a:AZUser)-[r:AZHasRole]->(x) return distinct p",
+        "filename": "azure_role_paths",
+        "output_type": "Graph"
+    },
+    "azure_reset_passwd": {
+        "name": "Azure accounts that can reset passwords",
+        "request":"MATCH p=(n)-[r:AZResetPassword]->(m) return distinct p",
+        "filename": "azure_reset_passwd",
+        "output_type": "Graph"
+    },
+    "azure_last_passwd_change": {
+        "name": "Last password change on Azure and on premise",
+        "request":"MATCH (u:User {enabled:TRUE}),(a:AZUser) WHERE a.onpremisesecurityidentifier = u.objectid RETURN DISTINCT(u.name) AS Name, toInteger(($extract_date - u.pwdlastset )/ 86400) AS `Last password set on premise`, toInteger(($extract_date - (datetime('1970-01-01T00:00:00').epochMillis + duration.inSeconds(datetime('1970-01-01T00:00:00'), a.pwdlastset).seconds)) / 86400) AS `Last password set on Azure`",
+        "filename": "azure_last_passwd_change",
+        "output_type": "dict"
+    },
+    "azure_dormant_accounts": {
+        "name": "Azure dormant accounts",
+        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon, toInteger(($extract_date - u.whencreated)/86400) AS whencreated",
+        "filename": "azure_dormant_accounts",
+        "output_type": "dict"
+    },
+    "azure_accounts_disabled_on_prem": {
+        "name": "Azure accounts that are disabled on premise",
+        "request":"MATCH (a:AZUser{enabled:TRUE}),(u:User{enabled:FALSE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise` UNION MATCH (a:AZUser{enabled:FALSE}),(u:User{enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise`",
+        "filename": "azure_accounts_disabled_on_prem",
+        "output_type": "dict"
+    },
+    "azure_accounts_not_found_on_prem": {
+        "name": "Azure accounts that are synced but do not exist on premise",
+        "request":"MATCH (azUser:AZUser{onpremisesyncenabled:true}) WHERE NOT EXISTS {MATCH (user:User) WHERE user.objectid = azUser.onpremisesecurityidentifier} return azUser.name AS Name",
+        "filename": "azure_accounts_not_found_on_prem",
+        "output_type": "dict"
+    },
+    "azure_tenants": {
+        "name": "Get all Azure tenants",
+        "request": "MATCH (t:AZTenant) RETURN t.name AS Name, t.tenantid AS ID",
+        "output_type": "dict"
+    },
+    "azure_ga_to_ga": {
+        "name": "Paths between two global admins belonging to different tenants",
+        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties*1..$recursive_level]->(gg:AZRole{is_gag:TRUE})) WHERE g<>gg AND g.tenantid <> gg.tenantid RETURN p",
+        "output_type": "Graph"
+    },
+    "azure_cross_ga_da": {
+        "name": "Paths between tenants admin and domain admins",
+        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties*1..$recursive_level]->(gg:Group{is_dag:TRUE})) RETURN p UNION MATCH p=allShortestPaths((gg:Group{is_dag:TRUE})-[r:$properties*1..$recursive_level]->(g:AZRole{is_gag:TRUE})) RETURN p",
+        "output_type": "Graph"
     }
-
 }

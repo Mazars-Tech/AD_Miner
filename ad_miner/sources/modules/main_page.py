@@ -285,6 +285,14 @@ def create_dico_data(
         "azure_users_paths_high_target": len(azure.azure_users_paths_high_target),
         "azure_ms_graph_controllers": len(azure.azure_ms_graph_controllers),
         "azure_aadconnect_users": len(azure.azure_aadconnect_users),
+        "azure_admin_on_prem": len(azure.azure_admin_on_prem),
+        "azure_roles": len(azure.azure_roles_entry_nodes),
+        "azure_reset_passwd": len(azure.reset_passwd.keys()),
+        "azure_last_passwd_change": len(azure.azure_last_passwd_change_strange),
+        "azure_dormant_accounts": len(azure.azure_dormant_accounts_90_days),
+        "azure_accounts_disabled_on_prem": len(azure.azure_accounts_disabled_on_prem),
+        "azure_accounts_not_found_on_prem": len(azure.azure_accounts_not_found_on_prem),
+        "azure_cross_ga_da": azure.azure_total_cross_ga_da_compromission
     }
     dico_data["color_category"] = {**dico_rating_color["on_premise"],**dico_rating_color["azure"]}
 
@@ -387,6 +395,14 @@ def render(
         "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets",
         "azure_ms_graph_controllers": f"{len(azure.azure_ms_graph_controllers)} paths to MS Graph controllers",
         "azure_aadconnect_users": f"{len(azure.azure_aadconnect_users)} users with AADConnect session",
+        "azure_admin_on_prem": f"{len(azure.azure_admin_on_prem)} admins on Azure and on premise",
+        "azure_roles": f"{len(azure.azure_roles_entry_nodes)} users have access to Azure roles",
+        "azure_reset_passwd": f"{len(azure.reset_passwd.keys())} users can reset passwords",
+        "azure_last_passwd_change": f"{len(azure.azure_last_passwd_change_strange)} users have unusual last password change",
+        "azure_dormant_accounts": f"{len(azure.azure_dormant_accounts_90_days)} dormant accounts",
+        "azure_accounts_disabled_on_prem": f"{len(azure.azure_accounts_disabled_on_prem)} Azure accounts are disabled on prem.",
+        "azure_accounts_not_found_on_prem": f"{len(azure.azure_accounts_not_found_on_prem)} Azure accounts are non-existant on prem.",
+        "azure_cross_ga_da": f"{azure.azure_total_cross_ga_da_compromission} domain{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} & tenant{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} are cross compromisable"
     }
 
     descriptions = DESCRIPTION_MAP
@@ -675,10 +691,26 @@ def render(
                 [85, 30]
             ],
             #azure
-            "attack_path": [[10, 50]],
-            "ad_connect": [[35, 20]],
-            "sp_mi":[],
-            "ms_graph":[[60, 80]],
+            "attack_path": [
+                [10, 50],
+                [20, 30],
+                [15, 70]
+                ],
+            "ad_connect": [
+                [35, 20],
+                [65, 10],
+                [40, 8]
+                ],
+            "sp_mi":[
+                [85, 65],
+                [90, 45],
+                [78, 25]
+            ],
+            "ms_graph":[
+                [60, 80],
+                [35, 70],
+                [40, 85]
+                ],
         }
 
         dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
