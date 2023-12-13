@@ -10,7 +10,7 @@ import signal
 import sys
 
 # Local library imports
-from ad_miner.sources.modules import logger, main_page, utils
+from ad_miner.sources.modules import logger, main_page, utils, generic_formating
 from ad_miner.sources.modules.computers import Computers
 from ad_miner.sources.modules.domains import Domains
 from ad_miner.sources.modules.neo4j_class import Neo4j, pre_request
@@ -153,11 +153,10 @@ def main() -> None:
     string_information_database = ""
 
     for type_label in total_objects:
-        if 'Base' in type_label['labels(x)']: type_label['labels(x)'].remove('Base')
-        if 'AZBase' in type_label['labels(x)']: type_label['labels(x)'].remove('AZBase')
+        type_label_2 = generic_formating.clean_label(type_label['labels(x)'])
 
-        if len(type_label['labels(x)']) != 0:
-            string_information_database += f"{type_label['labels(x)'][0]} : {type_label['number_type']} | "
+        if type_label_2 != "":
+            string_information_database += f"{type_label_2} : {type_label['number_type']} | "
 
     string_information_database += f"Relations : {number_relations}"
     logger.print_magenta(string_information_database)

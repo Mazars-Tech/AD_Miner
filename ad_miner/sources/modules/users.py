@@ -1472,7 +1472,8 @@ class Users:
 
         for k in range(len(self.anomaly_acl)):
 
-            label = [i for i in self.anomaly_acl[k]['LABELS(g)'] if "Base" not in i][0]
+            label = generic_formating.clean_label(self.anomaly_acl[k]['LABELS(g)'])
+            
             name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}"
             
             if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == label:

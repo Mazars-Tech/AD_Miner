@@ -93,7 +93,6 @@ def pre_request(arguments):
                 boolean_azure = bool(record.data()["n"])
 
     driver.close()
-    print("number relation : ", number_relations)
 
     return extract_date, total_objects, number_relations, boolean_azure
 
