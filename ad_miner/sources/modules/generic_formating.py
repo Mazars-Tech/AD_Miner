@@ -1,16 +1,46 @@
 from ad_miner.sources.modules.utils import grid_data_stringify
 from urllib.parse import quote
 
+
+def clean_label(label_list):
+    if 'Base' in label_list: 
+        label_list.remove('Base')
+
+    if 'AZBase' in label_list: 
+        label_list.remove('AZBase')
+
+    if len(label_list) == 0:
+        return ""
+    elif len(label_list) == 1:
+        return label_list[0]
+    else:
+        return label_list[0]
+
+def clean_data_type(data, list_type_to_clean):
+    for k in range(len(data)):
+        for type_name in list_type_to_clean:
+            data[k][type_name] = clean_label(data[k][type_name])
+    return data
+
+    
 def get_label_icon_dictionary():
     return {
-        "User":"<i class='bi bi-person-fill'></i>",
-        "Computer": "<i class='bi bi-pc-display'></i>",
-        "Group": "<i class='bi bi-people-fill'></i>",
-        "OU": "<i class='bi bi-building'></i>",
-        "Container": "<i class='bi bi-box'></i>",
-        "Domain": "<i class='bi bi-globe'></i>",
-        "GPO": "<i class='bi bi-journal-text'></i>",
+        "User":"<i class='bi bi-person-fill' title='User'></i>",
+        "Computer": "<i class='bi bi-pc-display' title='Computer'></i>",
+        "Group": "<i class='bi bi-people-fill' title='Group'></i>",
+        "OU": "<i class='bi bi-building' title='OU'></i>",
+        "Container": "<i class='bi bi-box' title='Container'></i>",
+        "Domain": "<i class='bi bi-globe' title='Domain'></i>",
+        "GPO": "<i class='bi bi-journal-text' title='GPO'></i>",
+        "Unknown": "<i class='bi bi-question-circle-fill' title='Unknown'></i>"
     }
+
+def get_label_icon(name):
+    if name in get_label_icon_dictionary():
+        return get_label_icon_dictionary()[name]
+    else:
+        return get_label_icon_dictionary()["Unknown"]
+
 
 
 # format data for grid components format: list of dicts [{key1:value1}, {key2:value2}]

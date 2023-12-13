@@ -878,7 +878,8 @@ class Users:
         )
         grid = Grid("Objects having AdminSDHolder")
         grid.setheaders(["domain", "type", "name"])
-        grid.setData(self.objects_admincount_enabled)
+        
+        grid.setData(generic_formating.clean_data_type(self.objects_admincount_enabled, ["type"]))
         page.addComponent(grid)
         page.render()
 
@@ -1586,26 +1587,18 @@ class Users:
                     row['admin of'] = u['List of computers']
                     target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
 
+            
             # add user icons
-            if row['Type_a'] == "User":
-                row['Has SID History'] = "<i class='bi bi-person-fill' title='User'></i> " + row['Has SID History']
-            elif row['Type_a'] == "Group":
-                row['Has SID History'] = "<i class='bi bi-people-fill' title='Group'></i> " + row['Has SID History']
-            else:
-                row['Has SID History'] = "<i class='bi bi-question-circle-fill' title='Unknown'></i> " + row['Has SID History']
-            if row['Type_b'] == "User":
-                row['Target'] = "<i class='bi bi-person-fill' title='User'></i> " + row['Target']
-            elif row['Type_b'] == "Group":
-                row['Target'] = "<i class='bi bi-people-fill' title='Group'></i> " + row['Target']
-            else:
-                row['Target'] = "<i class='bi bi-question-circle-fill' title='Unknown'></i> " + row['Target']
+            type_label_a = generic_formating.clean_label(row['Type_a'])
+            row['Has SID History'] = f"{generic_formating.get_label_icon(type_label_a)} {row['Has SID History']}"
+
+            type_label_b = generic_formating.clean_label(row['Type_b'])
+            row['Target'] = f"{generic_formating.get_label_icon(type_label_b)} {row['Target']}"
 
             # add star icon
             if target_count > origin_count:
                 row['Has SID History'] = star_icon + " " + row['Has SID History']
                 row['Target'] = star_icon + " " + row['Target']
-
-
 
         grid.setheaders(headers)
         grid.setData(self.has_sid_history)
@@ -1882,15 +1875,14 @@ class Users:
         ]
 
         data = []
-        for domain, account_name, objectid, type in sorted_list:
+        
+        for domain, account_name, objectid, type_list in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
-            tmp_data["Name"] = (
-                '<i class="bi bi-person-fill"></i> ' + account_name
-                if "User" in type
-                else '<i class="bi bi-pc-display"></i> ' + account_name
-                if "Computer" in type
-                else '<i class="bi bi-people-fill"></i> ' + account_name
-            )
+
+            type_clean = generic_formating.clean_label(type_list)
+
+            tmp_data["Name"] = f"{generic_formating.get_label_icon(type_clean)} {account_name}"
+
             tmp_data["Rating"] = (
                 '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>'
                 if "1-5-7" not in objectid
