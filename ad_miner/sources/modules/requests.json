@@ -521,7 +521,7 @@
         },
     "nb_computers_laps": {
         "name": "Number of computers with laps",
-        "request": "MATCH (c:Computer) WHERE NOT c.name is NULL and NOT c.haslaps IS NULL AND c.operatingsystem CONTAINS 'indows' RETURN DISTINCT(c.domain) AS domain, toInteger(($extract_date - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, toString(c.haslaps) AS LAPS",
+        "request": "MATCH (c:Computer) WHERE NOT c.name is NULL and NOT c.haslaps IS NULL AND toUpper(c.operatingsystem) CONTAINS 'WINDOWS' RETURN DISTINCT(c.domain) AS domain, toInteger(($extract_date - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, toString(c.haslaps) AS LAPS",
         "output_type": "dict"
     },
     "can_read_laps": {
