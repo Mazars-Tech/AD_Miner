@@ -10,6 +10,12 @@
         "_comment_2": "The following variables should be used in the neo4j request and will be replaced by the python code : $properties$, $extract_date$, $password_renewal$, $recursive_level$, $inbound_control_edges$, $path_to_group_operators_props$.",
         "_comment_3": "The cache file of your neo4j request will be named after its name in this file. The 'filename' attribute is deprecated."
     },
+    "check_if_GDS_installed" : {
+        "name": "Checking if Graph Data Science neo4j plugin is installed",
+        "request": "SHOW PROCEDURES YIELD name RETURN 'gds.graph.project' IN COLLECT(name) AND 'gds.shortestPath.dijkstra.stream' IN COLLECT(name) as gds_installed",
+        "output_type": "dict",
+        "postProcessing": "Neo4j.check_gds_plugin"
+    },
     "delete_orphans" : {
         "name": "Delete orphan objects that have no labels",
         "request": "MATCH (n) WHERE labels(n) = [\"Base\"] OR labels(n) = [\"AZBase\"] OR labels(n) = [\"Base\", \"AZBase\"] DETACH DELETE n",
@@ -39,6 +45,17 @@
         "request": "MATCH (g:Group)-[r:CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC]->(c:Computer) DELETE r ",
         "output_type": "list",
         "is_a_write_request": "true"
+    },
+    "set_default_exploitability_rating" : {
+        "name": "Set default exploitability rating (r.cost=100) to all relations",
+        "request": "MATCH ()-[r]->() SET r.cost=100",
+        "output_type": "list"
+    },
+    "check_unknown_relations" : {
+        "name": "Checking for unknown relations",
+        "request": "MATCH ()-[r]->() RETURN DISTINCT type(r) as relationType",
+        "output_type": "list",
+        "postProcessing": "Neo4j.check_unkown_relations"
     },
     "set_server": {
         "name": "Set is_server=TRUE to computers for which operatingsystem contains Server)",
