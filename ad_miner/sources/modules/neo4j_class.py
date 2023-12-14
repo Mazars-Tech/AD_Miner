@@ -186,6 +186,8 @@ class Neo4j:
                 if "postProcessing" in self.all_requests[request_key]:
                     self.all_requests[request_key]["postProcessing"] = {
                         "Neo4j.setDangerousInboundOnGPOs": self.setDangerousInboundOnGPOs,
+                        "Neo4j.check_gds_plugin": self.check_gds_plugin,
+                        "Neo4j.check_unkown_relations": self.check_unkown_relations,
                     }.get(self.all_requests[request_key]["postProcessing"])
         except json.JSONDecodeError as error:
             logger.print_error(
@@ -206,6 +208,22 @@ class Neo4j:
 
         else:  # Deep version of GPO requests
             del self.all_requests["unpriv_users_to_GPO"]
+        try:
+            self.edges_rating = json.loads(
+                (MODULES_DIRECTORY / "exploitability_ratings.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        except json.JSONDecodeError as error:
+            logger.print_error(
+                f"Error while parsing exploitability ratings from exploitability_ratings.json : \n{error}"
+            )
+            sys.exit(-1)
+        except FileNotFoundError:
+            logger.print_error(
+                f"Exploitability ratings file not found : {MODULES_DIRECTORY / 'exploitability_ratings.json'} no such file."
+            )
+            sys.exit(-1)
 
         try:
             # Setup driver
@@ -282,6 +300,8 @@ class Neo4j:
                     % (self.all_requests[request_key]["name"], len(result))
                 )
                 self.all_requests[request_key]["result"] = result
+                if "postProcessing" in self.all_requests[request_key]:
+                    self.all_requests[request_key]["postProcessing"](self, result)
                 return result
 
         request = self.all_requests[request_key]
@@ -824,3 +844,37 @@ class Neo4j:
                 final_paths.append(Path(nodes))
 
         return final_paths
+
+    @staticmethod
+    def check_gds_plugin(cls, result):
+        """Verify if graph data science plugin installed
+        on the neo4j database. Set a flag accordingly."""
+        cls.gds = result[0]['gds_installed']
+        assert type(cls.gds) is bool
+        if cls.gds:
+            logger.print_success("GDS plugin installed.")
+            logger.print_success("Using exploitability for paths computation.")
+        else:
+            logger.print_magenta("GDS plugin not installed.")
+            logger.print_magenta("Not using exploitability for paths computation.")
+
+    @staticmethod
+    def check_unkown_relations(self, result):
+        relation_list = [r[0] for r in result]
+
+        for r in relation_list:
+            if r not in self.edges_rating.keys():
+                logger.print_warning(r + " relation type is unknown and will use default exploitability rating.")
+
+        if not self.cache_enabled:
+            logger.print_warning("Setting exploitability ratings to edges.")
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    for r in self.edges_rating.keys():
+                        cost = self.edges_rating[r]
+                        q = "MATCH ()-[r:"
+                        q += str(r)
+                        q += "]->() SET r.cost="
+                        q += str(cost)
+
+                        tx.run(q)
