@@ -25,6 +25,6 @@ liste_totale = []
 for path in list_path:
 
     for i in path.nodes:
-        liste_totale += [(i.id, i.labels, i.name, i.relation_type, i.next_node)]
+        liste_totale += [(i.id, i.labels, i.name, i.relation_type)]
 
 print(liste_totale, len(liste_totale))

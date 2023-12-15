@@ -1054,7 +1054,7 @@ class Domains:
             node.relation_type = "UnconstrainedDelegations"
             domain = node.domain
             end = Node(
-                        id=42424243, labels="Domain", name=domain, domain="end", relation_type="UnconstrainedDelegations"
+                        id=42424243, labels="Domain", name=domain, domain="end", tenant_id=None, relation_type="UnconstrainedDelegations"
                     )
             path = Path([self.kud_graphs[end_node][0].nodes[-1], end])
             self.kud_graphs[end_node].append(path)

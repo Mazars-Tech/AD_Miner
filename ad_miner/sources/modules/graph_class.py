@@ -73,7 +73,7 @@ class Graph:
                     attribute2 = "none"
 
 
-                list_labels = ["User", "Foreignsecurityprincipal", "GPO", "Computer", "OU", "Group", "Domain", "Container", "Unknown", "Group_cluster", "Device", "AZTenant", "AZRole"]
+                list_labels = ["User", "Foreignsecurityprincipal", "GPO", "Computer", "OU", "Group", "Domain", "ADLocalGroup", "Container", "Unknown", "Group_cluster", "Device", "AZTenant", "AZRole"]
 
 
                 if path.nodes[i].labels in list_labels:

@@ -99,7 +99,7 @@ The following provides a list controls that have already been implemented in AD 
 |Kerberoastable accounts|Domain functional level|Control path to AdminSDHolder container|
 |AS-REP Roastable accounts|Users with admin privs|Users with path to DNS Admins|
 |Accounts with SID history|Machine accounts with high privs|ACL anomalies on group objects|
-|LAPS status|Non tier 0 with DCSync capabilities|Objects with path to an Operator Member|
+|LAPS status|Non tier 0 with DCSync capabilities|Objects with path to an Operator Group|
 |LAPS access|Unconstrained delegations|ADCS local admin privs|
 |KRBTGT password age|Constrained delegations|Empty groups/OU|
 |DC Shadow to DA|Role-based constrained delegations|Guest accounts|

@@ -18,7 +18,8 @@ var list_type_icone = [
   'Unknown',
   'Device',
   'AZTenant',
-  'AZRole'
+  'AZRole',
+  'ADLocalGroup'
 ];
 var list_attribute = ['ghost', 'da', 'none'];
 var list_temporality = ['start', 'intermediate', 'end'];
