@@ -424,9 +424,9 @@
     "poa": ""
   },
   "objects_to_operators_member": {
-    "title": "Objects with path to an Operator Member",
-    "description": "Objects with a compromission path to an Operator Member.",
-    "risk": "As Oprator Member users have high privilege, a compromission path to one is a major threat to the security of the domain.",
+    "title": "Objects with path to an Operator Group",
+    "description": "Objects with a compromission path to an Operator Group.",
+    "risk": "As Oprator Groups have high privilege, a compromission path to one is a major threat to the security of the domain.",
     "poa": "Review all these paths and try to remove as many dangerous links as possible."
   },
   "vuln_functional_level": {

@@ -138,6 +138,7 @@ class Neo4j:
         self.password_renewal = int(arguments.renewal_password)
 
         properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced"
+        path_to_group_operators_props = properties.replace('|CanExtractDCSecrets','')
 
         if boolean_azure:
             properties += "|AZAKSContributor|AZAddMembers|AZAddOwner|AZAddSecret|AZAutomationContributor|AZAvereContributor|AZCloudAppAdmin|AZContains|AZContributor|AZExecuteCommand|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZHasRole|AZKeyVaultContributor|AZLogicAppContributor|AZMGAddMember|AZMGAddOwner|AZMGAddSecret|AZMGAppRoleAssignment_ReadWrite_All|AZMGApplication_ReadWrite_All|AZMGDirectory_ReadWrite_All|AZMGGrantAppRoles|AZMGGrantRole|AZMGGroupMember_ReadWrite_All|AZMGGroup_ReadWrite_All|AZMGRoleManagement_ReadWrite_Directory|AZMGServicePrincipalEndpoint_ReadWrite_All|AZManagedIdentity|AZMemberOf|AZNodeResourceGroup|AZOwner|AZOwns|AZPrivilegedAuthAdmin|AZPrivilegedRoleAdmin|AZResetPassword|AZRunAs|AZScopedTo|AZUserAccessAdministrator|AZVMAdminLogin|AZVMContributor|AZWebsiteContributor"
@@ -145,7 +146,7 @@ class Neo4j:
         if arguments.rdp:
             properties += "|CanRDP"
 
-        inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns"
+        inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns|HasSIDHistory"
 
         try:
             self.all_requests = json.loads(
@@ -167,13 +168,14 @@ class Neo4j:
                     "$extract_date": int(self.extract_date),
                     "$password_renewal": int(self.password_renewal),
                     "$properties": properties,
+                    "$path_to_group_operators_props": path_to_group_operators_props,
                     "$recursive_level": int(recursive_level),
                     "$inbound_control_edges": inbound_control_edges,
                 }
                 for variable in variables_to_replace.keys():
                     self.all_requests[request_key][
                         "request"
-                    ] = self.all_requests[request_key]["request"].replace(
+                    ] = self.all_requests[request_key]["request"].replace( # Will find the first matching, not the longest matching ! $properties will be replaced instead of $properties1
                         variable, str(variables_to_replace[variable])
                     )
 

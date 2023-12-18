@@ -191,6 +191,9 @@ class Users:
         self.objects_to_operators_member = neo4j.all_requests[
             "objects_to_operators_member"
         ]["result"]
+        self.objects_to_operators_groups = neo4j.all_requests[
+            "objects_to_operators_groups"
+        ]["result"]
 
         self.rbcd_paths = neo4j.all_requests["graph_rbcd"]["result"]
         self.rbcd_paths_to_da = neo4j.all_requests["graph_rbcd_to_da"]["result"]
@@ -1228,30 +1231,36 @@ class Users:
         page.render()
 
 
-    def generatePathToOperatorsMember(self, domain):
+    # Do not rewrite this feature to be centered around the Operator Group, the graph is horrible
+    def generatePathToOperatorsMember(self, domain): 
         if self.objects_to_operators_member is None:
+            return
+        if self.objects_to_operators_groups is None:
             return
         page = Page(
             self.arguments.cache_prefix,
             "objects_to_operators_member",
-            "Unprivileged path to an operator member",
+            "Unprivileged path to an operator group",
             "objects_to_operators_member",
         )
         # Build raw data from requests
         data = {}
-        for path in self.objects_to_operators_member:
+        for path in self.objects_to_operators_groups:
             try:
-                data[path.nodes[0]]["paths"].append(path)
-                if path.nodes[-1].name not in data[path.nodes[0]]["target"]:
-                    data[path.nodes[0]]["target"].append(path.nodes[-1].name)
+                data[path.nodes[0].name]["paths"].append(path)
+                if path.nodes[-1].name not in data[path.nodes[0].name]["target"]:
+                    data[path.nodes[0].name]["target"].append(path.nodes[-1].name)
             except KeyError:
-                data[path.nodes[0]] = {
-                    "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[0].domain,
-                    "name": '<i class="bi bi-person-fill"></i> ' + path.nodes[0].name,
+                data[path.nodes[0].name] = {
+                    "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[-1].domain,
+                    "name": '<i class="bi bi-people-fill"></i> ' + path.nodes[0].name,
                     "link": quote(str(path.nodes[0].name)),
                     "target": [path.nodes[-1].name],
                     "paths": [path]
                 }
+        # print(data)
+        for path in self.objects_to_operators_member: 
+            data[path.nodes[-1].name]["paths"].append(path)
 
         # Build grid data
         grid_data = []
@@ -1260,23 +1269,24 @@ class Users:
             tmp_grid_data = {
                 "domain": d["domain"],
                 "name": d["name"],
-                "target": grid_data_stringify({
-                    "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
-                    "link": f"objects_to_operators_member_from_{quote(str(d['link']))}.html",
+                "paths": grid_data_stringify({
+                    "value": f"{len(d['paths'])} paths target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
+                    "link": f"objects_to_operators_{quote(str(d['link']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
-                })
+                }),
+                "targets": ",".join(d["target"])
             }
             grid_data.append(tmp_grid_data)
             # Build graph data
-            page_graph = Page(self.arguments.cache_prefix, f"objects_to_operators_member_from_{d['link']}", f"{d['link']} can have a path to an Operator member", "objects_to_operators_member")
+            page_graph = Page(self.arguments.cache_prefix, f"objects_to_operators_{d['link']}", f"Paths to Operator group using {d['name']}", "objects_to_operators_member")
             graph = Graph()
             graph.setPaths(d['paths'])
             page_graph.addComponent(graph)
             page_graph.render()
 
         self.objects_to_operators_member = data.keys()
-        grid = Grid("Users that can have a path to Operator member")
-        grid.setheaders(["domain", "name", "target"])
+        grid = Grid("Objects with path to Operator Groups")
+        grid.setheaders(["domain", "name", "paths","targets"])
         grid.setData(grid_data)
         page.addComponent(grid)
         page.render()
