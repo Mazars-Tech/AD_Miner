@@ -309,10 +309,12 @@ def manage_plural(elem, text):
 
 def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> list[list[float]]:
     hex_pos = []
-    hex_offset = 2.5 #  Half of the hex size (pos is top left)
+    hex_offset_v = -3.5  # Offset to compensate hexagon height
+    hex_offset_h = -2.5  # Offset to compensate hexagon width
+
 
     # harcoded values of concentric arcs for hexagon placement
-    arc_distances = [23, 33, 42]
+    arc_distances = [27.5, 35.3, 43.5]
 
     n_arcs = len(arc_distances)
     angle = angle_end - angle_start
@@ -335,10 +337,10 @@ def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> l
         angles = [angle_start + (i + 0.5) * d_theta for i in range(to_place)]
         for j in range(to_place):
             rleft, rtop = randint(0, 1000), randint(0, 1000)
-            rleft, rtop = (rleft - 500) / 700, (rtop - 500) / 700
+            rleft, rtop = (rleft - 500) / 500, (rtop - 500) / 500
 
-            left = 50 + rad * cos(angles[j]) - hex_offset + rleft
-            top = 50 - rad * sin(angles[j]) - hex_offset + rtop
+            left = round(50 + rad * cos(angles[j]) + hex_offset_h + rleft, 2)
+            top = round(50 - rad * sin(angles[j]) + hex_offset_v + rtop, 2)
 
             hex_pos.append([top, left])
 
