@@ -498,7 +498,6 @@
     "domain_map_trust": {
         "name": "Domain map trust",
         "request": "MATCH p=shortestpath((d:Domain)-[:TrustedBy]->(m:Domain)) WHERE d<>m RETURN DISTINCT(p)",
-        "request2": "MATCH p=(c1:Computer)-[r2:MemberOf*1..4]->(g:Group)-[r3:AdminTo]->(c2:Computer) RETURN p",
         "output_type": "Graph"
     },
     "objects_to_unconstrained_delegation": {
