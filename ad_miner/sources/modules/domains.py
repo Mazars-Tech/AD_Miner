@@ -1018,6 +1018,27 @@ class Domains:
     def generateDomainMapTrust(self):
         if self.domain_map_trust is None:
             return
+
+        if self.domain_map_trust == []:
+            # Add empty graph with the domains when no trust returned
+            path_list = list()
+            for i in range(len(self.domains_list)):
+                domain_name = self.domains_list[i][0]
+                id, labels, tenant_id, relation_type = i, 'Domain', 0, None
+                path_list.append(Path([Node(id,
+                                 labels,
+                                 domain_name,
+                                 domain_name,
+                                 tenant_id,
+                                 relation_type)]))
+
+            self.createGraphPage(self.arguments.cache_prefix,
+                                 "domain_map_trust",
+                                 "Map trust of domains ",
+                                 "domain_map_trust",
+                                 path_list)
+            return
+
         self.createGraphPage(
             self.arguments.cache_prefix,
             "domain_map_trust",
