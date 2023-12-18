@@ -308,7 +308,7 @@ def manage_plural(elem, text):
 
 
 def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> list[list[float]]:
-    hex_pos = []
+    angle_and_pos = []
     hex_offset_v = -3.5  # Offset to compensate hexagon height
     hex_offset_h = -2.5  # Offset to compensate hexagon width
 
@@ -336,13 +336,16 @@ def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> l
         d_theta = angle / to_place
         angles = [angle_start + (i + 0.5) * d_theta for i in range(to_place)]
         for j in range(to_place):
-            rleft, rtop = randint(0, 1000), randint(0, 1000)
-            rleft, rtop = (rleft - 500) / 500, (rtop - 500) / 500
 
-            left = round(50 + rad * cos(angles[j]) + hex_offset_h + rleft, 2)
-            top = round(50 - rad * sin(angles[j]) + hex_offset_v + rtop, 2)
+            left = round(50 + rad * cos(angles[j]) + hex_offset_h, 2)
+            top = round(50 - rad * sin(angles[j]) + hex_offset_v, 2)
 
-            hex_pos.append([top, left])
+            current_angle = angles[j] - angle_start
+            angle_and_pos.append((current_angle, top, left))
+
+    angle_and_pos.sort(key=lambda x: x[0])
+
+    hex_pos = [(top, left) for angle, top, left in angle_and_pos]
 
     return hex_pos
 
@@ -692,81 +695,27 @@ def render(
                                                        angles[category][0],
                                                        angles[category][1])
 
-        # # permission : top, passwords : left, kerberos : right, misc : bottom
-        # dico_position = {
-        #     "passwords": [
-        #         [54, 25],
-        #         [80, 17],
-        #         [70, 20],
-        #         [70, 12],
-        #         [53, 10],
-        #         [66, 31],
-        #         [78, 24],
-        #     ],
-        #     "kerberos": [
-        #         [60, 89],
-        #         [64, 63],
-        #         [81, 71],
-        #         [70, 80],
-        #         [70, 70],
-        #         [77, 79],
-        #         [55, 82],
-        #         [54, 71],
-
-        #     ],
-        #     "permission": [
-        #         [19, 65],
-        #         [8, 28],
-        #         [34, 14],
-        #         [28, 60],
-        #         [5, 50],
-        #         [43, 10],
-        #         [18, 80],
-        #         [10, 66],
-        #         [16, 20],
-        #         [22, 14],
-        #         [26, 75],
-        #         [6, 34],
-        #         [7, 58],
-        #         [27, 36],
-        #         [41, 25],
-        #         [42, 90],
-        #         [25, 48],
-        #         [30, 25],
-        #         [30, 68],
-        #         [16, 72],
-        #         [15, 33],
-        #         [5, 42],
-        #         [40, 80],
-        #         [42, 69],
-        #         [30, 85]
-        #     ],
-        #     "misc": [
-        #         [70, 41],
-        #         [89, 38],
-        #         [90, 55],
-        #         [75, 58],
-        #         [72, 50],
-        #         [81, 39],
-        #         [82, 62],
-        #         [85, 30]
-        #     ],
-        #     #azure
-        #     "attack_path": [[10, 50]],
-        #     "ad_connect": [[35, 20]],
-        #     "sp_mi":[],
-        #     "ms_graph":[[60, 80]],
-        # }
-
         dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
+
+        controls_by_color = {"grey": [],
+                             "green": [],
+                             "yellow": [],
+                             "orange": [],
+                             "red": []}
 
         for category in dico_category:
             for indicator in dico_category[category]:
 
                 if dico_rating_color[category_repartition_dict[category]].get(indicator):
                     color = dico_rating_color[category_repartition_dict[category]][indicator]
+
                 else:
                     color = "grey"
+
+                controls_by_color[color].append((category, indicator))
+
+        for color in controls_by_color.keys():
+            for category, indicator in controls_by_color[color]:
 
                 dico_js[indicator] = {
                     "color": color,
