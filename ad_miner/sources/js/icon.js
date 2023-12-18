@@ -35,11 +35,13 @@ function url_with_color(icone, attribute1, attribute2, color) {
 function url_cluster(icone, color, number) {
     var number_string = (number).toLocaleString('fr-FR');
     var number_digit = number_string.length;
+    console.log("toto : ", number_string, number_digit, icone);
     if (number_digit > 3) {
         width_start = 150
     }
     else {
         width_start = 220
     }
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(dico_icon[icone].split('</svg>')[0].concat(` fill="${color}"`).concat('/>').concat(`<rect x="800" y="800" rx="15" ry="15" width="${width_start + (number_digit - 1) * 110}" height="260" fill="red"/><text x="855" y="995" font-size="200" font-weight="bold" font-family="Arial, Helvetica, sans-serif" fill="white">${number_string}</text>`).concat('</svg>'))
+    console.log(dico_icon[icone].split('</svg>')[0].concat(`<rect x="800" y="800" rx="15" ry="15" width="${width_start + (number_digit - 1) * 110}" height="260" fill="red"/><text x="855" y="995" font-size="200" font-weight="bold" font-family="Arial, Helvetica, sans-serif" fill="white">${number_string}</text>`).concat('</svg>'));
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(dico_icon[icone].split('</svg>')[0].concat(`<rect x="800" y="800" rx="15" ry="15" width="${width_start + (number_digit - 1) * 110}" height="260" fill="red"/><text x="855" y="995" font-size="200" font-weight="bold" font-family="Arial, Helvetica, sans-serif" fill="white">${number_string}</text>`).concat('</svg>'))
 }
