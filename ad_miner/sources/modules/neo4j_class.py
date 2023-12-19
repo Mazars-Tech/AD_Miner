@@ -154,6 +154,9 @@ class Neo4j:
                     encoding="utf-8"
                 )
             )
+
+            del self.all_requests["template"]
+
             for request_key in self.all_requests.keys():
                 # Replace methods with python methods
                 self.all_requests[request_key]["output_type"] = {
@@ -165,12 +168,12 @@ class Neo4j:
                 )
                 # Replace variables with their values in requests
                 variables_to_replace = {
-                    "$extract_date": int(self.extract_date),
-                    "$password_renewal": int(self.password_renewal),
-                    "$properties": properties,
-                    "$path_to_group_operators_props": path_to_group_operators_props,
-                    "$recursive_level": int(recursive_level),
-                    "$inbound_control_edges": inbound_control_edges,
+                    "$extract_date$": int(self.extract_date),
+                    "$password_renewal$": int(self.password_renewal),
+                    "$properties$": properties,
+                    "$path_to_group_operators_props$": path_to_group_operators_props,
+                    "$recursive_level$": int(recursive_level),
+                    "$inbound_control_edges$": inbound_control_edges,
                 }
                 for variable in variables_to_replace.keys():
                     self.all_requests[request_key][

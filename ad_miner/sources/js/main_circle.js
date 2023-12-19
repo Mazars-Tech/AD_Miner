@@ -4,6 +4,15 @@ function toggleDiv(divId) {
     document.getElementById("main_circle").style.display = "block";
     document.getElementById("azure_circle").style.display = "none";
 
+
+
+    $svg=$("#Calque_1").clone();
+    $("#Calque_1").remove();
+    $("#main_circle").append($svg);
+
+    document.getElementById("title-kerberos").style.display=""
+    document.getElementById("title-msgraph").style.display="none"
+
     document.getElementById("global-rating-on-premise").style.display = "block";
     document.getElementById("global-rating-azure").style.display = "none";
 
@@ -25,10 +34,23 @@ function toggleDiv(divId) {
     document.getElementById("recap").classList.add("show");
     document.getElementById("recap").classList.add("fade");
     
+    // Update links to on-prem smolcards
+    document.getElementById("switchCard_misc").onclick = function () {switchCards('misc')};
+    document.getElementById("switchCard_permission").onclick = function () {switchCards('permission')};
+    document.getElementById("switchCard_kerberos_ms_graph").onclick = function () {switchCards('kerberos')};
+    document.getElementById("switchCard_passwords").onclick = function () {switchCards('passwords')};
+
   }
   else {
     document.getElementById("main_circle").style.display = "none";
     document.getElementById("azure_circle").style.display = "block";
+
+    $svg=$("#Calque_1").clone();
+    $("#Calque_1").remove();
+    $("#azure_circle").append($svg);
+    
+    document.getElementById("title-kerberos").style.display="none"
+    document.getElementById("title-msgraph").style.display=""
 
     document.getElementById("global-rating-on-premise").style.display = "none";
     document.getElementById("global-rating-azure").style.display = "block";
@@ -51,6 +73,13 @@ function toggleDiv(divId) {
     document.getElementById("computers").classList.remove("active");
     document.getElementById("users").classList.remove("active");
     document.getElementById("os_distribution").classList.remove("active");
+
+    // Update links to azure smolcards
+    document.getElementById("switchCard_misc").onclick = function () {switchCards('az_misc');};
+    document.getElementById("switchCard_permission").onclick = function () {switchCards('az_permissions')};
+    document.getElementById("switchCard_kerberos_ms_graph").onclick = function () {switchCards('ms_graph')};
+    document.getElementById("switchCard_passwords").onclick = function () {switchCards('az_passwords')};
+
   }
 }
 
@@ -155,44 +184,44 @@ function display_all_hexagons(dico_entry) {
   var title_permissions = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('permission')>
     <img src="../icons/main_circle/permissions.svg" class="title-section shadow" style="top:15%; left: 40%""/>
     </a>`;
-  $('.main_circle').append(title_permissions);
+  // $('.main_circle').append(title_permissions);
 
   var title_passwords = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('passwords')>
         <img src="../icons/main_circle/passwords.svg" class="title-section shadow" style="top:62%; left: 10%""/>
     </a>`;
-  $('.main_circle').append(title_passwords);
+  // $('.main_circle').append(title_passwords);
 
   var title_kerberos = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('kerberos')>
         <img src="../icons/main_circle/kerberos.svg" class="title-section shadow" style="top:62%; left: 70%;""/>
     </a>`;
-  $('.main_circle').append(title_kerberos);
+  // $('.main_circle').append(title_kerberos);
 
 
   var title_misc = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('misc')>
         <img src="../icons/main_circle/misc.svg" class="title-section shadow" style="top:80%; left: 45%;""/>
     </a>`;
-  $('.main_circle').append(title_misc);
+  // $('.main_circle').append(title_misc);
 
 }
 
 var title_attack_paths = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('attack_path')>
     <img src="../icons/main_circle/attack_paths.svg" class="title-section shadow" style="top:20%; left: 39%""/>
     </a>`;
-$('.azure_circle').append(title_attack_paths);
+// $('.azure_circle').append(title_attack_paths);
 
 
 var title_ms_graph = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('ms_graph')>
     <img src="../icons/main_circle/ms_graph.svg" class="title-section shadow" style="top:50%; left: 70%""/>
     </a>`;
-$('.azure_circle').append(title_ms_graph);
+// $('.azure_circle').append(title_ms_graph);
 
 var title_service_principal = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('sp_mi')>
     <img src="../icons/main_circle/service_principal.svg" class="title-section shadow" style="top:75%; left: 35%""/>
     </a>`;
-$('.azure_circle').append(title_service_principal);
+// $('.azure_circle').append(title_service_principal);
 
 
 var title_azure_ad_connect = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('ad_connect')>
     <img src="../icons/main_circle/azure_ad_connect.svg" class="title-section shadow" style="top:50%; left: 2.4%""/>
     </a>`;
-$('.azure_circle').append(title_azure_ad_connect);
+// $('.azure_circle').append(title_azure_ad_connect);

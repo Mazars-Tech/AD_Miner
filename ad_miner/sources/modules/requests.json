@@ -1,7 +1,18 @@
 {
+    "template": {
+        "name": "The name displayed during AD Miner execution (Requesting : <name>)",
+        "request": "The neo4j request executed. Don't forget to escape double quotes \" :) ",
+        "output_type": "The output type stored in neo4j.all_request[request_key][\"result\"]. list, dict and Graph are supported.",
+        "is_a_write_request": "please specify true here if your request writes to the neo4j database. It allows correct execution in specific parallels modes.",
+        "scope_query": "USE ONLY IF YOU SPECIFIED 'SKIP PARAM1 LIMIT PARAM2' to parallelize your request. The scope query request should be a neo4j request that returns the total count of elements you then want to SKIP and LIMIT. Ask @snowpeacock if unsure.",
+        "_comment": "You can use useless json entries to write comments about your request in this file.",
+        "postProcessing": "A python function to call just after your request. You should also define it in the neo4j_class.py file.",
+        "_comment_2": "The following variables should be used in the neo4j request and will be replaced by the python code : $properties$, $extract_date$, $password_renewal$, $recursive_level$, $inbound_control_edges$, $path_to_group_operators_props$.",
+        "_comment_3": "The cache file of your neo4j request will be named after its name in this file. The 'filename' attribute is deprecated."
+    },
     "delete_orphans" : {
         "name": "Delete orphan objects that have no labels",
-        "request": "MATCH (n) WHERE size(labels(n))=1 DETACH DELETE n",
+        "request": "MATCH (n) WHERE labels(n) = [\"Base\"] OR labels(n) = [\"AZBase\"] OR labels(n) = [\"Base\", \"AZBase\"] DETACH DELETE n",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -333,7 +344,7 @@
     },
     "set_ghost_computer": {
         "name": "Set ghost_computer=TRUE to computers that did not login for more than 90 days",
-        "request": "MATCH (n:Computer) WHERE toInteger(($extract_date - n.lastlogontimestamp)/86400)>$password_renewal SET   n.ghost_computer=TRUE",
+        "request": "MATCH (n:Computer) WHERE toInteger(($extract_date$ - n.lastlogontimestamp)/86400)>$password_renewal$ SET   n.ghost_computer=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -344,7 +355,7 @@
     },
     "nb_domain_controllers": {
         "name": "Number of domain controllers",
-        "request": "MATCH (c1:Computer{is_dc:TRUE}) RETURN DISTINCT(c1.domain) AS domain, c1.name AS name, COALESCE(c1.operatingsystem, 'Unknown') AS os, COALESCE(c1.ghost_computer, False) AS ghost, toInteger(($extract_date - c1.lastlogontimestamp)/86400) as lastLogon",
+        "request": "MATCH (c1:Computer{is_dc:TRUE}) RETURN DISTINCT(c1.domain) AS domain, c1.name AS name, COALESCE(c1.operatingsystem, 'Unknown') AS os, COALESCE(c1.ghost_computer, False) AS ghost, toInteger(($extract_date$ - c1.lastlogontimestamp)/86400) as lastLogon",
         "output_type": "dict"
     },
     "domain_OUs": {
@@ -366,7 +377,7 @@
     },
     "nb_enabled_accounts": {
         "name": "Number of domain accounts enabled",
-        "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
+        "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
         "output_type": "dict"
     },
     "nb_groups": {
@@ -381,7 +392,7 @@
     },
     "computers_not_connected_since": {
         "name": "Computers not connected since",
-        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date - c.lastlogontimestamp)/86400) as days, toInteger(($extract_date - c.pwdlastset)/86400) as pwdlastset, c.enabled as enabled ORDER BY days DESC ",
+        "request": "MATCH (c:Computer) WHERE NOT c.lastlogontimestamp IS NULL AND c.name IS NOT NULL RETURN c.name AS name, toInteger(($extract_date$ - c.lastlogontimestamp)/86400) as days, toInteger(($extract_date$ - c.pwdlastset)/86400) as pwdlastset, c.enabled as enabled ORDER BY days DESC ",
         "output_type": "dict"
     },
     "nb_domain_admins": {
@@ -391,17 +402,17 @@
     },
     "os": {
         "name": "Number of OS",
-        "request": "MATCH (c:Computer{enabled:true}) WHERE  NOT c.enabled IS NULL AND NOT c.operatingsystem IS NULL RETURN DISTINCT(c.operatingsystem) AS os, toInteger(($extract_date - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, c.domain AS domain ORDER BY c.operatingsystem",
+        "request": "MATCH (c:Computer{enabled:true}) WHERE  NOT c.enabled IS NULL AND NOT c.operatingsystem IS NULL RETURN DISTINCT(c.operatingsystem) AS os, toInteger(($extract_date$ - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, c.domain AS domain ORDER BY c.operatingsystem",
         "output_type": "dict"
     },
     "krb_pwd_last_change": {
         "name": "Kerberos password last change in days",
-        "request": "MATCH(u:User) WHERE u.name STARTS WITH \"KRBTGT@\" RETURN u.domain as domain, u.name as name, toInteger(($extract_date - u.pwdlastset)/86400) as pass_last_change, toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate",
+        "request": "MATCH(u:User) WHERE u.name STARTS WITH \"KRBTGT@\" RETURN u.domain as domain, u.name as name, toInteger(($extract_date$ - u.pwdlastset)/86400) as pass_last_change, toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate",
         "output_type": "dict"
     },
     "nb_kerberoastable_accounts": {
         "name": "Number of Kerberoastable accounts",
-        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
+        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date$ - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
         "output_type": "dict"
     },
     "nb_as-rep_roastable_accounts": {
@@ -426,12 +437,12 @@
     },
     "dormant_accounts": {
         "name": "Dormant accounts",
-        "request": "MATCH (n:User{enabled:true}) WHERE toInteger(($extract_date - n.lastlogontimestamp)/86400)>$password_renewal RETURN n.domain as domain, n.name as name,toInteger(($extract_date - n.lastlogontimestamp)/86400) AS days, toInteger(($extract_date - n.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
+        "request": "MATCH (n:User{enabled:true}) WHERE toInteger(($extract_date$ - n.lastlogontimestamp)/86400)>$password_renewal$ RETURN n.domain as domain, n.name as name,toInteger(($extract_date$ - n.lastlogontimestamp)/86400) AS days, toInteger(($extract_date$ - n.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
         "output_type": "dict"
     },
     "password_last_change": {
         "name": "Password last change in days",
-        "request": "MATCH (c:User {enabled:TRUE}) RETURN DISTINCT(c.name) AS user,toInteger(($extract_date - c.pwdlastset )/ 86400) AS days, toInteger(($extract_date - c.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
+        "request": "MATCH (c:User {enabled:TRUE}) RETURN DISTINCT(c.name) AS user,toInteger(($extract_date$ - c.pwdlastset )/ 86400) AS days, toInteger(($extract_date$ - c.whencreated)/86400) AS accountCreationDate ORDER BY days DESC",
         "output_type": "dict"
     },
     "nb_user_password_cleartext": {
@@ -441,7 +452,7 @@
     },
     "get_users_password_not_required": {
         "name": "Number of accounts where password is not required",
-        "request": "MATCH (u:User{enabled:true,passwordnotreqd:true}) RETURN DISTINCT (u.domain) as domain, (u.name) AS user,toInteger(($extract_date - u.pwdlastset )/ 86400) AS pwdlastset,toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon",
+        "request": "MATCH (u:User{enabled:true,passwordnotreqd:true}) RETURN DISTINCT (u.domain) as domain, (u.name) AS user,toInteger(($extract_date$ - u.pwdlastset )/ 86400) AS pwdlastset,toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS lastlogon",
         "output_type": "dict"
     },
     "objects_admincount": {
@@ -452,7 +463,7 @@
     },
     "user_password_never_expires": {
         "name": "Password never expired",
-        "request": "MATCH (u:User{enabled:true})WHERE u.pwdneverexpires = true RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS LastLogin, toInteger(($extract_date - u.pwdlastset )/ 86400) AS LastPasswChange,toInteger(($extract_date - u.whencreated)/86400) AS accountCreationDate",
+        "request": "MATCH (u:User{enabled:true})WHERE u.pwdneverexpires = true RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS LastLogin, toInteger(($extract_date$ - u.pwdlastset )/ 86400) AS LastPasswChange,toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate",
         "output_type": "dict"
     },
     "computers_members_high_privilege": {
@@ -462,7 +473,7 @@
     },
     "objects_to_domain_admin": {
         "name": "Objects with path to DA",
-        "request": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties*1..$recursive_level]->(g:Group{is_dag:true})) WHERE m<>g SET m.has_path_to_da=true RETURN DISTINCT(p) as p",
+        "request": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties$*1..$recursive_level$]->(g:Group{is_dag:true})) WHERE m<>g SET m.has_path_to_da=true RETURN DISTINCT(p) as p",
         "output_type": "Graph",
         "scope_query": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL RETURN count(m)",
         "is_a_write_request": "true"
@@ -480,13 +491,13 @@
     },
     "users_admin_on_servers_1": {
         "name": "Users admin on servers n\u00b01",
-        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r:MemberOf*1..4]->(g:Group)-[r1:$properties]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
+        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r:MemberOf*1..4]->(g:Group)-[r1:$properties$]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
         "scope_query": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL RETURN count(n)",
         "output_type": "dict"
     },
     "users_admin_on_servers_2": {
         "name": "Users admin on servers n\u00b02",
-        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r1:$properties]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
+        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r1:$properties$]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
         "scope_query": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL RETURN count(n)",
         "output_type": "dict"
     },
@@ -498,30 +509,29 @@
     "domain_map_trust": {
         "name": "Domain map trust",
         "request": "MATCH p=shortestpath((d:Domain)-[:TrustedBy]->(m:Domain)) WHERE d<>m RETURN DISTINCT(p)",
-        "request2": "MATCH p=(c1:Computer)-[r2:MemberOf*1..4]->(g:Group)-[r3:AdminTo]->(c2:Computer) RETURN p",
         "output_type": "Graph"
     },
     "objects_to_unconstrained_delegation": {
         "name": "Object with path to non-DC computers with unconstrained delegations ",
-        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties*1..$recursive_level]->(m:Computer{unconstraineddelegation:true,is_dc:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
+        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties$*1..$recursive_level$]->(m:Computer{unconstraineddelegation:true,is_dc:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
         "output_type": "Graph",
         "scope_query": "MATCH (n{path_candidate:true}) RETURN count(n)"
     },
     "users_to_unconstrained_delegation": {
         "name": "Objects with paths to users that have unconstrained delegations ",
-        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n:User{is_da:false,enabled:true})-[:$inbound_control_edges*1..$recursive_level]->(m:User{unconstraineddelegation:true,enabled:true,sensitive:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
+        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n:User{is_da:false,enabled:true})-[:$inbound_control_edges$*1..$recursive_level$]->(m:User{unconstraineddelegation:true,enabled:true,sensitive:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
         "output_type": "Graph",
         "scope_query": "MATCH (n{path_candidate:true}) RETURN count(n)"
     },
     "kud": {
         "name": "Shortest paths to objects configured for KUD",
-        "request": "MATCH (n) WHERE (n:Computer) OR (n:User AND n.enabled=true) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties*1..$recursive_level]->(m{target_kud:true})) WHERE NOT n=m AND (((n.is_da IS NULL OR n.is_da=FALSE) AND (n.is_dc IS NULL OR n.is_dc=FALSE)) OR (NOT m.domain CONTAINS '.' + n.domain AND n.domain <> m.domain)) RETURN DISTINCT(p)",
+        "request": "MATCH (n) WHERE (n:Computer) OR (n:User AND n.enabled=true) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties$*1..$recursive_level$]->(m{target_kud:true})) WHERE NOT n=m AND (((n.is_da IS NULL OR n.is_da=FALSE) AND (n.is_dc IS NULL OR n.is_dc=FALSE)) OR (NOT m.domain CONTAINS '.' + n.domain AND n.domain <> m.domain)) RETURN DISTINCT(p)",
         "output_type": "Graph",
         "scope_query": "MATCH (n) WHERE (n:Computer OR (n:User AND n.enabled=true))  AND (n.is_da IS NULL OR n.is_da=FALSE)   AND (n.is_dc IS NULL OR n.is_dc=FALSE) RETURN count(n)"
         },
     "nb_computers_laps": {
         "name": "Number of computers with laps",
-        "request": "MATCH (c:Computer) WHERE NOT c.name is NULL and NOT c.haslaps IS NULL AND c.operatingsystem CONTAINS 'indows' RETURN DISTINCT(c.domain) AS domain, toInteger(($extract_date - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, toString(c.haslaps) AS LAPS",
+        "request": "MATCH (c:Computer) WHERE NOT c.name is NULL and NOT c.haslaps IS NULL AND toUpper(c.operatingsystem) CONTAINS 'WINDOWS' RETURN DISTINCT(c.domain) AS domain, toInteger(($extract_date$ - c.lastlogontimestamp)/86400) as lastLogon, c.name AS name, toString(c.haslaps) AS LAPS",
         "output_type": "dict"
     },
     "can_read_laps": {
@@ -531,7 +541,7 @@
     },
     "objects_to_dcsync": {
         "name": "Objects to dcsync",
-        "request": "MATCH (n{path_candidate:true}) WHERE n.can_dcsync IS NULL AND NOT n.name IS NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties*1..$recursive_level]->(target{can_dcsync:TRUE})) WHERE n<>target RETURN distinct(p) AS p",
+        "request": "MATCH (n{path_candidate:true}) WHERE n.can_dcsync IS NULL AND NOT n.name IS NULL WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties$*1..$recursive_level$]->(target{can_dcsync:TRUE})) WHERE n<>target RETURN distinct(p) AS p",
         "output_type": "Graph",
         "scope_query": "MATCH (n{path_candidate:true}) WHERE n.can_dcsync IS NULL AND NOT n.name IS NULL RETURN count(n)"
     },
@@ -542,7 +552,7 @@
     },
     "unpriv_to_dnsadmins": {
         "name": "Unprivileged users with path to DNSAdmins",
-        "request": "MATCH (u:User{path_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=(u)-[r:MemberOf*1..$recursive_level]->(g:Group{is_dnsadmin:true}) RETURN distinct(p) AS p",
+        "request": "MATCH (u:User{path_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=(u)-[r:MemberOf*1..$recursive_level$]->(g:Group{is_dnsadmin:true}) RETURN distinct(p) AS p",
         "output_type": "Graph",
         "scope_query": "MATCH (u:User{path_candidate:true}) RETURN count(u)"
     },
@@ -570,7 +580,7 @@
     },
     "graph_rbcd_to_da": {
         "name": "Builds RBCD targets to DA paths",
-        "request": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties*1..$recursive_level]->(g:Group{is_dag:true})) WHERE m<>g RETURN DISTINCT(p) as p",
+        "request": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties$*1..$recursive_level$]->(g:Group{is_dag:true})) WHERE m<>g RETURN DISTINCT(p) as p",
         "output_type": "Graph",
         "scope_query": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL RETURN count(m)"
     },
@@ -612,14 +622,14 @@
     },
     "vuln_permissions_adminsdholder": {
         "name": "Dangerous permissions on the adminSDHolder object",
-        "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties*1..4]->(target1{is_adminsdholder:true})) WHERE n<>target1 AND NOT ANY(no in nodes(p) WHERE (no.is_da=true AND (no.domain=target1.domain OR target1.domain CONTAINS \".\" + no.domain))) RETURN distinct(p) AS p",
+        "request": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS \"MSOL_\" WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((n)-[r:$properties$*1..4]->(target1{is_adminsdholder:true})) WHERE n<>target1 AND NOT ANY(no in nodes(p) WHERE (no.is_da=true AND (no.domain=target1.domain OR target1.domain CONTAINS \".\" + no.domain))) RETURN distinct(p) AS p",
         "output_type": "Graph",
         "scope_query": "MATCH (n:User{path_candidate:true}) WHERE NOT n.name CONTAINS 'MSOL_' RETURN count(n)",
         "_comment": "TODO : table with les adminsdholder + path with => X objects to SDHolder"
     },
     "da_to_da": {
         "name": "Paths between two domain admins belonging to different domains",
-        "request": "MATCH p=allShortestPaths((g:Group{is_dag:true})-[r:$properties*1..$recursive_level]->(gg:Group{is_dag:true})) WHERE g<>gg AND g.domain <> gg.domain RETURN p",
+        "request": "MATCH p=allShortestPaths((g:Group{is_dag:true})-[r:$properties$*1..$recursive_level$]->(gg:Group{is_dag:true})) WHERE g<>gg AND g.domain <> gg.domain RETURN p",
         "output_type": "Graph"
     },
     "anomaly_acl_1": {
@@ -729,91 +739,76 @@
     "azure_user": {
         "name": "Get Azure Users",
         "request":"MATCH (n:AZUser) RETURN n.name AS Name, n.tenantid AS `Tenant ID`, n.onpremisesyncenabled AS onpremisesynced, n.onpremisesecurityidentifier AS SID",
-        "filename": "azure_user",
         "output_type": "dict"
     },
     "azure_admin": {
         "name": "Get Azure Admins",
         "request":"MATCH p =(n)-[r:AZGlobalAdmin*1..]->(m) RETURN n.name AS Name, n.tenantid AS `Tenant ID`",
-        "filename": "azure_admin",
         "output_type": "dict"
     },
     "azure_groups": {
         "name": "get Azure Groups",
         "request": "MATCH (n:AZGroup) RETURN n.tenantid AS `Tenant ID`, n.name AS Name, COALESCE(n.description, '-') AS Description ",
-        "filename": "azure_groups",
         "output_type": "dict"
     },
     "azure_vm": {
         "name": "get Azure VM",
         "request": "MATCH (n:AZVM) RETURN n.tenantid AS `Tenant ID`, n.name AS Name, n.operatingsystem AS os",
-        "filename": "azure_vm",
         "output_type": "dict"
     },
     "azure_users_paths_high_target": {
         "name": "Find all Azure Users with a Path to High Value Targets ",
-        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r:$properties*1..$recursive_level]->(n)) WHERE NOT m=n RETURN p",
-        "filename": "azure_users_paths_high_target",
+        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r:$properties$*1..$recursive_level$]->(n)) WHERE NOT m=n RETURN p",
         "output_type": "Graph"
     },
     "azure_ms_graph_controllers": {
         "name": "Return all direct Controllers of MS Graph",
         "request":"MATCH p = (n)-[r:AZAddOwner|AZAddSecret|AZAppAdmin|AZCloudAppAdmin|AZMGAddOwner|AZMGAddSecret|AZOwns]->(g:AZServicePrincipal {appdisplayname: \"Microsoft Graph\"}) RETURN p",
-        "filename": "azure_ms_graph_controllers",
         "output_type": "Graph"
     },
     "azure_aadconnect_users": {
         "name": "Return all Users and Azure Users possibly related to AADConnect",
         "request":"MATCH (u) WHERE (u:User OR u:AZUser) AND (u.name =~ '(?i)^MSOL_|.*AADConnect.*' OR u.userprincipalname =~ '(?i)^sync_.*') OPTIONAL MATCH (u)-[:HasSession]->(s:Session) RETURN u.name AS Name, s AS Session, u.tenantid AS `Tenant ID`",
-        "filename": "azure_aadconnect_users",
         "output_type": "dict"
     },
     "azure_admin_on_prem": {
         "name": "Return all Azure admins that are also on premise admins",
         "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.Name",
-        "filename": "azure_admin_on_prem",
         "output_type": "dict"
     },
     "azure_role_listing": {
         "name": "List of all Azure roles",
         "request":"MATCH (a:AZRole) return distinct a.name AS Name, a.description AS Description",
-        "filename": "azure_role_listing",
         "output_type": "dict"
     },
     "azure_role_paths": {
         "name": "Paths to the Azure roles",
         "request":"MATCH p=(a:AZUser)-[r:AZHasRole]->(x) return distinct p",
-        "filename": "azure_role_paths",
         "output_type": "Graph"
     },
     "azure_reset_passwd": {
         "name": "Azure accounts that can reset passwords",
         "request":"MATCH p=(n)-[r:AZResetPassword]->(m) return distinct p",
-        "filename": "azure_reset_passwd",
         "output_type": "Graph"
     },
     "azure_last_passwd_change": {
         "name": "Last password change on Azure and on premise",
-        "request":"MATCH (u:User {enabled:TRUE}),(a:AZUser) WHERE a.onpremisesecurityidentifier = u.objectid RETURN DISTINCT(u.name) AS Name, toInteger(($extract_date - u.pwdlastset )/ 86400) AS `Last password set on premise`, toInteger(($extract_date - (datetime('1970-01-01T00:00:00').epochMillis + duration.inSeconds(datetime('1970-01-01T00:00:00'), a.pwdlastset).seconds)) / 86400) AS `Last password set on Azure`",
-        "filename": "azure_last_passwd_change",
+        "request":"MATCH (u:User {enabled:TRUE}),(a:AZUser) WHERE a.onpremisesecurityidentifier = u.objectid RETURN DISTINCT(u.name) AS Name, toInteger(($extract_date$ - u.pwdlastset )/ 86400) AS `Last password set on premise`, toInteger(($extract_date$ - (datetime('1970-01-01T00:00:00').epochMillis + duration.inSeconds(datetime('1970-01-01T00:00:00'), a.pwdlastset).seconds)) / 86400) AS `Last password set on Azure`",
         "output_type": "dict"
     },
     "azure_dormant_accounts": {
         "name": "Azure dormant accounts",
-        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date - u.lastlogontimestamp)/86400) AS lastlogon, toInteger(($extract_date - u.whencreated)/86400) AS whencreated",
-        "filename": "azure_dormant_accounts",
+        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS lastlogon, toInteger(($extract_date$ - u.whencreated)/86400) AS whencreated",
         "output_type": "dict"
     },
     "azure_accounts_disabled_on_prem": {
         "name": "Azure accounts that are disabled on premise",
         "request":"MATCH (a:AZUser{enabled:TRUE}),(u:User{enabled:FALSE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise` UNION MATCH (a:AZUser{enabled:FALSE}),(u:User{enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise`",
-        "filename": "azure_accounts_disabled_on_prem",
         "output_type": "dict"
     },
     "azure_accounts_not_found_on_prem": {
         "name": "Azure accounts that are synced but do not exist on premise",
         "request":"MATCH (azUser:AZUser{onpremisesyncenabled:true}) WHERE NOT EXISTS {MATCH (user:User) WHERE user.objectid = azUser.onpremisesecurityidentifier} return azUser.name AS Name",
-        "filename": "azure_accounts_not_found_on_prem",
         "output_type": "dict"
     },
     "azure_tenants": {
@@ -823,12 +818,12 @@
     },
     "azure_ga_to_ga": {
         "name": "Paths between two global admins belonging to different tenants",
-        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties*1..$recursive_level]->(gg:AZRole{is_gag:TRUE})) WHERE g<>gg AND g.tenantid <> gg.tenantid RETURN p",
+        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties$*1..$recursive_level$]->(gg:AZRole{is_gag:TRUE})) WHERE g<>gg AND g.tenantid <> gg.tenantid RETURN p",
         "output_type": "Graph"
     },
     "azure_cross_ga_da": {
         "name": "Paths between tenants admin and domain admins",
-        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties*1..$recursive_level]->(gg:Group{is_dag:TRUE})) RETURN p UNION MATCH p=allShortestPaths((gg:Group{is_dag:TRUE})-[r:$properties*1..$recursive_level]->(g:AZRole{is_gag:TRUE})) RETURN p",
+        "request": "MATCH p=allShortestPaths((g:AZRole{is_gag:TRUE})-[r:$properties$*1..$recursive_level$]->(gg:Group{is_dag:TRUE})) RETURN p UNION MATCH p=allShortestPaths((gg:Group{is_dag:TRUE})-[r:$properties$*1..$recursive_level$]->(g:AZRole{is_gag:TRUE})) RETURN p",
         "output_type": "Graph"
     }
 }
