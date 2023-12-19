@@ -12,7 +12,7 @@
     },
     "delete_orphans" : {
         "name": "Delete orphan objects that have no labels",
-        "request": "MATCH (n) WHERE size(labels(n))=1 DETACH DELETE n",
+        "request": "MATCH (n) WHERE labels(n) = [\"Base\"] OR labels(n) = [\"AZBase\"] OR labels(n) = [\"Base\", \"AZBase\"] DETACH DELETE n",
         "output_type": "list",
         "is_a_write_request": "true"
     },
