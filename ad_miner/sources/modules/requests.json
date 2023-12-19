@@ -615,7 +615,7 @@
     },
     "objects_to_operators_groups": {
         "name": "Operator Member path to Operators Groups",
-        "request": "MATCH (m:User{is_operator_member:true}) WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:MemberOf*1..$recursive_level]->(o:Group{is_group_operator:true})) WHERE NOT m.name CONTAINS \"MSOL_\" AND ((m.is_da=true AND o.domain<>m.domain) OR (m.is_da=false AND o.domain=m.domain)) RETURN DISTINCT(p) as p",
+        "request": "MATCH (m:User{is_operator_member:true}) WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:MemberOf*1..$recursive_level$]->(o:Group{is_group_operator:true})) WHERE NOT m.name CONTAINS \"MSOL_\" AND ((m.is_da=true AND o.domain<>m.domain) OR (m.is_da=false AND o.domain=m.domain)) RETURN DISTINCT(p) as p",
         "output_type": "Graph", 
         "scope_query": "MATCH (m:User{is_operator_member:true}) WHERE NOT m.name CONTAINS 'MSOL_' RETURN count(m)",
         "_comment": "TODO: table with type, account name, is_da (star) and the number of path towards it"
