@@ -4,6 +4,15 @@ function toggleDiv(divId) {
     document.getElementById("main_circle").style.display = "block";
     document.getElementById("azure_circle").style.display = "none";
 
+
+
+    $svg=$("#Calque_1").clone();
+    $("#Calque_1").remove();
+    $("#main_circle").append($svg);
+
+    document.getElementById("title-kerberos").style.display=""
+    document.getElementById("title-msgraph").style.display="none"
+
     document.getElementById("global-rating-on-premise").style.display = "block";
     document.getElementById("global-rating-azure").style.display = "none";
 
@@ -29,6 +38,13 @@ function toggleDiv(divId) {
   else {
     document.getElementById("main_circle").style.display = "none";
     document.getElementById("azure_circle").style.display = "block";
+
+    $svg=$("#Calque_1").clone();
+    $("#Calque_1").remove();
+    $("#azure_circle").append($svg);
+    
+    document.getElementById("title-kerberos").style.display="none"
+    document.getElementById("title-msgraph").style.display=""
 
     document.getElementById("global-rating-on-premise").style.display = "none";
     document.getElementById("global-rating-azure").style.display = "block";
@@ -178,21 +194,21 @@ function display_all_hexagons(dico_entry) {
 var title_attack_paths = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('attack_path')>
     <img src="../icons/main_circle/attack_paths.svg" class="title-section shadow" style="top:20%; left: 39%""/>
     </a>`;
-$('.azure_circle').append(title_attack_paths);
+// $('.azure_circle').append(title_attack_paths);
 
 
 var title_ms_graph = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('ms_graph')>
     <img src="../icons/main_circle/ms_graph.svg" class="title-section shadow" style="top:50%; left: 70%""/>
     </a>`;
-$('.azure_circle').append(title_ms_graph);
+// $('.azure_circle').append(title_ms_graph);
 
 var title_service_principal = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('sp_mi')>
     <img src="../icons/main_circle/service_principal.svg" class="title-section shadow" style="top:75%; left: 35%""/>
     </a>`;
-$('.azure_circle').append(title_service_principal);
+// $('.azure_circle').append(title_service_principal);
 
 
 var title_azure_ad_connect = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('ad_connect')>
     <img src="../icons/main_circle/azure_ad_connect.svg" class="title-section shadow" style="top:50%; left: 2.4%""/>
     </a>`;
-$('.azure_circle').append(title_azure_ad_connect);
+// $('.azure_circle').append(title_azure_ad_connect);
