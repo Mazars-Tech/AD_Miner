@@ -63,24 +63,24 @@ dico_category = {
         "primaryGroupID_lower_than_1000"
 
     ],
-    "attack_path":[
+    "az_permissions": [
         "azure_users_paths_high_target",
-        "azure_admin_on_prem"
-        ],
-    "ad_connect":[
+        "azure_admin_on_prem",
         "azure_aadconnect_users",
         "azure_roles",
-        "azure_cross_ga_da"
+        "azure_cross_ga_da",
         ],
-    "sp_mi":[
+    "az_passwords": [
         "azure_reset_passwd",
         "azure_last_passwd_change",
+        ],
+    "az_misc": [
         "azure_dormant_accounts"
     ],
-    "ms_graph":[
+    "ms_graph": [
         "azure_ms_graph_controllers",
         "azure_accounts_disabled_on_prem",
-        "azure_accounts_not_found_on_prem"
+        "azure_accounts_not_found_on_prem",
         ],
 }
 
@@ -92,7 +92,7 @@ for key in dico_category:
 category_repartition_dict = {}
 for k in ["passwords", "kerberos", "permission", "misc"]:
     category_repartition_dict[k] = "on_premise"
-for k in ["attack_path", "ad_connect","sp_mi", "ms_graph"]:
+for k in ["az_permissions", "az_passwords", "az_misc", "ms_graph"]:
     category_repartition_dict[k] = "azure"
 
 class SmolCard:
