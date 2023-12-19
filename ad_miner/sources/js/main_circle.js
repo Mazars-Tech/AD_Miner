@@ -34,6 +34,12 @@ function toggleDiv(divId) {
     document.getElementById("recap").classList.add("show");
     document.getElementById("recap").classList.add("fade");
     
+    // Update links to on-prem smolcards
+    document.getElementById("switchCard_misc").onclick = function () {switchCards('misc')};
+    document.getElementById("switchCard_permission").onclick = function () {switchCards('permission')};
+    document.getElementById("switchCard_kerberos_ms_graph").onclick = function () {switchCards('kerberos')};
+    document.getElementById("switchCard_passwords").onclick = function () {switchCards('passwords')};
+
   }
   else {
     document.getElementById("main_circle").style.display = "none";
@@ -67,6 +73,13 @@ function toggleDiv(divId) {
     document.getElementById("computers").classList.remove("active");
     document.getElementById("users").classList.remove("active");
     document.getElementById("os_distribution").classList.remove("active");
+
+    // Update links to azure smolcards
+    document.getElementById("switchCard_misc").onclick = function () {switchCards('az_misc');};
+    document.getElementById("switchCard_permission").onclick = function () {switchCards('az_permissions')};
+    document.getElementById("switchCard_kerberos_ms_graph").onclick = function () {switchCards('ms_graph')};
+    document.getElementById("switchCard_passwords").onclick = function () {switchCards('az_passwords')};
+
   }
 }
 

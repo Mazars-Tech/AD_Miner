@@ -102,25 +102,11 @@ def complete_data_evolution_time(data, raw_other_list_data):
             "nb_groups": [],
             "nb_computers": [],
         }
-        # On-premise
-        for k in dico_category["passwords"]:
-            dico_data_evolution_time[k] = []
-        for k in dico_category["kerberos"]:
-            dico_data_evolution_time[k] = []
-        for k in dico_category["permission"]:
-            dico_data_evolution_time[k] = []
-        for k in dico_category["misc"]:
-            dico_data_evolution_time[k] = []
 
-        # Azure
-        for k in dico_category["attack_path"]:
-            dico_data_evolution_time[k] = []
-        for k in dico_category["ad_connect"]:
-            dico_data_evolution_time[k] = []
-        for k in dico_category["sp_mi"]:
-            dico_data_evolution_time[k] = []
-        for k in dico_category["ms_graph"]:
-            dico_data_evolution_time[k] = []
+        # Initialize evolution data for on premise and azure
+        for category in dico_category.keys():
+            for k in dico_category[category]:
+                dico_data_evolution_time[k] = []
 
         for k in range(len(raw_other_list_data)):
             
@@ -489,15 +475,15 @@ def render(
         "minor_risk":      {"code" :"B", "colors": "255, 221, 0", "i_class": 'bi bi-dash-circle-fill', "div_class": "yellow", "panel_key": "list_cards_minor_alert_issues", "risk_name": "Minor"},
         "handled_risk":    {"code" :"A", "colors": "91, 180, 32", "i_class": 'bi bi-check-circle-fill', "div_class": "success", "panel_key": "", "risk_name": ""}
     }
-    data["on_premise"]["permissions_data"] = []
+    data["on_premise"]["permission_data"] = []
     data["on_premise"]["passwords_data"] = []
     data["on_premise"]["kerberos_data"] = []
     data["on_premise"]["misc_data"] = []
 
     #azure
-    data["azure"]["attack_path_data"] = []
-    data["azure"]["ad_connect_data"] = []
-    data["azure"]["sp_mi_data"] = []
+    data["azure"]["az_permissions_data"] = []
+    data["azure"]["az_passwords_data"] = []
+    data["azure"]["az_misc_data"] = []
     data["azure"]["ms_graph_data"] = []
 
     data["on_premise"]["global_rating"] = ""
@@ -506,34 +492,24 @@ def render(
     for category_repartition in ["on_premise", "azure"]:
         for risk_control in global_risk_controls:
 
-            if category_repartition == "on_premise": #on premise
-                categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
+            if category_repartition == "on_premise":  # on premise
+                categories = {"permission": 0, "passwords": 0, "kerberos": 0, "misc": 0}
 
                 for control in data["on_premise"][f"{risk_control}_list"]:
-                    
-                    if control in dico_category["permission"]:
-                        categories["permissions"] += 1
-                    elif control in dico_category["passwords"]:
-                        categories["passwords"] += 1
-                    elif control in dico_category["misc"]:
-                        categories["misc"] += 1
-                    elif control in dico_category["kerberos"]:
-                        categories["kerberos"] += 1
+
+                    for category in categories.keys():
+                        if control in dico_category[category]:
+                            categories[category] += 1
 
             else:   # azure
-                categories = {"attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
+                categories = {"az_permissions": 0, "az_passwords": 0, "az_misc": 0, "ms_graph": 0}
 
                 for control in data["azure"][f"{risk_control}_list"]:
-                
-                    if control in dico_category["attack_path"]:
-                        categories["attack_path"] += 1
-                    elif control in dico_category["ad_connect"]:
-                        categories["ad_connect"] += 1
-                    elif control in dico_category["sp_mi"]:
-                        categories["sp_mi"] += 1
-                    elif control in dico_category["ms_graph"]:
-                        categories["ms_graph"] += 1
-            
+
+                    for category in categories.keys():
+                        if control in dico_category[category]:
+                            categories[category] += 1
+
             for category in categories:
                 if categories[category] > 0 and f"{category}_letter_grade" not in data[category_repartition]:
                     data[category_repartition][f"{category}_letter_grade"] = global_risk_controls[risk_control]["code"]
@@ -545,7 +521,7 @@ def render(
                             <span>{categories[category]}</span> {global_risk_controls[risk_control]["risk_name"]} {manage_plural(categories[category], ("Vulnerability", "Vulnerabilities"))}
                         </p>"""
                 data[category_repartition][f"{category}_data"].append(categories[category])
-            
+
             # Setting global risk info
             if not data[category_repartition]["global_rating"] and data[category_repartition][risk_control] > 0:
                 data[category_repartition]["global_rating"] = f"""
@@ -584,9 +560,9 @@ def render(
         data[category_repartition]["vuln_text_major_risk"] = manage_plural(data[category_repartition]["potential_risk"], ("vulnerability", "vulnerabilities"))
         data[category_repartition]["alert_or_alerts"] = manage_plural(data[category_repartition]["potential_risk"], ("Alert", "Alerts"))
         data[category_repartition]["minor_alert_or_alerts"] = manage_plural(data[category_repartition]["minor_risk"], ("Minor issue", "Minor issues"))
-    
-    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permissions_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
-    data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["attack_path_data"], data["azure"]["ad_connect_data"], data["azure"]["sp_mi_data"], data["azure"]["ms_graph_data"])]
+
+    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permission_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
+    data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["ms_graph_data"], data["azure"]["az_permissions_data"], data["azure"]["az_passwords_data"], data["azure"]["az_misc_data"])]
 
 
     with open("./render_%s/html/index.html" % arguments.cache_prefix, "w") as page_f:
@@ -632,7 +608,7 @@ def render(
             for category_repartition in ["on_premise", "azure"]:
                 for k in data_rating[category_repartition].keys():
                     for vuln in data_rating[category_repartition][k]:
-                        
+
                         if descriptions.get(vuln):
                             description = descriptions[vuln]["description"]
                         else:
@@ -682,10 +658,10 @@ def render(
                   "kerberos": (0, -pi/3),
                   "permission": (0, pi),
                   "misc": (-pi/3, -2*pi/3),
-                  "attack_path": (pi/4, 3*pi/4),
-                  "ad_connect": (3*pi/4, 5*pi/4),
-                  "sp_mi": (-pi/4, -3*pi/4),
-                  "ms_graph": (-pi/4, pi/4)}
+                  "az_permissions": (0, pi),
+                  "az_misc": (-pi/3, -2*pi/3),
+                  "az_passwords": (-2*pi/3, -pi),
+                  "ms_graph": (0, -pi/3)}
 
         dico_position = {}
 
@@ -695,7 +671,7 @@ def render(
                                                        angles[category][0],
                                                        angles[category][1])
 
-        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "attack_path":0, "ad_connect": 0, "sp_mi":0, "ms_graph":0}
+        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "az_misc": 0, "az_permissions": 0, "az_passwords": 0, "ms_graph": 0}
 
         controls_by_color = {"grey": [],
                              "green": [],
