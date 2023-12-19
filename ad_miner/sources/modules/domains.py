@@ -610,7 +610,7 @@ class Domains:
                 temp_data["name"] = '<svg height="15px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#ff595e" d="M40.1 467.1l-11.2 9c-3.2 2.5-7.1 3.9-11.1 3.9C8 480 0 472 0 462.2V192C0 86 86 0 192 0S384 86 384 192V462.2c0 9.8-8 17.8-17.8 17.8c-4 0-7.9-1.4-11.1-3.9l-11.2-9c-13.4-10.7-32.8-9-44.1 3.9L269.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6l-26.6-30.5c-12.7-14.6-35.4-14.6-48.2 0L141.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6L84.2 471c-11.3-12.9-30.7-14.6-44.1-3.9zM160 192a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg> ' + d['name']
             else:
                 temp_data["name"] = '<i class="bi bi-server"></i> ' + d['name']
-            if 'Windows' in d['os']:
+            if 'WINDOWS' in d['os'].upper():
                 temp_data['os'] = '<i class="bi bi-windows"></i> ' + d['os']
             temp_data['last logon'] = days_format(d['lastLogon'])
             data.append(temp_data)
@@ -1018,6 +1018,27 @@ class Domains:
     def generateDomainMapTrust(self):
         if self.domain_map_trust is None:
             return
+
+        if self.domain_map_trust == []:
+            # Add empty graph with the domains when no trust returned
+            path_list = list()
+            for i in range(len(self.domains_list)):
+                domain_name = self.domains_list[i][0]
+                id, labels, tenant_id, relation_type = i, 'Domain', 0, None
+                path_list.append(Path([Node(id,
+                                 labels,
+                                 domain_name,
+                                 domain_name,
+                                 tenant_id,
+                                 relation_type)]))
+
+            self.createGraphPage(self.arguments.cache_prefix,
+                                 "domain_map_trust",
+                                 "Map trust of domains ",
+                                 "domain_map_trust",
+                                 path_list)
+            return
+
         self.createGraphPage(
             self.arguments.cache_prefix,
             "domain_map_trust",
