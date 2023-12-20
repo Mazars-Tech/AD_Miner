@@ -1,8 +1,8 @@
 var icon_group_options = {
   cluster_Group: {
-    image: url_with_color('Group_cluster', 'none', 'rgba(252,147,3,1)'),
+    image: url_with_color('Group_cluster', 'none', 'none', 'rgba(252,147,3,1)'),
   },
-  Unknown: { image: url_with_color('Unknown', 'none', 'rgba(77,77,77,1)') },
+  Unknown: { image: url_with_color('Unknown', 'none', 'none', 'rgba(77,77,77,1)') },
 };
 
 var list_type_icone = [
@@ -16,12 +16,16 @@ var list_type_icone = [
   'User',
   'Foreignsecurityprincipal',
   'Unknown',
+  'Device',
+  'AZTenant',
+  'AZRole',
+  'ADLocalGroup'
 ];
 var list_attribute = ['ghost', 'da', 'none'];
 var list_temporality = ['start', 'intermediate', 'end'];
 
 //cluster_Group = ;
-//intermediate_Unknown = url_with_color(Unknown, "none", "rgba(77,77,77,1)");
+//intermediate_Unknown = url_with_color('Unknown', "none", "none", "rgba(77,77,77,1)");
 
 for (var i = 0; i < list_type_icone.length; i++) {
   for (var j = 0; j < list_attribute.length; j++) {
@@ -34,6 +38,7 @@ for (var i = 0; i < list_type_icone.length; i++) {
         } else {
           var color = '#c01c28';
         }
+        
 
         icon_group_options[
           list_temporality[k] +

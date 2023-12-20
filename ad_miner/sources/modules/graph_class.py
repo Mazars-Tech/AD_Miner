@@ -72,20 +72,32 @@ class Graph:
                 else:
                     attribute2 = "none"
 
+
+                list_labels = ["User", "Foreignsecurityprincipal", "GPO", "Computer", "OU", "Group", "Domain", "ADLocalGroup", "Container", "Unknown", "Group_cluster", "Device", "AZTenant", "AZRole"]
+
+
+                if path.nodes[i].labels in list_labels:
+                    label_instance = path.nodes[i].labels
+                elif path.nodes[i].labels[2:] in list_labels:
+                    label_instance = path.nodes[i].labels[2:]
+                else:
+                    label_instance = "Unknown"
+
                 if not self.nodes.get(path.nodes[i].id):
 
                     final_graph_node = {
                         "id": path.nodes[i].id,
                         "label": path.nodes[i].name,
                         "shape": "image",
-                        "group": f"{node_position}_{path.nodes[i].labels}_{attribute1}_{attribute2}",
+                        "group": f"{node_position}_{label_instance}_{attribute1}_{attribute2}",
                     }
                     self.nodes[path.nodes[i].id] = final_graph_node
+
                 else:
                     if node_position != self.nodes[path.nodes[i].id]["group"].split("_")[0]:
                         self.nodes[path.nodes[i].id][
                             "group"
-                        ] = f"intermediate_{path.nodes[i].labels}_{attribute1}_{attribute2}"
+                        ] = f"intermediate_{label_instance}_{attribute1}_{attribute2}"
 
                 if i!=0:
                     relation = {

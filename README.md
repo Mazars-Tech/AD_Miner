@@ -45,7 +45,6 @@ Options:
     -p, --password          Neo4j password (default : neo5j)
     -e, --extract_date      Extract date (e.g., 20220131). Default: last logon date
     -r, --renewal_password  Password renewal policy in days. Default: 90
-    -a, --azure             Use Azure relations
     -c, --cache             Use local file for neo4j data
     -l, --level             Recursive level for path queries
     -cf, --cache_prefix     Cache file to use (in case of multiple company cache files)
@@ -61,6 +60,8 @@ In the graph pages, you can right-click on the graph nodes to cluster them or to
 <p align="center">
     <img src="doc/img/right_click.png" style="height:150px">
 </p>
+
+If you have azure, an azure-specific Dashbord appears automatically (still under development)
 
 ## Evolution ##
 
@@ -98,7 +99,7 @@ The following provides a list controls that have already been implemented in AD 
 |Kerberoastable accounts|Domain functional level|Control path to AdminSDHolder container|
 |AS-REP Roastable accounts|Users with admin privs|Users with path to DNS Admins|
 |Accounts with SID history|Machine accounts with high privs|ACL anomalies on group objects|
-|LAPS status|Non tier 0 with DCSync capabilities|Objects with path to an Operator Member|
+|LAPS status|Non tier 0 with DCSync capabilities|Objects with path to an Operator Group|
 |LAPS access|Unconstrained delegations|ADCS local admin privs|
 |KRBTGT password age|Constrained delegations|Empty groups/OU|
 |DC Shadow to DA|Role-based constrained delegations|Guest accounts|

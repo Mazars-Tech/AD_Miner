@@ -191,6 +191,9 @@ class Users:
         self.objects_to_operators_member = neo4j.all_requests[
             "objects_to_operators_member"
         ]["result"]
+        self.objects_to_operators_groups = neo4j.all_requests[
+            "objects_to_operators_groups"
+        ]["result"]
 
         self.rbcd_paths = neo4j.all_requests["graph_rbcd"]["result"]
         self.rbcd_paths_to_da = neo4j.all_requests["graph_rbcd_to_da"]["result"]
@@ -479,8 +482,8 @@ class Users:
                 u = couple["u"]
                 g = couple["gg"]
 
-                start = Node(couple["idu"], "User", u["name"], u["domain"], "MemberOf")
-                end = Node(couple["idg"], "Group", g["name"], g["domain"], "")
+                start = Node(couple["idu"], "User", u["name"], u["domain"], None, "MemberOf")
+                end = Node(couple["idg"], "Group", g["name"], g["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "MemberOf"
@@ -494,8 +497,8 @@ class Users:
                 g = couple["g"]
                 gg = couple["gg"]
 
-                start = Node(couple["idg"], "Group", g["name"], g["domain"], "MemberOf")
-                end = Node(couple["idgg"], "Group", gg["name"], gg["domain"], "")
+                start = Node(couple["idg"], "Group", g["name"], g["domain"], None, "MemberOf")
+                end = Node(couple["idgg"], "Group", gg["name"], gg["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "MemberOf"
@@ -508,8 +511,8 @@ class Users:
                 g = couple["g"]
                 c = couple["c"]
 
-                start = Node(couple["idg"], "Group", g["name"], g["domain"], "AdminTo")
-                end = Node(couple["idc"], "Computer", c["name"], c["domain"], "")
+                start = Node(couple["idg"], "Group", g["name"], g["domain"], None, "AdminTo")
+                end = Node(couple["idc"], "Computer", c["name"], c["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "AdminTo"
@@ -522,8 +525,8 @@ class Users:
                 g = couple["g"]
                 c = couple["c"]
 
-                start = Node(couple["idg"], "User", g["name"], g["domain"], "AdminTo")
-                end = Node(couple["idc"], "Computer", c["name"], c["domain"], "")
+                start = Node(couple["idg"], "User", g["name"], g["domain"], None, "AdminTo")
+                end = Node(couple["idc"], "Computer", c["name"], c["domain"], None, "")
 
                 # rel = Relation(
                 #     int(str(start.id) + "00" + str(end.id)), [start, end], "AdminTo"
@@ -878,7 +881,8 @@ class Users:
         )
         grid = Grid("Objects having AdminSDHolder")
         grid.setheaders(["domain", "type", "name"])
-        grid.setData(self.objects_admincount_enabled)
+        
+        grid.setData(generic_formating.clean_data_type(self.objects_admincount_enabled, ["type"]))
         page.addComponent(grid)
         page.render()
 
@@ -1227,28 +1231,43 @@ class Users:
         page.render()
 
 
-    def generatePathToOperatorsMember(self, domain):
+    # Do not rewrite this feature to be centered around the Operator Group, the graph is horrible
+    def generatePathToOperatorsMember(self, domain): 
         if self.objects_to_operators_member is None:
+            return
+        if self.objects_to_operators_groups is None:
             return
         page = Page(
             self.arguments.cache_prefix,
             "objects_to_operators_member",
-            "Unprivileged path to an operator member",
+            "Unprivileged path to an operator group",
             "objects_to_operators_member",
         )
         # Build raw data from requests
         data = {}
-        for path in self.objects_to_operators_member:
+        for path in self.objects_to_operators_groups:
             try:
-                data[path.nodes[0]]["paths"].append(path)
-                if path.nodes[-1].name not in data[path.nodes[0]]["target"]:
-                    data[path.nodes[0]]["target"].append(path.nodes[-1].name)
+                data[path.nodes[0].name]["paths"].append(path)
+                if path.nodes[-1].name not in data[path.nodes[0].name]["target"]:
+                    data[path.nodes[0].name]["target"].append(path.nodes[-1].name)
             except KeyError:
-                data[path.nodes[0]] = {
-                    "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[0].domain,
-                    "name": '<i class="bi bi-person-fill"></i> ' + path.nodes[0].name,
+                data[path.nodes[0].name] = {
+                    "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[-1].domain,
+                    "name": '<i class="bi bi-people-fill"></i> ' + path.nodes[0].name,
                     "link": quote(str(path.nodes[0].name)),
                     "target": [path.nodes[-1].name],
+                    "paths": [path]
+                }
+        # print(data)
+        for path in self.objects_to_operators_member: 
+            try:
+                data[path.nodes[-1].name]["paths"].append(path)
+            except KeyError: # Really **should not** happen, but to prevent crash in case of corrupted cache/db 
+                data[path.nodes[-1].name] = {
+                    "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[-1].domain,
+                    "name": '<i class="bi bi-people-fill"></i> ' + path.nodes[-1].name,
+                    "link": quote(str(path.nodes[-1].name)),
+                    "target": [""],
                     "paths": [path]
                 }
 
@@ -1259,23 +1278,24 @@ class Users:
             tmp_grid_data = {
                 "domain": d["domain"],
                 "name": d["name"],
-                "target": grid_data_stringify({
-                    "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
-                    "link": f"objects_to_operators_member_from_{quote(str(d['link']))}.html",
+                "paths": grid_data_stringify({
+                    "value": f"{len(d['paths'])} paths target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
+                    "link": f"objects_to_operators_{quote(str(d['link']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
-                })
+                }),
+                "targets": ",".join(d["target"])
             }
             grid_data.append(tmp_grid_data)
             # Build graph data
-            page_graph = Page(self.arguments.cache_prefix, f"objects_to_operators_member_from_{d['link']}", f"{d['link']} can have a path to an Operator member", "objects_to_operators_member")
+            page_graph = Page(self.arguments.cache_prefix, f"objects_to_operators_{d['link']}", f"Paths to Operator group using {d['name']}", "objects_to_operators_member")
             graph = Graph()
             graph.setPaths(d['paths'])
             page_graph.addComponent(graph)
             page_graph.render()
 
         self.objects_to_operators_member = data.keys()
-        grid = Grid("Users that can have a path to Operator member")
-        grid.setheaders(["domain", "name", "target"])
+        grid = Grid("Objects with path to Operator Groups")
+        grid.setheaders(["domain", "name", "paths","targets"])
         grid.setData(grid_data)
         page.addComponent(grid)
         page.render()
@@ -1470,16 +1490,20 @@ class Users:
         anomaly_acl_extract = []
 
         for k in range(len(self.anomaly_acl)):
-            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{self.anomaly_acl[k]['LABELS(g)[0]']}"
-            if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
+
+            label = generic_formating.clean_label(self.anomaly_acl[k]['LABELS(g)'])
+            
+            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}"
+            
+            if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == label:
                 formated_data[name_label_instance]["targets"].append(self.anomaly_acl[k]["n.name"])
-            elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == self.anomaly_acl[k]["LABELS(g)[0]"]:
+            elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == label:
                 formated_data[name_label_instance]["type"] += f" | {self.anomaly_acl[k]['type(r2)']}"
             else:
                 # it is possible to have an OU and a Group with the same name for example, that's why it is necessary to have the name + the label as key
                 formated_data[name_label_instance] = { 
                     "name": self.anomaly_acl[k]["g.name"],
-                    "label": self.anomaly_acl[k]["LABELS(g)[0]"],
+                    "label": label,
                     "type": self.anomaly_acl[k]["type(r2)"],
                     "members_count": self.anomaly_acl[k]["g.members_count"],
                     "targets": [self.anomaly_acl[k]["n.name"]],
@@ -1583,26 +1607,18 @@ class Users:
                     row['admin of'] = u['List of computers']
                     target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
 
+            
             # add user icons
-            if row['Type_a'] == "User":
-                row['Has SID History'] = "<i class='bi bi-person-fill' title='User'></i> " + row['Has SID History']
-            elif row['Type_a'] == "Group":
-                row['Has SID History'] = "<i class='bi bi-people-fill' title='Group'></i> " + row['Has SID History']
-            else:
-                row['Has SID History'] = "<i class='bi bi-question-circle-fill' title='Unknown'></i> " + row['Has SID History']
-            if row['Type_b'] == "User":
-                row['Target'] = "<i class='bi bi-person-fill' title='User'></i> " + row['Target']
-            elif row['Type_b'] == "Group":
-                row['Target'] = "<i class='bi bi-people-fill' title='Group'></i> " + row['Target']
-            else:
-                row['Target'] = "<i class='bi bi-question-circle-fill' title='Unknown'></i> " + row['Target']
+            type_label_a = generic_formating.clean_label(row['Type_a'])
+            row['Has SID History'] = f"{generic_formating.get_label_icon(type_label_a)} {row['Has SID History']}"
+
+            type_label_b = generic_formating.clean_label(row['Type_b'])
+            row['Target'] = f"{generic_formating.get_label_icon(type_label_b)} {row['Target']}"
 
             # add star icon
             if target_count > origin_count:
                 row['Has SID History'] = star_icon + " " + row['Has SID History']
                 row['Target'] = star_icon + " " + row['Target']
-
-
 
         grid.setheaders(headers)
         grid.setData(self.has_sid_history)
@@ -1879,15 +1895,14 @@ class Users:
         ]
 
         data = []
-        for domain, account_name, objectid, type in sorted_list:
+        
+        for domain, account_name, objectid, type_list in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
-            tmp_data["Name"] = (
-                '<i class="bi bi-person-fill"></i> ' + account_name
-                if "User" in type
-                else '<i class="bi bi-pc-display"></i> ' + account_name
-                if "Computer" in type
-                else '<i class="bi bi-people-fill"></i> ' + account_name
-            )
+
+            type_clean = generic_formating.clean_label(type_list)
+
+            tmp_data["Name"] = f"{generic_formating.get_label_icon(type_clean)} {account_name}"
+
             tmp_data["Rating"] = (
                 '<i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star-fill" style="color: orange"></i><i class="bi bi-star" style="color: orange"></i>'
                 if "1-5-7" not in objectid

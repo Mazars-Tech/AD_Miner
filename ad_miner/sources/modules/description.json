@@ -220,9 +220,9 @@
   },
 
   "non-dc_with_unconstrained_delegations": {
-    "title": "Accounts with unconstrained delegations",
-    "description": "These accounts are allowed to connect to any service with the identity of another user who connected to them.",
-    "risk": "These accounts can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
+    "title": "Objects with unconstrained delegations",
+    "description": "These objects are allowed to connect to any service with the identity of another user who connected to them.",
+    "risk": "These objects can impersonate any domain and eventually lead to full compromise of the infrastructure. Optimally, this list should be empty as delegation should be set up with constrained delegation.",
     "poa": "Unless necessary, switch to constrained delegation for a safer infrastructure."
   },
 
@@ -424,9 +424,9 @@
     "poa": ""
   },
   "objects_to_operators_member": {
-    "title": "Objects with path to an Operator Member",
-    "description": "Objects with a compromission path to an Operator Member.",
-    "risk": "As Oprator Member users have high privilege, a compromission path to one is a major threat to the security of the domain.",
+    "title": "Objects with path to an Operator Group",
+    "description": "Objects with a compromission path to an Operator Group.",
+    "risk": "As Oprator Groups have high privilege, a compromission path to one is a major threat to the security of the domain.",
     "poa": "Review all these paths and try to remove as many dangerous links as possible."
   },
   "vuln_functional_level": {
@@ -538,5 +538,95 @@
     "description": "Privileged accounts not protected by the Protected Users group.",
     "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
     "poa": "Privileged accounts must be part of the Protected Users group."
+  },
+  "azure_users": {
+    "title": "Azure users",
+    "description": "Exhaustive list of all users in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_admin": {
+    "title": "Azure administrators",
+    "description": "List of all administrators in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_groups": {
+    "title": "Azure groups",
+    "description": "List of all groups in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_vm": {
+    "title": "Azure virtual machines",
+    "description": "List of all virtual machines in the Azure tenant",
+    "risk": "",
+    "poa": ""
+  },
+  "azure_users_paths_high_target": {
+    "title": "Azure users with a path to high value targets",
+    "description": "All Azure users that can compromise a high value target", 
+    "risk": "Some of these paths could lead to a partial or full compromission of the tenant",
+    "poa": "Review and clean up the privileges of these accounts to lower the risk of compromission"
+  },
+  "azure_ms_graph_controllers": {
+    "title": "Direct Controllers of MS Graph",
+    "description": "Accounts with privileged access to Microsoft Graph",
+    "risk": "Malicious actors can create privileged rights on Microsoft Graph to obtain persistence",
+    "poa": "The CISA recommends checking Graph API permissions for threat actors as part of detecting post compromise residual access"
+  },
+  "azure_aadconnect_users": {
+    "title": "Users possibly related to AADConnect",
+    "description": "All Users and Azure Users possibly related to AADConnect",
+    "risk": "If the list of users linked to AADConnect does not respect the principle of least privilege, this increases the attack surface.",
+    "poa": "Review and clean up the liste users related to AADConnect"
+  },
+  "azure_admin_on_prem": {
+    "title": "Admins both on premise and Azure",
+    "description": "All accounts that are privileged both on Azure and on premise",
+    "risk": "Admin accounts should not be shared between cloud and on premise environments, as it means that the compromission of one leads to the compromission of the other one.",
+    "poa": "Review these privileged accounts and opt into differents admin accounts for cloud and on premise environments"
+  },
+  "azure_roles": {
+    "title": "Access to Azure roles",
+    "description": "Paths to all builtin and custom Azure roles",
+    "risk": "Azure roles usually grant privileges on the tenant, it is therefore important to ensure that all accounts with privileged roles are justified to have so.",
+    "poa": "Review all the Azure roles and the users that have them."
+  },
+  "azure_reset_passwd": {
+    "title": "Azure reset password right",
+    "description": "Users with the right to reset users' passwords",
+    "risk": "These users can change the passwords of other users without knowing their previous password which leads to a control of the account.",
+    "poa": "Review the privileged users and ensure they are legitimate."
+  },
+  "azure_last_passwd_change": {
+    "title": "Incoherent last password change",
+    "description": "Users whose password change date is different between Azure and on premise",
+    "risk": "A difference between the timestamps of the last password change between Azure and on premise environment could mean that a synchronization did not occur and could lead to an exposed account on one of the environment",
+    "poa": "Check if the desynchronization is normal."
+  },
+  "azure_dormant_accounts": {
+    "title": "Azure dormant accounts",
+    "description": "Users who did not login for 3 months",
+    "risk": "An account which has not been used for a long time but is still enabled may be used by attackers as they keep their privilege.",
+    "poa": "Dormant accounts should be disabled when confirmed as not used anymore."
+  },
+  "azure_accounts_disabled_on_prem": {
+    "title": "Synced accounts with disabled twin account",
+    "description": "Synced Azure accounts with different enabled status as the on premise one",
+    "risk": "This anomaly probably means that unused accounts are still enabled on the Azure or on premise environment. An account which has not been used for a long time but is still enabled may be used by attackers as they keep their privilege.",
+    "poa": "Ensure that these accounts should still be enabled."
+  },
+  "azure_accounts_not_found_on_prem": {
+    "title": "Accounts synced to non-existing ones",
+    "description": "Azure accounts that are synced to an non-existing on premise account",
+    "risk": "This anomaly may indicate a misconfiguration in the synchronization of accounts.",
+    "poa": "Ensure that this situation is not a symptom of a bigger misconfiguration."
+  },
+  "azure_cross_ga_da": {
+    "title": "Compromission paths between cloud and on premise admins",
+    "description": "Paths from Azure admins that leads to on premise admins compromission and vice-versa",
+    "risk": "With these paths, a attacker that would have compromised one environment can directly compromise the other one (either cloud or on premise).",
+    "poa": "Limit the existence of these paths by limiting the synchronization between administration accounts."
   }
 }

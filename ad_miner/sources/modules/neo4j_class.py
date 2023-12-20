@@ -9,7 +9,7 @@ from pathlib import Path as pathlib
 from ad_miner.sources.modules import istarmap  # import to apply patch # noqa
 import numpy as np
 import tqdm
-from neo4j import GraphDatabase
+import neo4j  # TO REPLACE BY 'from neo4j import GraphDatabase' after neo4j fix
 
 from ad_miner.sources.modules import cache_class, logger
 from ad_miner.sources.modules.graph_class import Graph
@@ -18,6 +18,31 @@ from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.utils import timer_format
 
 MODULES_DIRECTORY = pathlib(__file__).parent
+
+# 🥒 This is a quick import of a fix from @Sopalinge
+# 🥒 Following code should be removed when neo4j implements
+# 🥒 serialization of neo4j datetime objects
+GraphDatabase = neo4j.GraphDatabase
+
+
+def temporary_fix(cls):
+    return (
+        cls.__class__,
+        (
+            cls.year,
+            cls.month,
+            cls.day,
+            cls.hour,
+            cls.minute,
+            cls.second,
+            cls.nanosecond,
+            cls.tzinfo,
+        ),
+    )
+
+
+neo4j.time.DateTime.__reduce__ = temporary_fix
+# End of temporary dirty fix 🥒
 
 
 def pre_request(arguments):
@@ -51,6 +76,7 @@ def pre_request(arguments):
     with driver.session() as session:
         with session.begin_transaction() as tx:
             total_objects = []
+            boolean_azure = False
             for record in tx.run(
                 "MATCH (x) return labels(x), count(labels(x)) AS number_type"
             ):
@@ -61,14 +87,18 @@ def pre_request(arguments):
             ):
                 number_relations = record.data()["total_relations"]
 
-    driver.close()
-    
-    return extract_date, total_objects, number_relations
+            for record in tx.run(
+                "MATCH (n) WHERE EXISTS(n.tenantid) return n LIMIT 1"
+            ):
+                boolean_azure = bool(record.data()["n"])
 
+    driver.close()
+
+    return extract_date, total_objects, number_relations, boolean_azure
 
 
 class Neo4j:
-    def __init__(self, arguments, extract_date_int):
+    def __init__(self, arguments, extract_date_int, boolean_azure):
         # remote computers that run requests with their number of core
         if len(arguments.cluster) > 0:
             arguments.nb_chunks = 0
@@ -100,21 +130,23 @@ class Neo4j:
             self.parallelWriteRequest = self.parallelRequestLegacy
             self.writeRequest = self.simpleRequest
 
-        extract_date = self.set_extract_date(str(extract_date_int))
+        self.boolean_azure = boolean_azure
+
+        self.extract_date = self.set_extract_date(str(extract_date_int))
 
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
-        # We only use the Azure relationships when requested to do so
 
-        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations"
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced"
+        path_to_group_operators_props = properties.replace('|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC','')
 
-        if arguments.azure:
-            properties += "|AZAddMembers|AZContains|AZContributor|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZOwns|AZPrivilegedRoleAdmin|AZResetPassword|AZUserAccessAdministrator|AZAppAdmin|AZCloudAppAdmin|AZRunsAs|AZKeyVaultContributor|AddSelf|WriteSPN|AddKeyCredentialLink|AZAddSecret|AZAvereContributor|AZExecuteCommand|AZGrant|AZGrantSelf|AZHasRole|AZMemberOf|AZOwner|AZVMAdminLogin"
+        if boolean_azure:
+            properties += "|AZAKSContributor|AZAddMembers|AZAddOwner|AZAddSecret|AZAutomationContributor|AZAvereContributor|AZCloudAppAdmin|AZContains|AZContributor|AZExecuteCommand|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZHasRole|AZKeyVaultContributor|AZLogicAppContributor|AZMGAddMember|AZMGAddOwner|AZMGAddSecret|AZMGAppRoleAssignment_ReadWrite_All|AZMGApplication_ReadWrite_All|AZMGDirectory_ReadWrite_All|AZMGGrantAppRoles|AZMGGrantRole|AZMGGroupMember_ReadWrite_All|AZMGGroup_ReadWrite_All|AZMGRoleManagement_ReadWrite_Directory|AZMGServicePrincipalEndpoint_ReadWrite_All|AZManagedIdentity|AZMemberOf|AZNodeResourceGroup|AZOwner|AZOwns|AZPrivilegedAuthAdmin|AZPrivilegedRoleAdmin|AZResetPassword|AZRunAs|AZScopedTo|AZUserAccessAdministrator|AZVMAdminLogin|AZVMContributor|AZWebsiteContributor"
 
         if arguments.rdp:
             properties += "|CanRDP"
 
-        inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns"
+        inbound_control_edges = "MemberOf|AddSelf|WriteSPN|AddKeyCredentialLink|AddMember|AllExtendedRights|ForceChangePassword|GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns|HasSIDHistory"
 
         try:
             self.all_requests = json.loads(
@@ -122,6 +154,9 @@ class Neo4j:
                     encoding="utf-8"
                 )
             )
+
+            del self.all_requests["template"]
+
             for request_key in self.all_requests.keys():
                 # Replace methods with python methods
                 self.all_requests[request_key]["output_type"] = {
@@ -133,16 +168,17 @@ class Neo4j:
                 )
                 # Replace variables with their values in requests
                 variables_to_replace = {
-                    "$extract_date": int(extract_date),
-                    "$password_renewal": int(self.password_renewal),
-                    "$properties": properties,
-                    "$recursive_level": int(recursive_level),
-                    "$inbound_control_edges": inbound_control_edges,
+                    "$extract_date$": int(self.extract_date),
+                    "$password_renewal$": int(self.password_renewal),
+                    "$properties$": properties,
+                    "$path_to_group_operators_props$": path_to_group_operators_props,
+                    "$recursive_level$": int(recursive_level),
+                    "$inbound_control_edges$": inbound_control_edges,
                 }
                 for variable in variables_to_replace.keys():
                     self.all_requests[request_key][
                         "request"
-                    ] = self.all_requests[request_key]["request"].replace(
+                    ] = self.all_requests[request_key]["request"].replace( # Will find the first matching, not the longest matching ! $properties will be replaced instead of $properties1
                         variable, str(variables_to_replace[variable])
                     )
 
@@ -257,9 +293,14 @@ class Neo4j:
             with self.driver.session() as session:
                 with session.begin_transaction() as tx:
                     scopeQuery = request["scope_query"]
-                    scopeSize = tx.run(scopeQuery).value()[0]
+                    if tx.run(scopeQuery).value() != []:
+                        scopeSize = tx.run(scopeQuery).value()[0]
+                    else:
+                        scopeSize = 0
+
             part_number = int(self.arguments.nb_chunks)
             part_number = min(scopeSize, part_number)
+
             print(f"scope size : {str(scopeSize)} | nb chunks : {part_number}")
             items = []
             space = np.linspace(0, scopeSize, part_number + 1, dtype=int)
@@ -756,16 +797,14 @@ class Neo4j:
                 nodes = []
                 for relation in path.relationships:
                     for node in relation.nodes:
-                        label = next(
-                            iter(node.labels.difference({"Base"}))
-                        )  # e.g. : {"User","Base"} -> "User"
-
+                        label = [i for i in node.labels if 'Base' not in i][0] # e.g. : {"User","Base"} -> "User" or {"User","AZBase"} -> "User"
                         nodes.append(
                             Node(
                                 node.id,
                                 label,
                                 node["name"],
                                 node["domain"],
+                                node["tenantid"],
                                 relation.type,
                             )
                         )
@@ -774,9 +813,10 @@ class Neo4j:
                 nodes.append(
                     Node(
                         path.end_node.id,
-                        next(iter(path.end_node.labels.difference({"Base"}))),
+                        [i for i in path.end_node.labels if 'Base' not in i][0],
                         path.end_node["name"],
                         path.end_node["domain"],
+                        path.end_node["tenantid"],
                         "",
                     )
                 )
