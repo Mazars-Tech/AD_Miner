@@ -6,7 +6,7 @@ function toggleDiv(divId) {
 
 
 
-    $svg=$("#Calque_1").clone();
+    $svg=$.extend(true, [], $("#Calque_1"));
     $("#Calque_1").remove();
     $("#main_circle").append($svg);
 
@@ -45,7 +45,7 @@ function toggleDiv(divId) {
     document.getElementById("main_circle").style.display = "none";
     document.getElementById("azure_circle").style.display = "block";
 
-    $svg=$("#Calque_1").clone();
+    $svg=$.extend(true, [], $("#Calque_1"));
     $("#Calque_1").remove();
     $("#azure_circle").append($svg);
     

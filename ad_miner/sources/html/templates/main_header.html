@@ -710,16 +710,19 @@
                   const bandeKerberos=document.getElementById("bande-kerberos");
                   const donutKerberos=document.getElementById("donut-kerberos");
                   const titleKerberos=document.getElementById("title-kerberos");
+                  const titleMsgraph=document.getElementById("title-msgraph");
                   const containerBandeKerberos=document.getElementById("bande-kerberos-container");
                   containerBandeKerberos.style.opacity="0%";
                 
                   donutKerberos.addEventListener("mouseover",()=>{
                     containerBandeKerberos.style.opacity="100%";
                     titleKerberos.style.fontSize="21px";
+                    titleMsgraph.style.fontSize="21px";
                   });
                   donutKerberos.addEventListener("mouseout",()=>{
                     containerBandeKerberos.style.opacity="0%";
                     titleKerberos.style.fontSize="19px";
+                    titleMsgraph.style.fontSize="19px";
                   });
                   var browserName = (function (agent) {        switch (true) {
                       case agent.indexOf("edge") > -1: return "MS Edge";
@@ -736,10 +739,7 @@
               const pathTitleKerberos = document.getElementById("path-title-kerberos");
               const pathTitlePass = document.getElementById("path-title-pass");
               const pathTitleMisc = document.getElementById("path-title-misc");
-              console.log(pathTitleKerberos);
-              console.log(pathTitlePass);
-              console.log(pathTitlePerm);
-              console.log(pathTitleMisc);
+
 
               if (browserName=="Mozilla Firefox"){
                 pathTitlePerm.setAttribute('startOffset','47.5%');
@@ -753,9 +753,6 @@
                 pathTitleKerberos.setAttribute('startOffset','17%');
                 pathTitleMisc.setAttribute('startOffset','75.3%');
               }
-
-              console.log(browserName);
-
                   
                 </script>
                 </div>
