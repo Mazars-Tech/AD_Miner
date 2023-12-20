@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.7.0...v1.0.0) (2023-12-20)
+
+
+* BREAKING CHANGE: bump to version 1.0.0 ([cf0d0f5](https://github.com/Mazars-Tech/AD_Miner/commit/cf0d0f542e51e7cd34ef84efcb0d0d1fea0e8ba4))
+
+
+### BREAKING CHANGES
+
+* bump to version 1.0.0
+
+
+
 # [0.7.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.6.0...v0.7.0) (2023-12-20)
 
 
@@ -112,26 +124,6 @@
 * code typo crash AD Miner when disabling a request in config.json ([fdfd77a](https://github.com/Mazars-Tech/AD_Miner/commit/fdfd77aabd920ce473e58c136a96fe2f0d08ee5c))
 * discord invitation link is now permanent ([2ff56b3](https://github.com/Mazars-Tech/AD_Miner/commit/2ff56b34303696009d233abc3937367679e0ad01))
 * quick fail safe for da to da in case domains were not collected ([06e67ae](https://github.com/Mazars-Tech/AD_Miner/commit/06e67aea90f54e4aebc4736b33e5f7f2c70e0ce4))
-
-
-
-# [0.4.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.3.0...v0.4.0) (2023-10-16)
-
-
-### Bug Fixes
-
-* bad request initialization with specific flags ([f2148d8](https://github.com/Mazars-Tech/AD_Miner/commit/f2148d875bcc6b71d963fb38de6cf2db9b203a17))
-* bug with url encoding ([60df905](https://github.com/Mazars-Tech/AD_Miner/commit/60df905106a9d24125b3a324907ea248d01b8180))
-
-
-### Features
-
-* ctrl-c catching, new method for parallel write queries & potential bug fix ([d3990f4](https://github.com/Mazars-Tech/AD_Miner/commit/d3990f4b531bc51dbc508f8985a9b266187c47dd))
-
-
-### Performance Improvements
-
-* remove 7 useless requests ([f04e1e6](https://github.com/Mazars-Tech/AD_Miner/commit/f04e1e6f3f10fe0d0cc4f846e21210d99c9ca660))
 
 
 
