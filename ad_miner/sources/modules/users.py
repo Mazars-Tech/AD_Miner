@@ -1260,7 +1260,16 @@ class Users:
                 }
         # print(data)
         for path in self.objects_to_operators_member: 
-            data[path.nodes[-1].name]["paths"].append(path)
+            try:
+                data[path.nodes[-1].name]["paths"].append(path)
+            except KeyError: # Really **should not** happen, but to prevent crash in case of corrupted cache/db 
+                data[path.nodes[-1].name] = {
+                    "domain": '<i class="bi bi-globe2"></i> ' + path.nodes[-1].domain,
+                    "name": '<i class="bi bi-people-fill"></i> ' + path.nodes[-1].name,
+                    "link": quote(str(path.nodes[-1].name)),
+                    "target": [""],
+                    "paths": [path]
+                }
 
         # Build grid data
         grid_data = []
