@@ -1,3 +1,26 @@
+# [0.7.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.6.0...v0.7.0) (2023-12-20)
+
+
+### Bug Fixes
+
+* changing alignment of titles in firefox ([013a283](https://github.com/Mazars-Tech/AD_Miner/commit/013a28325224d8e0d29291849d2505197117a2a3))
+* Fix bug with 'Base' labels in neo4j databases ([82541be](https://github.com/Mazars-Tech/AD_Miner/commit/82541be0a2f57fee025a2db740087a43c34a318d))
+* fixing donut js ([a07deaf](https://github.com/Mazars-Tech/AD_Miner/commit/a07deafdee838dd10c690fad56cf7509a1e53c54))
+* more logical calculation of ghost computers ([a359e38](https://github.com/Mazars-Tech/AD_Miner/commit/a359e38f719b59348b488e6b9f249ccec7cca032))
+* paths to Operators groups ([#110](https://github.com/Mazars-Tech/AD_Miner/issues/110)) ([239cada](https://github.com/Mazars-Tech/AD_Miner/commit/239cada9895b6bdec7a8639e7083184394ef62d5))
+* temporary fix to enable serialization of neo4j datetime objects ([3695d9e](https://github.com/Mazars-Tech/AD_Miner/commit/3695d9e5c456b53c07b30df0d07e02b5d31d0ee5))
+
+
+### Features
+
+* changing on prem background circle ([3952bff](https://github.com/Mazars-Tech/AD_Miner/commit/3952bff05ca6bb23e352be863db36348b87784f7))
+* changing the azure circle ([70a49c4](https://github.com/Mazars-Tech/AD_Miner/commit/70a49c41502373c69e58a030ed79d96e017f5dd2))
+* Kerberos unconstrained delegation control rework ([0eef50f](https://github.com/Mazars-Tech/AD_Miner/commit/0eef50f2c81f97467fa86bd372b1f68021da8974))
+* **main_page:** init version of automatic hexagon placement ([59864b1](https://github.com/Mazars-Tech/AD_Miner/commit/59864b125fb142996f30757bf49babece28e43c5))
+* new icons ([5f3d80e](https://github.com/Mazars-Tech/AD_Miner/commit/5f3d80eb6c2b605380f8979d2c7931b846d96186))
+
+
+
 # [0.6.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.5.0...v0.6.0) (2023-11-20)
 
 
@@ -109,26 +132,6 @@
 ### Performance Improvements
 
 * remove 7 useless requests ([f04e1e6](https://github.com/Mazars-Tech/AD_Miner/commit/f04e1e6f3f10fe0d0cc4f846e21210d99c9ca660))
-
-
-
-# [0.3.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.2.1...v0.3.0) (2023-10-11)
-
-
-### Bug Fixes
-
-* add failsaves for domains missing ([b356841](https://github.com/Mazars-Tech/AD_Miner/commit/b35684168987aa6a528594aa9e3cc48c356b5bb7))
-* comment request and remove entry in config ([1f6f2cf](https://github.com/Mazars-Tech/AD_Miner/commit/1f6f2cf965f1cf042db2df0f976e8af5f2e93fbe))
-* group anomaly acl bug ([7bf0d64](https://github.com/Mazars-Tech/AD_Miner/commit/7bf0d64203b476845001108e069147727861606f))
-* hide list when closing search bar ([52d1e85](https://github.com/Mazars-Tech/AD_Miner/commit/52d1e85e4603c7201f3a25008e2e6103d25ffc7c))
-* remove old comment ([bbd3c21](https://github.com/Mazars-Tech/AD_Miner/commit/bbd3c21f8aca77476074db1a4c38453a464b8b2f))
-* remove unused request that could cause some crash ([b2b734a](https://github.com/Mazars-Tech/AD_Miner/commit/b2b734aaf0649ac1c6df2a700b044614627c9e47))
-
-
-### Features
-
-* add animation, auto-focus and highlight ([12580b2](https://github.com/Mazars-Tech/AD_Miner/commit/12580b2eebff273e6602dab1ef77cb06a22cb6d4))
-* search bar on main page ([f50b539](https://github.com/Mazars-Tech/AD_Miner/commit/f50b539284b712f703dcbfd89f1644d9ab109779))
 
 
 
