@@ -60,8 +60,8 @@ dico_category = {
         "vuln_functional_level",
         "empty_groups",
         "empty_ous",
-        "primaryGroupID_lower_than_1000"
-
+        "primaryGroupID_lower_than_1000",
+        "fgpp"
     ],
     "az_permissions": [
         "azure_users_paths_high_target",

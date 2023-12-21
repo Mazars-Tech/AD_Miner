@@ -730,6 +730,11 @@
         "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
     },
+    "get_fgpp": {
+        "name": "FGPP applied to users directly or via groups",
+        "request": "MATCH (u:User) WHERE u.fgpp_name IS NOT NULL RETURN u.fgpp_msds_psoappliesto, u.fgpp_name, u.fgpp_msds_minimumpasswordlength, u.fgpp_msds_minimumpasswordage, u.fgpp_msds_maximumpasswordage, u.fgpp_msds_passwordreversibleencryptionenabled, u.fgpp_msds_passwordhistorylength, u.fgpp_msds_passwordcomplexityenabled, u.fgpp_msds_lockoutduration, u.fgpp_msds_lockoutthreshold, u.fgpp_msds_lockoutobservationwindow",
+        "output_type": "list"
+    },
     "azure_set_gag": {
         "name": "Set gag=TRUE to Global admin group",
         "request": "MATCH (a:AZRole) WHERE a.name STARTS WITH 'GLOBAL ADMINISTRATOR@' SET a.is_gag=TRUE",

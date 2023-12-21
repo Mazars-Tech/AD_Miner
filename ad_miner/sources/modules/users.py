@@ -222,7 +222,9 @@ class Users:
         self.primaryGroupID_lower_than_1000 = neo4j.all_requests["primaryGroupID_lower_than_1000"]["result"]
 
         self.pre_windows_2000_compatible_access_group = neo4j.all_requests["pre_windows_2000_compatible_access_group"]["result"]
-        
+
+        self.fgpps = neo4j.all_requests["get_fgpp"]["result"]
+
         # Generate all the users-related pages
         self.genComputersWithMostAdminsPage()
         self.genServersCompromisablePage()
@@ -256,6 +258,7 @@ class Users:
         self.genProtectedUsers()
         self.genRID_lower_than_1000()
         self.genPreWin2000()
+        self.genFGPPPage()
         logger.print_warning(timer_format(time.time() - self.start))
 
     # List of Servers with the most user compromise paths (and if to handle empty cases)
@@ -1911,5 +1914,64 @@ class Users:
             data.append(tmp_data)
 
         grid.setData(data)
+        page.addComponent(grid)
+        page.render()
+
+    def genFGPPPage(self):
+        fgpps = self.fgpps
+        # create the page
+        page = Page(
+            self.arguments.cache_prefix,
+            "fgpp",
+            "fgpp",
+            "fgpp",
+        )
+        # create the grid
+        grid = Grid("FGPP")
+        # create the headers
+        headers = [
+            "affected object",
+            "fgpp name",
+            "minimumPasswordLength",
+            "minimumPasswordAge",
+            "maximumPasswordAge",
+            "clearTextPassword",
+            "passwordHistorySize",
+            "passwordComplexity",
+            "lockoutDuration",
+            "lockoutThreshold",
+            "lockoutObservationWindow",
+        ]
+        # get the grid data
+        grid_data = []
+        for (
+            obj,
+            fgppName,
+            minPassLen,
+            minPassAge,
+            maxPassAge,
+            clearTextPass,
+            passHistSize,
+            passComp,
+            lockThre,
+            lockDur,
+            lockObsWin,
+        ) in fgpps:
+            tmp_data = {}
+            tmp_data["affected object"] = obj if obj != None else "X"
+            tmp_data["fgpp name"] = fgppName if fgppName != None else "X"
+            tmp_data["minimumPasswordLength"] = minPassLen if minPassLen != None else "X"
+            tmp_data["minimumPasswordAge"] = minPassAge if minPassAge != None else "X"
+            tmp_data["maximumPasswordAge"] = maxPassAge if maxPassAge != None else "X"
+            tmp_data["clearTextPassword"] = clearTextPass if clearTextPass != None else "X"
+            tmp_data["passwordHistorySize"] = passHistSize if passHistSize != None else "X"
+            tmp_data["passwordComplexity"] = passComp if passComp != None else "X"
+            tmp_data["lockoutDuration"] = lockDur if lockDur != None else "X"
+            tmp_data["lockoutThreshold"] = lockThre if lockThre != None else "X"
+            tmp_data["lockoutObservationWindow"] = lockObsWin if lockObsWin != None else "X"
+            grid_data.append(tmp_data)
+
+        grid.setheaders(headers)
+        grid.setData(grid_data)
         page.addComponent(grid)
         page.render()
