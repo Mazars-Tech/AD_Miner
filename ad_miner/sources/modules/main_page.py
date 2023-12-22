@@ -475,7 +475,7 @@ def render(
         "minor_risk":      {"code" :"B", "colors": "255, 221, 0", "i_class": 'bi bi-dash-circle-fill', "div_class": "yellow", "panel_key": "list_cards_minor_alert_issues", "risk_name": "Minor"},
         "handled_risk":    {"code" :"A", "colors": "91, 180, 32", "i_class": 'bi bi-check-circle-fill', "div_class": "success", "panel_key": "", "risk_name": ""}
     }
-    data["on_premise"]["permission_data"] = []
+    data["on_premise"]["permissions_data"] = []
     data["on_premise"]["passwords_data"] = []
     data["on_premise"]["kerberos_data"] = []
     data["on_premise"]["misc_data"] = []
@@ -493,7 +493,7 @@ def render(
         for risk_control in global_risk_controls:
 
             if category_repartition == "on_premise":  # on premise
-                categories = {"permission": 0, "passwords": 0, "kerberos": 0, "misc": 0}
+                categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
 
                 for control in data["on_premise"][f"{risk_control}_list"]:
 
@@ -561,7 +561,7 @@ def render(
         data[category_repartition]["alert_or_alerts"] = manage_plural(data[category_repartition]["potential_risk"], ("Alert", "Alerts"))
         data[category_repartition]["minor_alert_or_alerts"] = manage_plural(data[category_repartition]["minor_risk"], ("Minor issue", "Minor issues"))
 
-    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permission_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
+    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permissions_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
     data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["ms_graph_data"], data["azure"]["az_permissions_data"], data["azure"]["az_passwords_data"], data["azure"]["az_misc_data"])]
 
 
@@ -656,7 +656,7 @@ def render(
 
         angles = {"passwords": (-2*pi/3, -pi),
                   "kerberos": (0, -pi/3),
-                  "permission": (0, pi),
+                  "permissions": (0, pi),
                   "misc": (-pi/3, -2*pi/3),
                   "az_permissions": (0, pi),
                   "az_misc": (-pi/3, -2*pi/3),
@@ -671,7 +671,7 @@ def render(
                                                        angles[category][0],
                                                        angles[category][1])
 
-        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "az_misc": 0, "az_permissions": 0, "az_passwords": 0, "ms_graph": 0}
+        dico_position_instance = {"passwords": 0, "kerberos": 0, "permissions": 0, "misc": 0, "az_misc": 0, "az_permissions": 0, "az_passwords": 0, "ms_graph": 0}
 
         controls_by_color = {"grey": [],
                              "green": [],

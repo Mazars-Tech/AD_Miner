@@ -36,7 +36,7 @@ function toggleDiv(divId) {
     
     // Update links to on-prem smolcards
     document.getElementById("switchCard_misc").onclick = function () {switchCards('misc')};
-    document.getElementById("switchCard_permission").onclick = function () {switchCards('permission')};
+    document.getElementById("switchCard_permission").onclick = function () {switchCards('permissions')};
     document.getElementById("switchCard_kerberos_ms_graph").onclick = function () {switchCards('kerberos')};
     document.getElementById("switchCard_passwords").onclick = function () {switchCards('passwords')};
 
@@ -181,7 +181,7 @@ function display_all_hexagons(dico_entry) {
     }),
   );
 
-  var title_permissions = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('permission')>
+  var title_permissions = `<a data-bs-toggle="modal" href="#cardsModal" onclick=switchCards('permissions')>
     <img src="../icons/main_circle/permissions.svg" class="title-section shadow" style="top:15%; left: 40%""/>
     </a>`;
   // $('.main_circle').append(title_permissions);
