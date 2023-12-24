@@ -351,6 +351,7 @@ class Neo4j:
                         request["request"],
                         self.arguments,
                         output_type,
+                        self.gds_cost_type_table,
                     ]
                 )
 
