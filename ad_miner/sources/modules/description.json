@@ -539,6 +539,12 @@
     "risk": "The Protected Users group should be used to harden authentication and encryption mechanisms for sensitive accounts.",
     "poa": "Privileged accounts must be part of the Protected Users group."
   },
+  "fgpp": {
+    "title": "Users FGPP",
+    "description": "FGPP applied to a user, directly or via a group",
+    "risk": "FGPP change password and lockout policies if defined",
+    "poa": "The FGPP values overwrite the GPO values"
+  },
   "azure_users": {
     "title": "Azure users",
     "description": "Exhaustive list of all users in the Azure tenant",

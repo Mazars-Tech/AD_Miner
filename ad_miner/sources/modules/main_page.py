@@ -268,7 +268,8 @@ def create_dico_data(
         "rid_singularities": users.rid_singularities,
         "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group),
         "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
-        
+        "fgpp": len(users.fgpps),
+
         # Azure
         "azure_users_paths_high_target": len(azure.azure_users_paths_high_target),
         "azure_ms_graph_controllers": len(azure.azure_ms_graph_controllers),
@@ -423,7 +424,8 @@ def render(
         "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts not in Protected Users group",
         "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
         "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group",
-        
+        "fgpp": f"{len(users.fgpps)} FGPP defined",
+
         #azure
         "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets",
         "azure_ms_graph_controllers": f"{len(azure.azure_ms_graph_controllers)} paths to MS Graph controllers",

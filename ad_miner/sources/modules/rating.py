@@ -187,7 +187,8 @@ def rating(users, domains, computers, objects, azure, arguments):
     d["on_premise"][presence_of([dic for dic in users.users_nb_domain_admins if "Protected Users" not in dic["admin type"]])].append("privileged_accounts_outside_Protected_Users"),
     d["on_premise"][2 if users.rid_singularities > 0 else 5].append("primaryGroupID_lower_than_1000")
     d["on_premise"][rate_pre_windows_2000(users.pre_windows_2000_compatible_access_group)].append("pre_windows_2000_compatible_access_group")
-    
+    d["on_premise"][rate_fgpp(users.fgpps)].append("fgpp")
+
     # Azure
     d["azure"][presence_of(azure.azure_users_paths_high_target, 3)].append("azure_users_paths_high_target")
     d["azure"][presence_of(azure.azure_ms_graph_controllers, 1)].append("azure_ms_graph_controllers")
@@ -412,3 +413,6 @@ def rate_pre_windows_2000(pre_windows_2000_compatible_access_group):
         return 3
     else:
         return 5
+
+def rate_fgpp(fgpps):
+    return -1 if len(fgpps) == 0 else 5
