@@ -929,18 +929,17 @@ class Neo4j:
 
     @staticmethod
     def check_unkown_relations(self, result):
-        if not self.cache_enabled:
-            logger.print_warning("Setting exploitability ratings to edges.")
-            with self.driver.session() as session:
-                with session.begin_transaction() as tx:
-                    for r in self.edges_rating.keys():
-                        cost = self.edges_rating[r]
-                        q = "MATCH ()-[r:"
-                        q += str(r)
-                        q += "]->() SET r.cost="
-                        q += str(cost)
+        logger.print_warning("Setting exploitability ratings to edges.")
+        with self.driver.session() as session:
+            with session.begin_transaction() as tx:
+                for r in self.edges_rating.keys():
+                    cost = self.edges_rating[r]
+                    q = "MATCH ()-[r:"
+                    q += str(r)
+                    q += "]->() SET r.cost="
+                    q += str(cost)
 
-                        tx.run(q)
+                    tx.run(q)
 
         relation_list = [r[0] for r in result]
 

@@ -6,3 +6,4 @@ class Path:
         self.nodes.reverse()
         for i in range(len(self.nodes) - 1):
             self.nodes[i].relation_type = self.nodes[i + 1].relation_type
+        self.nodes[-1].relation_type = None

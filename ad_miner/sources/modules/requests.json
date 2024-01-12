@@ -500,10 +500,9 @@
         "create_gds_graph": "CALL gds.graph.project.cypher('graph_objects_to_domain_admin', 'MATCH (n) RETURN id(n) AS id', 'MATCH (n)-[r:$properties$]->(m) RETURN id(m) as source, id(n) AS target, r.cost as cost', {validateRelationships: false})",
         "drop_gds_graph": "CALL gds.graph.drop('graph_objects_to_domain_admin', false) YIELD graphName",
         "request": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties$*1..$recursive_level$]->(g:Group{is_dag:true})) WHERE m<>g SET m.has_path_to_da=true RETURN DISTINCT(p) as p",
-        "gds_request" : "MATCH (target:Group {is_dag: true}) WITH target SKIP PARAM1 LIMIT PARAM2 CALL gds.allShortestPaths.dijkstra.stream('graph_objects_to_domain_admin', {sourceNode: target, relationshipWeightProperty: 'cost', logProgress: false}) YIELD path WITH nodes(path)[-1] AS starting_node, path WHERE starting_node.path_candidate = TRUE SET starting_node.has_path_to_da=true RETURN path as p",
+        "gds_request" : "MATCH (target:Group {is_dag: true}) CALL gds.allShortestPaths.dijkstra.stream('graph_objects_to_domain_admin', {sourceNode: target, relationshipWeightProperty: 'cost', logProgress: false}) YIELD path WITH nodes(path)[-1] AS starting_node, path WHERE starting_node.path_candidate = TRUE SET starting_node.has_path_to_da=true RETURN path as p",
         "output_type": "Graph",
         "scope_query": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL RETURN count(m)",
-        "gds_scope_query": "MATCH (target:Group {is_dag: true}) RETURN count(*)",
         "reverse_path": true,
         "is_a_write_request": "true"
     },
