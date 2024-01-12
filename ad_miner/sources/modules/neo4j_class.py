@@ -177,12 +177,23 @@ class Neo4j:
                     "$recursive_level$": int(recursive_level),
                     "$inbound_control_edges$": inbound_control_edges,
                 }
+
+                fields_to_replace = ["request",
+                                     "scope_query",
+                                     "create_gds_graph",
+                                     "gds_request",
+                                     "gds_scope_query",
+                                     "drop_gds_graph"]
+
                 for variable in variables_to_replace.keys():
-                    self.all_requests[request_key][
-                        "request"
-                    ] = self.all_requests[request_key]["request"].replace( # Will find the first matching, not the longest matching ! $properties will be replaced instead of $properties1
-                        variable, str(variables_to_replace[variable])
-                    )
+                    for field in fields_to_replace:
+                        if field in self.all_requests[request_key]:
+
+                            self.all_requests[request_key][
+                                field
+                            ] = self.all_requests[request_key][field].replace(
+                                variable, str(variables_to_replace[variable])
+                            )
 
                 # Replace postprocessing with python method
                 if "postProcessing" in self.all_requests[request_key]:
@@ -322,8 +333,13 @@ class Neo4j:
             with self.driver.session() as session:
                 with session.begin_transaction() as tx:
                     tx.run(q)
+
             request["request"] = request["gds_request"]
-            request["scope_query"] = request["gds_scope_query"]
+
+            if "gds_scope_query" in request:
+                request["scope_query"] = request["gds_scope_query"]
+            else:
+                del request["scope_query"]
 
         if "scope_query" in request:
             with self.driver.session() as session:
@@ -368,13 +384,12 @@ class Neo4j:
         if result is None:
             result = []
 
-        self.cache.createCacheEntry(request_key, result)
-        logger.print_warning(
-            timer_format(time.time() - start) + " - %d objects" % len(result)
-        )
-
         if "postProcessing" in request:
             request["postProcessing"](self, result)
+
+        if "is_a_gds_request" in request and self.gds and "reverse_path" in request and request["reverse_path"]:
+            for path in result:
+                path.reverse()
 
         # If GDS installed and request adapted, dropping previously created graph
         if "is_a_gds_request" in request and self.gds:
@@ -383,6 +398,10 @@ class Neo4j:
                 with session.begin_transaction() as tx:
                     tx.run(q)
 
+        self.cache.createCacheEntry(request_key, result)
+        logger.print_warning(
+            timer_format(time.time() - start) + " - %d objects" % len(result)
+        )
         request["result"] = result
         return result
 
@@ -606,9 +625,9 @@ class Neo4j:
                 arguments,
                 output_type,
                 self.arguments.bolt,
-                self.gds_cost_type_table,
+                gds_cost_type_table,
             )
-            for value, identifier, query, arguments, output_type in items
+            for value, identifier, query, arguments, output_type, gds_cost_type_table in items
         ]
 
         with mp.Pool(mp.cpu_count()) as pool:
@@ -847,7 +866,7 @@ class Neo4j:
                 nodes = []
                 for relation in path.relationships:
                     rtype = relation.type
-                    if "PATH_0" in rtype:
+                    if "PATH_" in rtype:
                         gds_identifier = round(float(relation.get('cost')), 3)
                         gds_identifier = int(1000 * (gds_identifier % 1))
 
