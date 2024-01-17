@@ -102,7 +102,7 @@ The following provides a list controls that have already been implemented in AD 
 
 ## Generating Sample Data ## 
 
-If you don't have a BloodHound dataset at your disposal but want to test ADMiner, you can generate a synthetic dataset using BH DBCreator (available here: https://github.com/BloodHoundAD/BloodHound-Tools/tree/master/DBCreator). DBCreator allows you to generate a graph with the dimensions and domain name of your choice. You can then test the ADMiner on your synthetic data. 
+If you don't have a BloodHound dataset at your disposal but want to test ADMiner, you can generate a synthetic dataset using BH DBCreator (available here: https://github.com/kontr0x/BloodHound-Tools/tree/master). DBCreator allows you to generate a graph with the dimensions and domain name of your choice. You can then test the ADMiner on your synthetic data. 
 
 ## Discord ##
 
