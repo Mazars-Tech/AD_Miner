@@ -146,7 +146,7 @@ def main() -> None:
     number_objects = sum([type_label["number_type"] for type_label in total_objects])
 
     if number_objects == 0:
-        logger.print_error("Empty neo4j database : you need to collect data with Sharphound (https://github.com/BloodHoundAD/SharpHound), BloodHound.py (https://github.com/dirkjanm/BloodHound.py) or RustHound (https://github.com/NH-RED-TEAM/RustHound)")
+        logger.print_error("Empty neo4j database : you need to collect data with Sharphound (https://github.com/BloodHoundAD/SharpHound), BloodHound.py (https://github.com/dirkjanm/BloodHound.py), RustHound (https://github.com/NH-RED-TEAM/RustHound), or generate synthetic data with DBCreator (https://github.com/BloodHoundAD/BloodHound-Tools/tree/master/DBCreator)")
         logger.print_error("And then you can fill your neo4j database with Bloodhound (https://github.com/BloodHoundAD/BloodHound)")
         sys.exit(-1)
 
