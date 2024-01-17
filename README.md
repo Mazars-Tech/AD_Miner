@@ -79,12 +79,6 @@ Also, views by categories 'permissions,' 'passwords,' 'kerberos' also allow you 
     <img src="doc/img/evolution3.png" style="height:200px">
 </p>
 
-## Discord ##
-
-You can join the AD Miner Discord : https://discord.com/invite/5Hpj4Gs5SS
-
-Feel free to share any thoughts, feedback or issue that you can come up with regarding AD Miner as it's still evolving 🛠️
-
 ## Implemented controls ##
 
 The following provides a list controls that have already been implemented in AD Miner :
@@ -106,6 +100,15 @@ The following provides a list controls that have already been implemented in AD 
 |DC Shadow to all|Control paths to domain admins|Pre-Windows 2000 group|
 |Admincount relevance|Protected Users|Primary Group ID|
 
+## Generating Sample Data ## 
+
+If you don't have a BloodHound dataset at your disposal but want to test ADMiner, you can generate a synthetic dataset using BH DBCreator (available here: https://github.com/BloodHoundAD/BloodHound-Tools/tree/master/DBCreator). DBCreator allows you to generate a graph with the dimensions and domain name of your choice. You can then test the ADMiner on your synthetic data. 
+
+## Discord ##
+
+You can join the AD Miner Discord : https://discord.com/invite/5Hpj4Gs5SS
+
+Feel free to share any thoughts, feedback or issue that you can come up with regarding AD Miner as it's still evolving 🛠️
 
 ## Contributing ##
 
