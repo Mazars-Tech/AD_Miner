@@ -868,7 +868,7 @@ class Neo4j:
                     rtype = relation.type
                     if "PATH_" in rtype:
                         gds_identifier = round(float(relation.get('cost')), 3)
-                        gds_identifier = int(1000 * (gds_identifier % 1))
+                        gds_identifier = round(1000 * (gds_identifier % 1))
 
                         rtype = gds_cost_type_table[gds_identifier]
 
