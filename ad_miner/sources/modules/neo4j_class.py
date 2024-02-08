@@ -929,29 +929,30 @@ class Neo4j:
 
     @staticmethod
     def check_unkown_relations(self, result):
-        logger.print_warning("Setting exploitability ratings to edges.")
-        with self.driver.session() as session:
-            with session.begin_transaction() as tx:
-                for r in self.edges_rating.keys():
-                    cost = self.edges_rating[r]
-                    q = "MATCH ()-[r:"
-                    q += str(r)
-                    q += "]->() SET r.cost="
-                    q += str(cost)
+        if self.gds:
+            logger.print_warning("Setting exploitability ratings to edges.")
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    for r in self.edges_rating.keys():
+                        cost = self.edges_rating[r]
+                        q = "MATCH ()-[r:"
+                        q += str(r)
+                        q += "]->() SET r.cost="
+                        q += str(cost)
 
-                    tx.run(q)
+                        tx.run(q)
 
-        relation_list = [r[0] for r in result]
+            relation_list = [r[0] for r in result]
 
-        with self.driver.session() as session:
-            with session.begin_transaction() as tx:
-                for i in range(len(relation_list)):
-                    r = relation_list[i]
-                    if r not in self.edges_rating.keys():
-                        logger.print_warning(r + " relation type is unknown and will use default exploitability rating.")
-                    q = "MATCH ()-[r:"
-                    q += str(r)
-                    q += "]->() SET r.cost=r.cost + "
-                    q += str(round(i/1000, 3))
-                    tx.run(q)
-                    self.gds_cost_type_table[i] = r
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    for i in range(len(relation_list)):
+                        r = relation_list[i]
+                        if r not in self.edges_rating.keys():
+                            logger.print_warning(r + " relation type is unknown and will use default exploitability rating.")
+                        q = "MATCH ()-[r:"
+                        q += str(r)
+                        q += "]->() SET r.cost=r.cost + "
+                        q += str(round(i/1000, 3))
+                        tx.run(q)
+                        self.gds_cost_type_table[i] = r
