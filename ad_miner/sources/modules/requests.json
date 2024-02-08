@@ -54,7 +54,7 @@
     },
     "set_dc": {
         "name": "Set dc=TRUE to computers that are domain controllers)",
-        "request": "MATCH (c:Computer)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-516\" OR g.objectid ENDS WITH \"-521\"SET c.is_dc=TRUE",
+        "request": "MATCH (c:Computer)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-516\" OR g.objectid ENDS WITH \"-521\" SET c.is_dc=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
