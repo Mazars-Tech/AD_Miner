@@ -586,7 +586,8 @@
     },
     "rdp_access": {
         "name": "Users with RDP-access to Computers ",
-        "request": "CALL{MATCH p=(n:User{enabled:true,is_da:false})-[r1:MemberOf*1..5]->(m:Group)-[r2:CanRDP]->(c:Computer) RETURN n,c UNION ALL MATCH p=(n:User{enabled:true,is_da:false})-[r2:CanRDP]->(c:Computer) RETURN n,c }RETURN DISTINCT n.name AS user, c.name as computer",
+        "request": "MATCH (u:User{enabled:true,is_da:false}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 CALL {WITH u MATCH p=(u)-[r1:MemberOf*1..5]->(m:Group)-[r2:CanRDP]->(c:Computer) RETURN u.name as user, c.name as computer UNION ALL WITH u MATCH p=(u)-[r2:CanRDP]->(c:Computer) RETURN u.name as user, c.name as computer} RETURN DISTINCT user, computer",
+        "scope_query": "MATCH (u:User{enabled:true,is_da:false}) RETURN count(u)",
         "output_type": "dict"
     },
     "dc_impersonation": {
