@@ -235,7 +235,7 @@ def create_dico_data(
             computers.computers_members_high_privilege_uniq
         ) if computers.computers_members_high_privilege_uniq else 0,
         "computers_admin_of_computers": computers.count_computers_admins if computers.count_computers_admins else 0,
-        "graph_path_objects_to_da": len(list(set([item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0,
+        "graph_path_objects_to_da": len(list(set(p.nodes[0] for p in [item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0,
         "computers_last_connexion": len(domains.computers_not_connected_since_60) if domains.computers_not_connected_since_60 else 0,
         "users_rdp_access": len(users.users_rdp_access_1) if users.users_rdp_access_1 else 0,
         "computers_list_of_rdp_users": len(users.users_rdp_access_2) if users.users_rdp_access_2 else 0,
@@ -392,7 +392,7 @@ def render(
         "can_dcsync": f"{dico_data['value']['can_dcsync']} non DA/DC objects have DCSync privileges",
         "computers_members_high_privilege": f"{dico_data['value']['computers_members_high_privilege']} computers with high privs.",
         "computers_admin_of_computers": f"{computers.count_computers_admins} computers admin of {computers.count_computers_admins_target} computers",
-        "graph_path_objects_to_da": f"{len(list(set([item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0} users have a path to DA",
+        "graph_path_objects_to_da": f"{len(list(set(p.nodes[0] for p in [item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0} users have a path to DA",
         "computers_last_connexion": f"{dico_data['value']['computers_last_connexion']} ghost computers",
         "users_rdp_access": f"{dico_data['value']['users_rdp_access']} users with RDP access",
         "computers_list_of_rdp_users": f"{dico_data['value']['computers_list_of_rdp_users']} computers with RDP access",
