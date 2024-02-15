@@ -134,10 +134,12 @@ class Neo4j:
 
         self.extract_date = self.set_extract_date(str(extract_date_int))
 
+        self.gds_cost_type_table = {}
+
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
 
-        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GpLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced"
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GPLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced"
         path_to_group_operators_props = properties.replace('|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC','')
 
         if boolean_azure:
@@ -175,17 +177,30 @@ class Neo4j:
                     "$recursive_level$": int(recursive_level),
                     "$inbound_control_edges$": inbound_control_edges,
                 }
+
+                fields_to_replace = ["request",
+                                     "scope_query",
+                                     "create_gds_graph",
+                                     "gds_request",
+                                     "gds_scope_query",
+                                     "drop_gds_graph"]
+
                 for variable in variables_to_replace.keys():
-                    self.all_requests[request_key][
-                        "request"
-                    ] = self.all_requests[request_key]["request"].replace( # Will find the first matching, not the longest matching ! $properties will be replaced instead of $properties1
-                        variable, str(variables_to_replace[variable])
-                    )
+                    for field in fields_to_replace:
+                        if field in self.all_requests[request_key]:
+
+                            self.all_requests[request_key][
+                                field
+                            ] = self.all_requests[request_key][field].replace(
+                                variable, str(variables_to_replace[variable])
+                            )
 
                 # Replace postprocessing with python method
                 if "postProcessing" in self.all_requests[request_key]:
                     self.all_requests[request_key]["postProcessing"] = {
                         "Neo4j.setDangerousInboundOnGPOs": self.setDangerousInboundOnGPOs,
+                        "Neo4j.check_gds_plugin": self.check_gds_plugin,
+                        "Neo4j.check_unkown_relations": self.check_unkown_relations,
                     }.get(self.all_requests[request_key]["postProcessing"])
         except json.JSONDecodeError as error:
             logger.print_error(
@@ -206,6 +221,22 @@ class Neo4j:
 
         else:  # Deep version of GPO requests
             del self.all_requests["unpriv_users_to_GPO"]
+        try:
+            self.edges_rating = json.loads(
+                (MODULES_DIRECTORY / "exploitability_ratings.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        except json.JSONDecodeError as error:
+            logger.print_error(
+                f"Error while parsing exploitability ratings from exploitability_ratings.json : \n{error}"
+            )
+            sys.exit(-1)
+        except FileNotFoundError:
+            logger.print_error(
+                f"Exploitability ratings file not found : {MODULES_DIRECTORY / 'exploitability_ratings.json'} no such file."
+            )
+            sys.exit(-1)
 
         try:
             # Setup driver
@@ -228,9 +259,13 @@ class Neo4j:
         self.driver.close()
 
     @staticmethod
-    def executeParallelRequest(
-        value, identifier, query, arguments, output_type, server
-    ):
+    def executeParallelRequest(value,
+                               identifier,
+                               query,
+                               arguments,
+                               output_type,
+                               server,
+                               gds_cost_type_table):
         """This function is used in multiprocessing pools
         to execute multiple query parts in parallel"""
         q = query.replace("PARAM1", str(value)).replace(
@@ -253,7 +288,7 @@ class Neo4j:
                         if "p2" in record:
                             result.append(record["p2"])
                     try:
-                        result = Neo4j.computePathObject(result)
+                        result = Neo4j.computePathObject(result, gds_cost_type_table)
                     except Exception as e:
                         logger.print_error(
                             "An error while computing path object of this query:\n"
@@ -282,12 +317,29 @@ class Neo4j:
                     % (self.all_requests[request_key]["name"], len(result))
                 )
                 self.all_requests[request_key]["result"] = result
+                if "postProcessing" in self.all_requests[request_key]:
+                    self.all_requests[request_key]["postProcessing"](self, result)
                 return result
 
         request = self.all_requests[request_key]
         logger.print_debug("Requesting : %s" % request["name"])
         start = time.time()
         result = []
+
+        # Create neo4j GDS graph if plugin installed and request adapted
+        # Also replace the classic request and scope query with the GDS ones
+        if "is_a_gds_request" in request and self.gds:
+            q = request["create_gds_graph"]
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    tx.run(q)
+
+            request["request"] = request["gds_request"]
+
+            if "gds_scope_query" in request:
+                request["scope_query"] = request["gds_scope_query"]
+            else:
+                del request["scope_query"]
 
         if "scope_query" in request:
             with self.driver.session() as session:
@@ -315,6 +367,7 @@ class Neo4j:
                         request["request"],
                         self.arguments,
                         output_type,
+                        self.gds_cost_type_table,
                     ]
                 )
 
@@ -331,14 +384,24 @@ class Neo4j:
         if result is None:
             result = []
 
+        if "postProcessing" in request:
+            request["postProcessing"](self, result)
+
+        if "is_a_gds_request" in request and self.gds and "reverse_path" in request and request["reverse_path"]:
+            for path in result:
+                path.reverse()
+
+        # If GDS installed and request adapted, dropping previously created graph
+        if "is_a_gds_request" in request and self.gds:
+            q = request["drop_gds_graph"]
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    tx.run(q)
+
         self.cache.createCacheEntry(request_key, result)
         logger.print_warning(
             timer_format(time.time() - start) + " - %d objects" % len(result)
         )
-
-        if "postProcessing" in request:
-            request["postProcessing"](self, result)
-
         request["result"] = result
         return result
 
@@ -356,7 +419,8 @@ class Neo4j:
                         # (e.g., RETURN p, p2)
                         if "p2" in record:
                             result.append(record["p2"])
-                    result = self.computePathObject(result)
+                    result = self.computePathObject(result,
+                                                    self.gds_cost_type_table)
                 else:
                     result = tx.run(request["request"])
                     if output_type is list:
@@ -380,6 +444,7 @@ class Neo4j:
                 self.arguments,
                 self.all_requests[request_key]["output_type"],
                 server,
+                self.gds_cost_type_table,
             )
             for server in self.cluster.keys()
         ]
@@ -508,6 +573,7 @@ class Neo4j:
                             query,
                             arguments,
                             output_type,
+                            self.gds_cost_type_table
                         ) = item
 
                         task = pool.apply_async(
@@ -519,6 +585,7 @@ class Neo4j:
                                 arguments,
                                 output_type,
                                 server,
+                                self.gds_cost_type_table,
                             ),
                         )
                         temp_results.append(task)
@@ -558,8 +625,9 @@ class Neo4j:
                 arguments,
                 output_type,
                 self.arguments.bolt,
+                gds_cost_type_table,
             )
-            for value, identifier, query, arguments, output_type in items
+            for value, identifier, query, arguments, output_type, gds_cost_type_table in items
         ]
 
         with mp.Pool(mp.cpu_count()) as pool:
@@ -753,6 +821,7 @@ class Neo4j:
                                 arguments,
                                 output_type,
                                 server,
+                                self.gds_cost_type_table,
                             ),
                         )
                         if server == next(iter(self.cluster)):
@@ -788,7 +857,7 @@ class Neo4j:
         return result
 
     @classmethod
-    def computePathObject(cls, Paths):
+    def computePathObject(self, Paths, gds_cost_type_table):
         """computePathObject allows object to be serialized and should
         be used when output_type == Graph"""
         final_paths = []
@@ -796,6 +865,13 @@ class Neo4j:
             if path is not None:
                 nodes = []
                 for relation in path.relationships:
+                    rtype = relation.type
+                    if "PATH_" in rtype:
+                        gds_identifier = round(float(relation.get('cost')), 3)
+                        gds_identifier = round(1000 * (gds_identifier % 1))
+
+                        rtype = gds_cost_type_table[gds_identifier]
+
                     for node in relation.nodes:
                         label = [i for i in node.labels if 'Base' not in i][0] # e.g. : {"User","Base"} -> "User" or {"User","AZBase"} -> "User"
                         nodes.append(
@@ -805,7 +881,7 @@ class Neo4j:
                                 node["name"],
                                 node["domain"],
                                 node["tenantid"],
-                                relation.type,
+                                rtype,
                             )
                         )
                         break
@@ -824,3 +900,59 @@ class Neo4j:
                 final_paths.append(Path(nodes))
 
         return final_paths
+
+    @staticmethod
+    def check_gds_plugin(self, result):
+        """Verify if graph data science plugin installed
+        on the neo4j database. Set a flag accordingly."""
+        self.gds = result[0]['gds_installed']
+        assert type(self.gds) is bool
+        if self.gds:
+            logger.print_success("GDS plugin installed.")
+            logger.print_success("Using exploitability for paths computation.")
+
+            # If GDS is installed, drop all existing graphs to avoid conflicts
+            q = 'CALL gds.graph.list() YIELD graphName RETURN graphName'
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    result = tx.run(q).values()
+                existing_graphs = [el[0] for el in result]
+                for g in existing_graphs:
+                    logger.print_debug("Deleting " + g + "graph to prevent conflicts")
+                    q = 'CALL gds.graph.drop(\'' + g + '\') YIELD graphName;'
+                    with session.begin_transaction() as tx:
+                        tx.run(q)
+
+        else:
+            logger.print_magenta("GDS plugin not installed.")
+            logger.print_magenta("Not using exploitability for paths computation.")
+
+    @staticmethod
+    def check_unkown_relations(self, result):
+        if self.gds:
+            logger.print_warning("Setting exploitability ratings to edges.")
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    for r in self.edges_rating.keys():
+                        cost = self.edges_rating[r]
+                        q = "MATCH ()-[r:"
+                        q += str(r)
+                        q += "]->() SET r.cost="
+                        q += str(cost)
+
+                        tx.run(q)
+
+            relation_list = [r[0] for r in result]
+
+            with self.driver.session() as session:
+                with session.begin_transaction() as tx:
+                    for i in range(len(relation_list)):
+                        r = relation_list[i]
+                        if r not in self.edges_rating.keys():
+                            logger.print_warning(r + " relation type is unknown and will use default exploitability rating.")
+                        q = "MATCH ()-[r:"
+                        q += str(r)
+                        q += "]->() SET r.cost=r.cost + "
+                        q += str(round(i/1000, 3))
+                        tx.run(q)
+                        self.gds_cost_type_table[i] = r

@@ -236,7 +236,7 @@ class Azure:
         data = []
         for user in self.azure_aadconnect_users:
             data.append({
-                "Tenant ID": '<i class="bi bi-file-earmark-person"></i> ' + user["Tenant ID"],
+                "Tenant ID": '<i class="bi bi-file-earmark-person"></i> ' + f'{user["Tenant ID"] if user["Tenant ID"] != None else "-"}',
                 "Name": '<i class="bi bi-people-fill"></i> ' + user["Name"],
                 "Session": user["Session"] if user["Session"] != None else "-"
             })

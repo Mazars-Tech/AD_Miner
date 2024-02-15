@@ -25,7 +25,7 @@ dico_category = {
         "users_shadow_credentials",
         "users_shadow_credentials_to_non_admins",
     ],
-    "permission": [
+    "permissions": [
         "users_admin_of_computers",
         "server_users_could_be_admin",
         "dom_admin_on_non_dc",
@@ -60,8 +60,8 @@ dico_category = {
         "vuln_functional_level",
         "empty_groups",
         "empty_ous",
-        "primaryGroupID_lower_than_1000"
-
+        "primaryGroupID_lower_than_1000",
+        "fgpp"
     ],
     "az_permissions": [
         "azure_users_paths_high_target",
@@ -90,7 +90,7 @@ for key in dico_category:
         dico_category_invert[value] = key
 
 category_repartition_dict = {}
-for k in ["passwords", "kerberos", "permission", "misc"]:
+for k in ["passwords", "kerberos", "permissions", "misc"]:
     category_repartition_dict[k] = "on_premise"
 for k in ["az_permissions", "az_passwords", "az_misc", "ms_graph"]:
     category_repartition_dict[k] = "azure"

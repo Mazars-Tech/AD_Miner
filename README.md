@@ -79,6 +79,26 @@ Also, views by categories 'permissions,' 'passwords,' 'kerberos' also allow you 
     <img src="doc/img/evolution3.png" style="height:200px">
 </p>
 
+## Smartest paths ##
+
+AD Miner can compute paths based on their actual exploitability. Indeed, sometimes the shortest path is difficult to exploit (here because of the `ExecuteDCOM` before the `HasSession`).
+
+<p align="center">
+    <img src="doc/img/smartest_path_1.png">
+</p>
+
+While a longer but simpler path exists (here with `MemberOf` and `AdminTo` instead of `ExecuteDCOM`).
+
+<p align="center">
+    <img src="doc/img/smartest_path_2.png">
+</p>
+
+AD Miner automatically switches to smartest path mode when your neo4j database has the Graph Data Science plugin installed (https://neo4j.com/docs/graph-data-science/current/).
+The easiest way to install this plugin is to define an environment variable in your neo4j docker: ```NEO4J_PLUGINS=["graph-data-science"]```
+
+List of controls that currently support full graph coverage and smartest paths:
+* objects_to_domain_admin
+
 ## Discord ##
 
 You can join the AD Miner Discord : https://discord.com/invite/5Hpj4Gs5SS

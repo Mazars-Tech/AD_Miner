@@ -235,7 +235,7 @@ def create_dico_data(
             computers.computers_members_high_privilege_uniq
         ) if computers.computers_members_high_privilege_uniq else 0,
         "computers_admin_of_computers": computers.count_computers_admins if computers.count_computers_admins else 0,
-        "graph_path_objects_to_da": len(list(set([item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0,
+        "graph_path_objects_to_da": len(list(set(p.nodes[0] for p in [item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0,
         "computers_last_connexion": len(domains.computers_not_connected_since_60) if domains.computers_not_connected_since_60 else 0,
         "users_rdp_access": len(users.users_rdp_access_1) if users.users_rdp_access_1 else 0,
         "computers_list_of_rdp_users": len(users.users_rdp_access_2) if users.users_rdp_access_2 else 0,
@@ -268,7 +268,8 @@ def create_dico_data(
         "rid_singularities": users.rid_singularities,
         "pre_windows_2000_compatible_access_group": len(users.pre_windows_2000_compatible_access_group),
         "up_to_date_admincount": len(users.unpriviledged_users_with_admincount) + len([dic for dic in users.users_nb_domain_admins if not dic["admincount"]]),
-        
+        "fgpp": len(users.fgpps),
+
         # Azure
         "azure_users_paths_high_target": len(azure.azure_users_paths_high_target),
         "azure_ms_graph_controllers": len(azure.azure_ms_graph_controllers),
@@ -391,7 +392,7 @@ def render(
         "can_dcsync": f"{dico_data['value']['can_dcsync']} non DA/DC objects have DCSync privileges",
         "computers_members_high_privilege": f"{dico_data['value']['computers_members_high_privilege']} computers with high privs.",
         "computers_admin_of_computers": f"{computers.count_computers_admins} computers admin of {computers.count_computers_admins_target} computers",
-        "graph_path_objects_to_da": f"{len(list(set([item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0} users have a path to DA",
+        "graph_path_objects_to_da": f"{len(list(set(p.nodes[0] for p in [item for sublist in domains.users_to_domain_admin.values() for item in sublist]))) if domains.users_to_domain_admin else 0} users have a path to DA",
         "computers_last_connexion": f"{dico_data['value']['computers_last_connexion']} ghost computers",
         "users_rdp_access": f"{dico_data['value']['users_rdp_access']} users with RDP access",
         "computers_list_of_rdp_users": f"{dico_data['value']['computers_list_of_rdp_users']} computers with RDP access",
@@ -423,7 +424,8 @@ def render(
         "privileged_accounts_outside_Protected_Users": f"{dico_data['value']['privileged_accounts_outside_Protected_Users']} priviledged accounts not in Protected Users group",
         "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
         "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group",
-        
+        "fgpp": f"{len(users.fgpps)} FGPP defined",
+
         #azure
         "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets",
         "azure_ms_graph_controllers": f"{len(azure.azure_ms_graph_controllers)} paths to MS Graph controllers",
@@ -475,7 +477,7 @@ def render(
         "minor_risk":      {"code" :"B", "colors": "255, 221, 0", "i_class": 'bi bi-dash-circle-fill', "div_class": "yellow", "panel_key": "list_cards_minor_alert_issues", "risk_name": "Minor"},
         "handled_risk":    {"code" :"A", "colors": "91, 180, 32", "i_class": 'bi bi-check-circle-fill', "div_class": "success", "panel_key": "", "risk_name": ""}
     }
-    data["on_premise"]["permission_data"] = []
+    data["on_premise"]["permissions_data"] = []
     data["on_premise"]["passwords_data"] = []
     data["on_premise"]["kerberos_data"] = []
     data["on_premise"]["misc_data"] = []
@@ -493,7 +495,7 @@ def render(
         for risk_control in global_risk_controls:
 
             if category_repartition == "on_premise":  # on premise
-                categories = {"permission": 0, "passwords": 0, "kerberos": 0, "misc": 0}
+                categories = {"permissions": 0, "passwords": 0, "kerberos": 0, "misc": 0}
 
                 for control in data["on_premise"][f"{risk_control}_list"]:
 
@@ -561,7 +563,7 @@ def render(
         data[category_repartition]["alert_or_alerts"] = manage_plural(data[category_repartition]["potential_risk"], ("Alert", "Alerts"))
         data[category_repartition]["minor_alert_or_alerts"] = manage_plural(data[category_repartition]["minor_risk"], ("Minor issue", "Minor issues"))
 
-    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permission_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
+    data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permissions_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
     data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["ms_graph_data"], data["azure"]["az_permissions_data"], data["azure"]["az_passwords_data"], data["azure"]["az_misc_data"])]
 
 
@@ -656,7 +658,7 @@ def render(
 
         angles = {"passwords": (-2*pi/3, -pi),
                   "kerberos": (0, -pi/3),
-                  "permission": (0, pi),
+                  "permissions": (0, pi),
                   "misc": (-pi/3, -2*pi/3),
                   "az_permissions": (0, pi),
                   "az_misc": (-pi/3, -2*pi/3),
@@ -671,7 +673,7 @@ def render(
                                                        angles[category][0],
                                                        angles[category][1])
 
-        dico_position_instance = {"passwords": 0, "kerberos": 0, "permission": 0, "misc": 0, "az_misc": 0, "az_permissions": 0, "az_passwords": 0, "ms_graph": 0}
+        dico_position_instance = {"passwords": 0, "kerberos": 0, "permissions": 0, "misc": 0, "az_misc": 0, "az_permissions": 0, "az_passwords": 0, "ms_graph": 0}
 
         controls_by_color = {"grey": [],
                              "green": [],

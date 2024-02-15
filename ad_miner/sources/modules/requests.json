@@ -5,10 +5,22 @@
         "output_type": "The output type stored in neo4j.all_request[request_key][\"result\"]. list, dict and Graph are supported.",
         "is_a_write_request": "please specify true here if your request writes to the neo4j database. It allows correct execution in specific parallels modes.",
         "scope_query": "USE ONLY IF YOU SPECIFIED 'SKIP PARAM1 LIMIT PARAM2' to parallelize your request. The scope query request should be a neo4j request that returns the total count of elements you then want to SKIP and LIMIT. Ask @snowpeacock if unsure.",
-        "_comment": "You can use useless json entries to write comments about your request in this file.",
         "postProcessing": "A python function to call just after your request. You should also define it in the neo4j_class.py file.",
+        "is_a_gds_request": "true if this request returns a gs path and has attributes `create_gds_graph`, `gds_request` and `drop_gds_graph`",
+        "create_gds_graph": "neo4j request to create a neo4j GDS graph. Used only for gds requests",
+        "gds_request": "cypher request to compute path with cost computation",
+        "gds_scope_query": "scope query for the gds request",
+        "reverse_path": "To specify only if you need to return inverted paths, used for specific gds requests",
+        "drop_gds_graph": "cypher request to drop the neo4j GDS graph",
+        "_comment": "You can use useless json entries to write comments about your request in this file.",
         "_comment_2": "The following variables should be used in the neo4j request and will be replaced by the python code : $properties$, $extract_date$, $password_renewal$, $recursive_level$, $inbound_control_edges$, $path_to_group_operators_props$.",
         "_comment_3": "The cache file of your neo4j request will be named after its name in this file. The 'filename' attribute is deprecated."
+    },
+    "check_if_GDS_installed" : {
+        "name": "Checking if Graph Data Science neo4j plugin is installed",
+        "request": "SHOW PROCEDURES YIELD name RETURN 'gds.graph.project' IN COLLECT(name) AND 'gds.shortestPath.dijkstra.stream' IN COLLECT(name) as gds_installed",
+        "output_type": "dict",
+        "postProcessing": "Neo4j.check_gds_plugin"
     },
     "delete_orphans" : {
         "name": "Delete orphan objects that have no labels",
@@ -54,7 +66,7 @@
     },
     "set_dc": {
         "name": "Set dc=TRUE to computers that are domain controllers)",
-        "request": "MATCH (c:Computer)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-516\" OR g.objectid ENDS WITH \"-521\"SET c.is_dc=TRUE",
+        "request": "MATCH (c:Computer)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-516\" OR g.objectid ENDS WITH \"-521\" SET c.is_dc=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -348,6 +360,17 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "set_default_exploitability_rating" : {
+        "name": "Set default exploitability rating (r.cost=100) to all relations",
+        "request": "MATCH ()-[r]->() SET r.cost=100",
+        "output_type": "list"
+    },
+    "check_unknown_relations" : {
+        "name": "Checking for unknown relations",
+        "request": "MATCH ()-[r]->() RETURN DISTINCT type(r) as relationType",
+        "output_type": "list",
+        "postProcessing": "Neo4j.check_unkown_relations"
+    },
     "domains": {
         "name": "List of domains",
         "request": "MATCH (m:Domain) RETURN DISTINCT(m.name) AS domain ORDER BY m.name",
@@ -371,8 +394,8 @@
     },
     "users_shadow_credentials_to_non_admins": {
         "name": "Non privileged users that can be impersonated by non privileged users",
-        "request": "CALL {MATCH (u:User{enabled:true,is_da:false}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((u)-[r:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl*1..3]->(m:User{enabled:true})) WHERE u<>m RETURN p UNION ALL MATCH (g:Group{is_dag:false,is_da:false})  WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((g:Group{is_dag:false,is_da:false})-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl*1..3]->(m:User{enabled:true})) RETURN p} RETURN distinct p",
-        "scope_query": "MATCH (u:User {enabled:true, is_da:false}) WITH count(u) AS user_count MATCH (g:Group {is_dag:false, is_da:false}) WITH user_count, count(g) AS group_count RETURN CASE WHEN user_count > group_count THEN user_count ELSE group_count END AS max_count",
+        "request": "CALL {MATCH (s:User{enabled:true, is_da:false}) RETURN s UNION ALL MATCH (s:Group{is_dag:false,is_da:false}) RETURN s} WITH s ORDER BY s.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((s)-[r:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl*1..3]->(t:User{enabled:true})) WHERE s <> t RETURN p",
+        "scope_query": "CALL {MATCH (s:User{enabled:true, is_da:false}) RETURN s UNION ALL MATCH (s:Group{is_dag:false,is_da:false}) RETURN s} WITH s ORDER BY s.name RETURN count(s)",
         "output_type": "Graph"
     },
     "nb_enabled_accounts": {
@@ -473,9 +496,14 @@
     },
     "objects_to_domain_admin": {
         "name": "Objects with path to DA",
+        "is_a_gds_request": "true",
+        "create_gds_graph": "CALL gds.graph.project.cypher('graph_objects_to_domain_admin', 'MATCH (n) RETURN id(n) AS id', 'MATCH (n)-[r:$properties$]->(m) RETURN id(m) as source, id(n) AS target, r.cost as cost', {validateRelationships: false})",
+        "drop_gds_graph": "CALL gds.graph.drop('graph_objects_to_domain_admin', false) YIELD graphName",
         "request": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL WITH m ORDER BY m.name SKIP PARAM1 LIMIT PARAM2 MATCH p = shortestPath((m)-[r:$properties$*1..$recursive_level$]->(g:Group{is_dag:true})) WHERE m<>g SET m.has_path_to_da=true RETURN DISTINCT(p) as p",
+        "gds_request" : "MATCH (target:Group {is_dag: true}) CALL gds.allShortestPaths.dijkstra.stream('graph_objects_to_domain_admin', {sourceNode: target, relationshipWeightProperty: 'cost', logProgress: false}) YIELD path WITH nodes(path)[-1] AS starting_node, path WHERE starting_node.path_candidate = TRUE SET starting_node.has_path_to_da=true RETURN path as p",
         "output_type": "Graph",
         "scope_query": "MATCH (m{path_candidate:true}) WHERE NOT m.name IS NULL RETURN count(m)",
+        "reverse_path": true,
         "is_a_write_request": "true"
     },
     "objects_to_adcs": {
@@ -558,7 +586,8 @@
     },
     "rdp_access": {
         "name": "Users with RDP-access to Computers ",
-        "request": "CALL{MATCH p=(n:User{enabled:true,is_da:false})-[r1:MemberOf*1..5]->(m:Group)-[r2:CanRDP]->(c:Computer) RETURN n,c UNION ALL MATCH p=(n:User{enabled:true,is_da:false})-[r2:CanRDP]->(c:Computer) RETURN n,c }RETURN DISTINCT n.name AS user, c.name as computer",
+        "request": "MATCH (u:User{enabled:true,is_da:false}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 CALL {WITH u MATCH p=(u)-[r1:MemberOf*1..5]->(m:Group)-[r2:CanRDP]->(c:Computer) RETURN u.name as user, c.name as computer UNION ALL WITH u MATCH p=(u)-[r2:CanRDP]->(c:Computer) RETURN u.name as user, c.name as computer} RETURN DISTINCT user, computer",
+        "scope_query": "MATCH (u:User{enabled:true,is_da:false}) RETURN count(u)",
         "output_type": "dict"
     },
     "dc_impersonation": {
@@ -730,6 +759,11 @@
         "request": "MATCH (u:User{enabled:true}) WHERE u.is_da=false AND u.admincount=true RETURN u.name, u.domain, u.da_type",
         "output_type": "list"
     },
+    "get_fgpp": {
+        "name": "FGPP applied to users directly or via groups",
+        "request": "MATCH (u:User) WHERE u.fgpp_name IS NOT NULL RETURN u.fgpp_msds_psoappliesto, u.fgpp_name, u.fgpp_msds_minimumpasswordlength, u.fgpp_msds_minimumpasswordage, u.fgpp_msds_maximumpasswordage, u.fgpp_msds_passwordreversibleencryptionenabled, u.fgpp_msds_passwordhistorylength, u.fgpp_msds_passwordcomplexityenabled, u.fgpp_msds_lockoutduration, u.fgpp_msds_lockoutthreshold, u.fgpp_msds_lockoutobservationwindow",
+        "output_type": "list"
+    },
     "azure_set_gag": {
         "name": "Set gag=TRUE to Global admin group",
         "request": "MATCH (a:AZRole) WHERE a.name STARTS WITH 'GLOBAL ADMINISTRATOR@' SET a.is_gag=TRUE",
@@ -773,7 +807,7 @@
     },
     "azure_admin_on_prem": {
         "name": "Return all Azure admins that are also on premise admins",
-        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.Name",
+        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.name as Name",
         "output_type": "dict"
     },
     "azure_role_listing": {

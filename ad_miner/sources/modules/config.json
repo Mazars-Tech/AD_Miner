@@ -120,6 +120,7 @@
         "pre_windows_2000_compatible_access_group": "true",
         "guest_accounts": "true",
         "unpriviledged_users_with_admincount": "true",
+        "fgpp": "true",
         "kud":"true",
         "set_target_kud":"true",
         "azure_set_gag": "true",
