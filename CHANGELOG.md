@@ -1,3 +1,27 @@
+# [1.1.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.0.0...v1.1.0) (2024-02-15)
+
+
+### Bug Fixes
+
+* better request for low privilege impersonation ([#121](https://github.com/Mazars-Tech/AD_Miner/issues/121)) ([71ceb57](https://github.com/Mazars-Tech/AD_Miner/commit/71ceb571d8526fa888cb029c40faa6be78658ee8))
+* bug with u.name ([#123](https://github.com/Mazars-Tech/AD_Miner/issues/123)) ([26cb9d8](https://github.com/Mazars-Tech/AD_Miner/commit/26cb9d873eda64c0e874b9ba9b2585c81ace6382))
+* bugs with charts and azure data ([#114](https://github.com/Mazars-Tech/AD_Miner/issues/114)) ([7523229](https://github.com/Mazars-Tech/AD_Miner/commit/7523229e2c6873c66ba30f9101fbf3ce0426cc68))
+* correct spelling of GPLink to take it into account when computing paths ([337320d](https://github.com/Mazars-Tech/AD_Miner/commit/337320d64293f18c61cf281a6b8e6f8cd87c2b76))
+* fix typo in request leading to missing DCs ([#118](https://github.com/Mazars-Tech/AD_Miner/issues/118)) ([3867f20](https://github.com/Mazars-Tech/AD_Miner/commit/3867f2045d3412f5830c63bb59aadc7c372895d6))
+
+
+### Features
+
+* adding fgpp control ([#113](https://github.com/Mazars-Tech/AD_Miner/issues/113)) ([6431abf](https://github.com/Mazars-Tech/AD_Miner/commit/6431abf00c945c40fb4e9714af01c22d4dc6a751))
+* smartest path ([#119](https://github.com/Mazars-Tech/AD_Miner/issues/119)) ([2d59408](https://github.com/Mazars-Tech/AD_Miner/commit/2d5940813cf950056bf7e857138af820a1ec4042))
+
+
+### Performance Improvements
+
+* parallelization of the rdp request ([#122](https://github.com/Mazars-Tech/AD_Miner/issues/122)) ([5d18ab0](https://github.com/Mazars-Tech/AD_Miner/commit/5d18ab0e87d0b24d515a37dfedc0e5111568f817))
+
+
+
 # [1.0.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.7.0...v1.0.0) (2023-12-20)
 
 
@@ -113,17 +137,6 @@
 * parallelize set_dcsync request ([ed711c7](https://github.com/Mazars-Tech/AD_Miner/commit/ed711c74b0afe125af911264f62e795915594137))
 * small rework for dcsync control ([ac797ee](https://github.com/Mazars-Tech/AD_Miner/commit/ac797ee26afb9b92028afd1a7669148ba2d2b1f2))
 * small rework for GPO ([99638f1](https://github.com/Mazars-Tech/AD_Miner/commit/99638f1e52fb26ce493740ffacee2b444545ea5e))
-
-
-
-## [0.4.1](https://github.com/Mazars-Tech/AD_Miner/compare/v0.4.0...v0.4.1) (2023-10-18)
-
-
-### Bug Fixes
-
-* code typo crash AD Miner when disabling a request in config.json ([fdfd77a](https://github.com/Mazars-Tech/AD_Miner/commit/fdfd77aabd920ce473e58c136a96fe2f0d08ee5c))
-* discord invitation link is now permanent ([2ff56b3](https://github.com/Mazars-Tech/AD_Miner/commit/2ff56b34303696009d233abc3937367679e0ad01))
-* quick fail safe for da to da in case domains were not collected ([06e67ae](https://github.com/Mazars-Tech/AD_Miner/commit/06e67aea90f54e4aebc4736b33e5f7f2c70e0ce4))
 
 
 
