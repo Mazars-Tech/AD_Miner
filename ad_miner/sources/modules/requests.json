@@ -807,7 +807,7 @@
     },
     "azure_admin_on_prem": {
         "name": "Return all Azure admins that are also on premise admins",
-        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.Name",
+        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.name as Name",
         "output_type": "dict"
     },
     "azure_role_listing": {
