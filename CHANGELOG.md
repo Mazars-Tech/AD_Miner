@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.1.0...v1.2.0) (2024-03-12)
+
+
+### Features
+
+* update requests.json ([589eb7b](https://github.com/Mazars-Tech/AD_Miner/commit/589eb7bcd0f7b0f1290c94ed878718054c85370c))
+
+
+
 # [1.1.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.0.0...v1.1.0) (2024-02-15)
 
 
@@ -110,33 +119,6 @@
 ### Performance Improvements
 
 * better known SIDs ([b5e2f90](https://github.com/Mazars-Tech/AD_Miner/commit/b5e2f900590896a745fb175427912817cebba29c))
-
-
-
-# [0.5.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.4.1...v0.5.0) (2023-10-31)
-
-
-### Bug Fixes
-
-* better error message ([12fd654](https://github.com/Mazars-Tech/AD_Miner/commit/12fd654794c65f4fb1c3f8fabea03cd38a155573))
-* bugs with empty neo4j database ([dc6dc10](https://github.com/Mazars-Tech/AD_Miner/commit/dc6dc10b2ec420cd175d05f5d07485e8142bbd79))
-* fix OS format for obsolete OS ([7f70296](https://github.com/Mazars-Tech/AD_Miner/commit/7f70296cbbac7c4c3f6bc4c8a4fcc498e5959c0f))
-* fix visual bug on permission cards ([25dc2af](https://github.com/Mazars-Tech/AD_Miner/commit/25dc2af8bd2c1f5a8e9a69bdf39847ec95bfe4ef))
-* remove broken and useless IOE buttons + fix users chart ([7ca4f9a](https://github.com/Mazars-Tech/AD_Miner/commit/7ca4f9ad6ad2e7f14ced6ec99336cde950d7efa8))
-
-
-### Features
-
-* add colors ([b5275a9](https://github.com/Mazars-Tech/AD_Miner/commit/b5275a9036daef508ace4789747b68d326cd32c3))
-* add custom made edges to properties taken into account ([73f4351](https://github.com/Mazars-Tech/AD_Miner/commit/73f43518ceee06dfae78c6ca5c1a70088bdd90b2))
-* add neo4j information message ([222cb3f](https://github.com/Mazars-Tech/AD_Miner/commit/222cb3f66b0a189d14c3c916ca6f46753ed0aaac))
-* add os repartition chart ([3c8f5b4](https://github.com/Mazars-Tech/AD_Miner/commit/3c8f5b42f97b51814eb1ffc1277fff7044303437))
-* adding cross domain privileges control ([1242dca](https://github.com/Mazars-Tech/AD_Miner/commit/1242dcab0668fa40244af0ceb3e9861b985c345e))
-* ghost computer pages now displays pwdlastset attribute and whether the computer is enable or not ([f15898e](https://github.com/Mazars-Tech/AD_Miner/commit/f15898e70dd839c5305019020226989bbc5ae6f5))
-* merge both unconstrainted delegation controls in one ([60f62d7](https://github.com/Mazars-Tech/AD_Miner/commit/60f62d7dd4df88f3a1775c6839871179c1e6dd4f))
-* parallelize set_dcsync request ([ed711c7](https://github.com/Mazars-Tech/AD_Miner/commit/ed711c74b0afe125af911264f62e795915594137))
-* small rework for dcsync control ([ac797ee](https://github.com/Mazars-Tech/AD_Miner/commit/ac797ee26afb9b92028afd1a7669148ba2d2b1f2))
-* small rework for GPO ([99638f1](https://github.com/Mazars-Tech/AD_Miner/commit/99638f1e52fb26ce493740ffacee2b444545ea5e))
 
 
 
