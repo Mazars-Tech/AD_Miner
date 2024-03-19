@@ -40,6 +40,12 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "delete_ADLocalGroup": {
+        "name": "Delete ADLocalGroup objects",
+        "request": "MATCH (d:ADLocalGroup) DETACH DELETE d",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "set_upper_domain_name": {
         "name": "Set domain names to upper case when not the case",
         "request": "MATCH (g) where g.domain <> toUpper(g.domain) SET g.domain=toUpper(g.domain) ",
