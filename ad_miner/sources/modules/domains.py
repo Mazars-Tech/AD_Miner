@@ -76,13 +76,13 @@ class Domains:
             [
                 user
                 for user in self.users_pwd_not_changed_since
-                if user["days"] > neo4j.password_renewal
+                if user["days"] is not None and user["days"] > neo4j.password_renewal
             ]
             if self.users_pwd_not_changed_since is not None
             else None
         )
         self.users_pwd_not_changed_since_1y = (
-            [user for user in self.users_pwd_not_changed_since if user["days"] > 365]
+            [user for user in self.users_pwd_not_changed_since if user["days"] is not None and user["days"] > 365]
             if self.users_pwd_not_changed_since is not None
             else None
         )

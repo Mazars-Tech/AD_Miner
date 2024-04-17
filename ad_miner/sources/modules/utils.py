@@ -144,7 +144,9 @@ def days_format(nb_days: int) -> str:
     Returns the date in a nice format
     """
     sortClass = str(nb_days).zfill(6)
-    if nb_days is None or nb_days > 19000:
+    if nb_days is None:
+        return f"<i class='{sortClass} bi bi-x-circle' style='color: rgb(255, 89, 94);'></i> Unknown"
+    if nb_days > 19000:
         return f"<i class='{sortClass} bi bi-x-circle' style='color: rgb(255, 89, 94);'></i> Never"
     y = nb_days // 365
     m = (nb_days % 365) // 30

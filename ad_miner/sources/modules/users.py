@@ -569,11 +569,13 @@ class Users:
                     sortClass = str(elem["days"]).zfill(
                         6
                     )  # used to make the sorting feature work with icons
+                    if elem["days"] is None:
+                        return "<i class='bi bi-calendar3'></i> Unknown"
                     return "<i class='bi bi-calendar3 %s'></i> %d days ago" % (
                         sortClass,
                         elem["days"],
                     )
-            return "<i class='bi bi-calendar3'></i> Very recently"
+            return "<i class='bi bi-calendar3'></i> Unknown"
 
         generateGraphPathToAdmin(self, domain)
 
