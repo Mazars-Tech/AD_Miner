@@ -32,7 +32,7 @@ def rating(users, domains, computers, objects, azure, arguments):
     )
     d["on_premise"][
         time_since(
-            max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set], default=None),
+            max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set if dict["pass_last_change"] is not None ], default=None),
             age=1 * 365,
             criticity=2,
         )
