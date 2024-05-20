@@ -236,14 +236,14 @@
     },
     "set_containsda": {
         "name": "Set contains_da_dc=TRUE to all objects that contains a domain administrator",
-        "request": "MATCH (o:OU)-[r:Contains*1..]->(x{is_da:true}) SET o.contains_da_dc=true",
-        "output_type": "list",
+        "request": "MATCH p=(o:OU)-[r:Contains*1..]->(x{is_da:true}) SET o.contains_da_dc=true RETURN p",
+        "output_type": "Graph",
         "is_a_write_request": "true"
     },
     "set_containsdc": {
         "name": "Set contains_da_dc=TRUE to all objects that contains a domain controller",
-        "request": "MATCH (o:OU)-[r:Contains*1..]->(x{is_dc:true}) SET o.contains_da_dc=true",
-        "output_type": "list",
+        "request": "MATCH p=(o:OU)-[r:Contains*1..]->(x{is_dc:true}) SET o.contains_da_dc=true RETURN p",
+        "output_type": "Graph",
         "is_a_write_request": "true"
     },
     "set_is_da_dc": {
@@ -619,9 +619,9 @@
         "output_type": "Graph",
         "scope_query": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL RETURN count(m)"
     },
-    "objects_to_ou_handlers": {
-        "name": "paths to objects that can link a gpo on an OU",
-        "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p1=shortestPath((u)-[:MemberOf|GenericAll|GenericWrite|Owns|WriteOwner|WriteDacl*1..8]->(o:OU{contains_da_dc:true})) WHERE NOT u=o CALL{WITH p1,o RETURN DISTINCT(p1) as p UNION ALL WITH o MATCH p=shortestPath((o:OU{contains_da_dc:true})-[:Contains*1..]->(v{is_da_dc:true})) RETURN DISTINCT(p) as p }RETURN p",
+    "compromise_paths_of_OUs": {
+        "name": "TODO",
+        "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((u)-[:MemberOf|GenericAll|GenericWrite|Owns|WriteOwner|WriteDacl*1..8]->(o:OU{contains_da_dc:true})) RETURN p",
         "output_type": "Graph",
         "scope_query": "MATCH (u:Computer{ou_candidate:true}) RETURN count(u)"
     },
