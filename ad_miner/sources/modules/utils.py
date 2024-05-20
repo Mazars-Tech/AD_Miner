@@ -15,9 +15,7 @@ MODULES_DIRECTORY = Path(__file__).parent
 DESCRIPTION_MAP = json.loads(
     (MODULES_DIRECTORY / "description.json").read_text(encoding="utf-8")
 )
-CONFIG_MAP = json.loads(
-    (MODULES_DIRECTORY / "config.json").read_text(encoding="utf-8")
-)
+CONFIG_MAP = json.loads((MODULES_DIRECTORY / "config.json").read_text(encoding="utf-8"))
 HTML_DIRECTORY = Path(__file__).parent.parent / "html"
 JS_DIRECTORY = Path(__file__).parent.parent / "js"
 
@@ -139,7 +137,7 @@ def timer_format(delta_time):
     return "Done in %.2f %s" % (delta, suffix)
 
 
-def days_format(nb_days: int) -> str:
+def days_format(nb_days: int, critical_time:int = 90) -> str:
     """
     Returns the date in a nice format
     """
@@ -151,12 +149,15 @@ def days_format(nb_days: int) -> str:
     y = nb_days // 365
     m = (nb_days % 365) // 30
     d = (nb_days % 365) % 30
+
+    color = "#b00404" if nb_days > 2 * critical_time else "#e36402" if nb_days > critical_time else "#0a6e01"
+
     if y > 0:
-        return f"<i class='{sortClass} bi bi-calendar3'></i> {y} year{'s' if y > 1 else ''}, {m} month{'s' if m > 1 else ''} and {d} day{'s' if d > 1 else ''}"
+        return f"<i class='{sortClass} bi bi-calendar3' style='color: {color};'></i> {y} year{'s' if y > 1 else ''}, {m} month{'s' if m > 1 else ''} and {d} day{'s' if d > 1 else ''}"
     elif m > 0:
-        return f"<i class='{sortClass} bi bi-calendar3'></i> {m} month{'s' if m > 1 else ''} and {d} day{'s' if d > 1 else ''}"
+        return f"<i class='{sortClass} bi bi-calendar3' style='color: {color};'></i> {m} month{'s' if m > 1 else ''} and {d} day{'s' if d > 1 else ''}"
     else:
-        return f"<i class='{sortClass} bi bi-calendar3'></i> {d} day{'s' if d > 1 else ''}"
+        return f"<i class='{sortClass} bi bi-calendar3' style='color: {color};'></i> {d} day{'s' if d > 1 else ''}"
 
 
 def grid_data_stringify(raw_data: dict) -> str:
@@ -170,6 +171,6 @@ def grid_data_stringify(raw_data: dict) -> str:
     }
     """
     try:
-        return f"{raw_data['before_link']} <a style='color: blue' target='_blank' href='{raw_data['link']}'>{raw_data['value']} </a>"
+        return f"{raw_data['before_link']} <a class=\"grid-link\" target='_blank' href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
     except KeyError:
-        return f"<a style='color: blue' target='_blank' href='{raw_data['link']}'>{raw_data['value']} </a>"
+        return f"<a class=\"grid-link\" target='_blank' href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"

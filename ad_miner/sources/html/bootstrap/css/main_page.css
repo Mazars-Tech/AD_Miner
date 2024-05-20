@@ -71,15 +71,24 @@ a:link {
 }
 
 .col-left {
-    width: 20%;
+  width: 21%;
+    height: 852px;
+    display: flex;
+    flex-direction: column;
 }
 
 .col-center {
-    width: 58%;
+  width: 58%;
+  height: 852px;
+    display: flex;
+    flex-direction: column;
 }
 
 .col-right {
-    width: 22%;
+  width: 21%;
+    height: 852px;
+    display: flex;
+    flex-direction: column;
 }
 
 ::-webkit-scrollbar {
@@ -113,6 +122,7 @@ a:link {
     background-clip: border-box;
     border: 1px solid #e3e6f0;
     border-radius: 0.35rem;
+    flex-grow: 1;
 }
 
 .global-rating {
@@ -177,14 +187,14 @@ a:link {
 
 .stats-text {
     color: rgb(61, 61, 61);
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 500;
     margin-bottom: 0px;
 }
 
 .stats-number {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 750;
 }
 
 .stats-icon {
@@ -326,12 +336,9 @@ a:link {
     font-size: 12px;
 }
 
-.limit-height{
-    max-height: 820px !important;
-}
-
-.overview{
-    overflow: auto;
+.overview {
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .threats-list {
@@ -485,4 +492,67 @@ a:hover{
 }
 .highlighted-green {
   filter: brightness(1.2);
+}
+
+/* Hide the default radio button */
+.custom-radio input[type="radio"] {
+  display: none;
+}
+
+/* Style the label to include custom radio button */
+.custom-radio {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 20px;
+  /* Add space between radio buttons */
+}
+
+/* Create the custom radio button */
+.radio-btn {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #007BFF;
+  border-radius: 50%;
+  margin-right: 10px;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+/* Add the dot inside the radio button */
+.radio-btn::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background-color: #007BFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease;
+}
+
+/* Change the color of the radio button when checked */
+.custom-radio input[type="radio"]:checked+.radio-btn {
+  border-color: #007BFF;
+}
+
+/* Scale the dot inside the radio button when checked */
+.custom-radio input[type="radio"]:checked+.radio-btn::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Style the label text */
+.custom-radio:hover .radio-btn {
+  border-color: #0056b3;
+}
+
+/* Container for the radio buttons */
+.radio-group {
+  display: flex;
+  /* Arrange children in a row */
+  align-items: center;
+  /* Center items vertically */
 }
