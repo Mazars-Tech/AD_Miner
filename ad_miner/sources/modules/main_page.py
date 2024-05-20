@@ -29,9 +29,9 @@ def getData(arguments, neo4j, domains, computers, users, objects, azure, extract
     data["nb_domains"] = len(domains.domains_list)
     data["nb_domain_collected"] = len(neo4j.all_requests["nb_domain_collected"]["result"])
     if data["nb_domains"] > 1:
-        data["domain_or_domains"] = "Domains"
+        data["domain_or_domains"] = "domains"
     else:
-        data["domain_or_domains"] = "Domain"
+        data["domain_or_domains"] = "domain"
     data["nb_dc"] = americanStyle(len(domains.computers_nb_domain_controllers))
     data["nb_da"] = americanStyle(len(domains.users_nb_domain_admins))
 
@@ -64,7 +64,6 @@ def getData(arguments, neo4j, domains, computers, users, objects, azure, extract
     data["azure_nb_admin"]= len(azure.azure_admin)
     data["azure_nb_groups"]= len(azure.azure_groups)
     data["azure_nb_vm"]= len(azure.azure_vm)
-
 
     return data
 
@@ -245,7 +244,7 @@ def create_dico_data(
         "objects_to_operators_member": len(users.objects_to_operators_member) if len(users.objects_to_operators_member) else 0,
         "computers_os_obsolete": len(computers.list_computers_os_obsolete) if computers.list_computers_os_obsolete else 0,
         "computers_without_laps": computers.stat_laps if computers.stat_laps else 0,
-        "graph_path_objects_to_ou_handlers": domains.nb_starting_nodes_to_ous if domains.nb_starting_nodes_to_ous else 0,
+        "graph_path_objects_to_ou_handlers": len(domains.compromise_paths_of_OUs) if domains.compromise_paths_of_OUs else 0,
         "vuln_functional_level": len(domains.vuln_functional_level) if domains.vuln_functional_level else 0,
         "graph_list_objects_rbcd": len(list(users.rbcd_graphs.keys())) if users.rbcd_graphs else 0,
         "vuln_permissions_adminsdholder": len(users.vuln_permissions_adminsdholder) if users.vuln_permissions_adminsdholder else 0,
@@ -287,7 +286,7 @@ def create_dico_data(
 
     return dico_data
 
-#Elem 1 singular, Elem2 plural
+# Elem 1 singular, Elem2 plural
 def manage_plural(elem, text):
     if elem > 1:
         return text[1]
@@ -298,7 +297,6 @@ def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> l
     angle_and_pos = []
     hex_offset_v = -3.5  # Offset to compensate hexagon height
     hex_offset_h = -2.5  # Offset to compensate hexagon width
-
 
     # harcoded values of concentric arcs for hexagon placement
     arc_distances = [27.5, 35.3, 43.5]
@@ -335,8 +333,6 @@ def get_hexagons_pos(n_hexagons: int, angle_start: float, angle_end: float) -> l
     hex_pos = [(top, left) for angle, top, left in angle_and_pos]
 
     return hex_pos
-
-
 
 
 def render(
@@ -403,7 +399,7 @@ def render(
         "computers_os_obsolete": f"{dico_data['value']['computers_os_obsolete']} computers with obsolete OS",
         "users_pwd_cleartext": f"{dico_data['value']['users_pwd_cleartext']} users with clear text password",
         "computers_without_laps": f"{dico_data['value']['computers_without_laps']} % computers without LAPS",
-        "graph_path_objects_to_ou_handlers": f"{domains.nb_starting_nodes_to_ous} dangerous control paths over {domains.nb_ous_with_da} OUs",
+        "graph_path_objects_to_ou_handlers": f"{len(domains.compromise_paths_of_OUs)} dangerous control paths over OUs",
         "vuln_functional_level": f"{dico_data['value']['vuln_functional_level']} insufficient forest and domains functional levels",
         "vuln_permissions_adminsdholder": f"{dico_data['value']['vuln_permissions_adminsdholder']} paths to an AdminSDHolder container",
         "graph_list_objects_rbcd": f"{users.rbcd_nb_start_nodes} users can perform an RBCD attack on {users.rbcd_nb_end_nodes} computers",
@@ -412,7 +408,7 @@ def render(
         "da_to_da": f"{domains.crossDomain} paths between different DA",
         "can_read_gmsapassword_of_adm": f"{len(users.can_read_gmsapassword_of_adm)} can read GMSA passwords of Administrators",
         "dangerous_paths": f"More than {domains.total_dangerous_paths} dangerous paths to DA",
-        "users_password_not_required":f"{dico_data['value']['users_password_not_required']} users can bypass your password policy",
+        "users_password_not_required": f"{dico_data['value']['users_password_not_required']} users can bypass your password policy",
         "can_read_laps": f"{len(users.can_read_laps_parsed)} accounts can read LAPS passwords",
         "anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
@@ -425,8 +421,7 @@ def render(
         "primaryGroupID_lower_than_1000": f"{dico_data['value']['rid_singularities']} accounts with unknown RIDs or unexpected names",
         "pre_windows_2000_compatible_access_group": f"{len(users.pre_windows_2000_compatible_access_group)} inadequate membership users in Pre-Win $2000$ Compatible Access group",
         "fgpp": f"{len(users.fgpps)} FGPP defined",
-
-        #azure
+        # azure
         "azure_users_paths_high_target": f"{len(azure.azure_users_paths_high_target)} Users with a Path to High Value Targets",
         "azure_ms_graph_controllers": f"{len(azure.azure_ms_graph_controllers)} paths to MS Graph controllers",
         "azure_aadconnect_users": f"{len(azure.azure_aadconnect_users)} users with AADConnect session",
@@ -437,7 +432,7 @@ def render(
         "azure_dormant_accounts": f"{len(azure.azure_dormant_accounts_90_days)} dormant accounts",
         "azure_accounts_disabled_on_prem": f"{len(azure.azure_accounts_disabled_on_prem)} Azure accounts are disabled on prem.",
         "azure_accounts_not_found_on_prem": f"{len(azure.azure_accounts_not_found_on_prem)} Azure accounts are non-existant on prem.",
-        "azure_cross_ga_da": f"{azure.azure_total_cross_ga_da_compromission} domain{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} & tenant{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} are cross compromisable"
+        "azure_cross_ga_da": f"{azure.azure_total_cross_ga_da_compromission} domain{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} & tenant{'s' if azure.azure_total_cross_ga_da_compromission > 1 else ''} are cross compromisable",
     }
 
     descriptions = DESCRIPTION_MAP
@@ -482,7 +477,7 @@ def render(
     data["on_premise"]["kerberos_data"] = []
     data["on_premise"]["misc_data"] = []
 
-    #azure
+    # azure
     data["azure"]["az_permissions_data"] = []
     data["azure"]["az_passwords_data"] = []
     data["azure"]["az_misc_data"] = []
@@ -565,7 +560,6 @@ def render(
 
     data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permissions_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
     data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["ms_graph_data"], data["azure"]["az_permissions_data"], data["azure"]["az_passwords_data"], data["azure"]["az_misc_data"])]
-
 
     with open("./render_%s/html/index.html" % arguments.cache_prefix, "w") as page_f:
         with (TEMPLATES_DIRECTORY / "main_header.html").open(mode='r') as header_f:

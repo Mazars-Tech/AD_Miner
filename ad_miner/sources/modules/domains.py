@@ -11,8 +11,11 @@ from ad_miner.sources.modules.histogram_class import Histogram
 from ad_miner.sources.modules.node_neo4j import Node
 from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.page_class import Page
-from ad_miner.sources.modules.utils import (days_format, grid_data_stringify,
-                                           timer_format)
+from ad_miner.sources.modules.utils import (
+    days_format,
+    grid_data_stringify,
+    timer_format,
+)
 
 
 class Domains:
@@ -63,11 +66,11 @@ class Domains:
         self.dico_ghost_computer = dico_ghost_computer
 
         self.users_dormant_accounts = neo4j.all_requests["dormant_accounts"]["result"]
-        self.users_not_connected_for_3_months = ([
-            user["name"]
-            for user in self.users_dormant_accounts
-            if user["days"] > 90
-        ] if self.users_dormant_accounts is not None else None)
+        self.users_not_connected_for_3_months = (
+            [user["name"] for user in self.users_dormant_accounts if user["days"] > 90]
+            if self.users_dormant_accounts is not None
+            else None
+        )
 
         self.users_pwd_not_changed_since = neo4j.all_requests["password_last_change"][
             "result"
@@ -137,11 +140,6 @@ class Domains:
                 "result"
             ]
         self.domain_OUs = neo4j.all_requests["domain_OUs"]["result"]
-        self.objects_to_ou_handlers = neo4j.all_requests["objects_to_ou_handlers"][
-            "result"
-        ]
-        self.nb_starting_nodes_to_ous = 0
-        self.nb_ous_with_da = 0
 
         self.vuln_functional_level = neo4j.all_requests["vuln_functional_level"][
             "result"
@@ -151,8 +149,12 @@ class Domains:
         self.collected_domains = neo4j.all_requests["nb_domain_collected"]["result"]
         self.crossDomain = 0
 
-        self.cross_domain_local_admins_paths = neo4j.all_requests["cross_domain_local_admins"]["result"]
-        self.cross_domain_domain_admins_paths = neo4j.all_requests["cross_domain_domain_admins"]["result"]
+        self.cross_domain_local_admins_paths = neo4j.all_requests[
+            "cross_domain_local_admins"
+        ]["result"]
+        self.cross_domain_domain_admins_paths = neo4j.all_requests[
+            "cross_domain_domain_admins"
+        ]["result"]
 
         self.number_of_gpo = 0
         self.number_of_OU = 0
@@ -288,14 +290,16 @@ class Domains:
                 return []
             dico_node_rel_node = {}
             for path in cache:
-                for i in range(1, len(path.nodes)- 2):
+                for i in range(1, len(path.nodes) - 2):
                     node_rel_node_instance = f"{path.nodes[i].name} ⮕ {path.nodes[i].relation_type} ⮕ {path.nodes[i+1].name}"
                     if dico_node_rel_node.get(node_rel_node_instance):
-                        dico_node_rel_node[node_rel_node_instance] +=1
+                        dico_node_rel_node[node_rel_node_instance] += 1
                     else:
                         dico_node_rel_node[node_rel_node_instance] = 1
 
-            return dict(sorted(dico_node_rel_node.items(), key=lambda item: item[1])[::-1][:100])
+            return dict(
+                sorted(dico_node_rel_node.items(), key=lambda item: item[1])[::-1][:100]
+            )
 
         dico_objects_to_da = analyse_cache(self.objects_to_domain_admin)
         dico_dcsync_to_da = analyse_cache(self.objects_to_dcsync)
@@ -312,10 +316,15 @@ class Domains:
             len_da_to_da = 0
 
         # Remove 1 to exclude the false positive of container USERS containing DOMAIN ADMIN group
-        self.total_dangerous_paths = max(len_dcsync + len(self.objects_to_domain_admin) + len_da_to_da - 1, 0)
+        self.total_dangerous_paths = max(
+            len_dcsync + len(self.objects_to_domain_admin) + len_da_to_da - 1, 0
+        )
 
         page = Page(
-            self.arguments.cache_prefix, "dangerous_paths_dcsync_to_da", "DCSync privileges to DA privileges", "dangerous_paths"
+            self.arguments.cache_prefix,
+            "dangerous_paths_dcsync_to_da",
+            "DCSync privileges to DA privileges",
+            "dangerous_paths",
         )
         histo = Histogram()
         histo.setData(dico_dcsync_to_da, len_dcsync)
@@ -323,7 +332,10 @@ class Domains:
         page.render()
 
         page = Page(
-            self.arguments.cache_prefix, "dangerous_paths_objects_to_da", "Objects to DA privileges", "dangerous_paths"
+            self.arguments.cache_prefix,
+            "dangerous_paths_objects_to_da",
+            "Objects to DA privileges",
+            "dangerous_paths",
         )
         histo = Histogram()
         histo.setData(dico_objects_to_da, len(self.objects_to_domain_admin))
@@ -331,7 +343,10 @@ class Domains:
         page.render()
 
         page = Page(
-            self.arguments.cache_prefix, "dangerous_paths_da_to_da", "DA privileges to DA privileges", "dangerous_paths"
+            self.arguments.cache_prefix,
+            "dangerous_paths_da_to_da",
+            "DA privileges to DA privileges",
+            "dangerous_paths",
         )
         histo = Histogram()
         histo.setData(dico_da_to_da, len_da_to_da)
@@ -339,29 +354,41 @@ class Domains:
         page.render()
 
         page = Page(
-            self.arguments.cache_prefix, "dangerous_paths", "List of main dangerous paths", "dangerous_paths"
+            self.arguments.cache_prefix,
+            "dangerous_paths",
+            "List of main dangerous paths",
+            "dangerous_paths",
         )
         grid = Grid("dangerous paths")
 
         grid.addheader("Type of Graphs")
         dangerous_path_data = [
-            {"Type of Graphs": grid_data_stringify({
-                "value":"DCSync privileges to DA privileges",
-                "link":"dangerous_paths_dcsync_to_da.html",
-                "before_link": '<i class="bi bi-arrow-repeat"></i>'
-                })
+            {
+                "Type of Graphs": grid_data_stringify(
+                    {
+                        "value": "DCSync privileges to DA privileges",
+                        "link": "dangerous_paths_dcsync_to_da.html",
+                        "before_link": '<i class="bi bi-arrow-repeat"></i>',
+                    }
+                )
             },
-            {"Type of Graphs": grid_data_stringify({
-                "value":"Objects to DA privileges",
-                "link":"dangerous_paths_objects_to_da.html",
-                "before_link": '<i class="bi bi-chevron-double-up"></i>'
-                })
+            {
+                "Type of Graphs": grid_data_stringify(
+                    {
+                        "value": "Objects to DA privileges",
+                        "link": "dangerous_paths_objects_to_da.html",
+                        "before_link": '<i class="bi bi-chevron-double-up"></i>',
+                    }
+                )
             },
-            {"Type of Graphs": grid_data_stringify({
-                "value":"DA privileges to DA privileges",
-                "link":"dangerous_paths_da_to_da.html",
-                "before_link": '<i class="bi bi-arrow-left-right"></i>'
-                })
+            {
+                "Type of Graphs": grid_data_stringify(
+                    {
+                        "value": "DA privileges to DA privileges",
+                        "link": "dangerous_paths_da_to_da.html",
+                        "before_link": '<i class="bi bi-arrow-left-right"></i>',
+                    }
+                )
             },
         ]
 
@@ -382,10 +409,12 @@ class Domains:
         group_extract = [
             {
                 "domain": '<i class="bi bi-globe2"></i> ' + self.groups[k]["domain"],
-                "name": '<i class="bi bi-gem" title="This group is domain admin"></i> '
-                + self.groups[k]["name"]
-                if self.groups[k].get("da")
-                else '<i class="bi bi-people-fill"></i> ' + self.groups[k]["name"],
+                "name": (
+                    '<i class="bi bi-gem" title="This group is domain admin"></i> '
+                    + self.groups[k]["name"]
+                    if self.groups[k].get("da")
+                    else '<i class="bi bi-people-fill"></i> ' + self.groups[k]["name"]
+                ),
             }
             for k in range(len(self.groups))
         ]
@@ -419,17 +448,57 @@ class Domains:
             tmp_data = {}
             tmp_data["domain"] = '<i class="bi bi-globe2"></i> ' + da["domain"]
             tmp_data["name"] = '<i class="bi bi-gem"></i> ' + da["name"]
-            tmp_data["domain admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Domain Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["schema admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Schema Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["enterprise admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["protected users"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Protected Users" in da["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "_ Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["enterprise key admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Enterprise Key Admin" in da["admin type"] else '<i class="bi bi-square"></i>'
-            tmp_data["builtin admin"] = '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>' if "Builtin Administrator" in da["admin type"] else '<i class="bi bi-square"></i>'
+            tmp_data["domain admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Domain Admin" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["schema admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Schema Admin" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Admin" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["protected users"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Protected Users" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "_ Key Admin" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["enterprise key admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Enterprise Key Admin" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
+            tmp_data["builtin admin"] = (
+                '<i class="bi bi-check-square-fill"></i><span style="display:none">True</span>'
+                if "Builtin Administrator" in da["admin type"]
+                else '<i class="bi bi-square"></i>'
+            )
             data.append(tmp_data)
 
         grid = Grid("Domain admins")
-        grid.setheaders(["domain", "name", "domain admin", "schema admin", "enterprise admin", "protected users", "key admin", "enterprise key admin", "builtin admin"])
+        grid.setheaders(
+            [
+                "domain",
+                "name",
+                "domain admin",
+                "schema admin",
+                "enterprise admin",
+                "protected users",
+                "key admin",
+                "enterprise key admin",
+                "builtin admin",
+            ]
+        )
         grid.setData(data)
         page.addComponent(grid)
         page.render()
@@ -447,9 +516,16 @@ class Domains:
 
         data = []
         for c in self.computers_not_connected_since_60:
-            data.append({"name": '<i class="bi bi-pc-display"></i> ' + c["name"], "Last logon": days_format(c["days"]),"Last password set":days_format(c["pwdlastset"]),"Enabled":str(c["enabled"])})
+            data.append(
+                {
+                    "name": '<i class="bi bi-pc-display"></i> ' + c["name"],
+                    "Last logon": days_format(c["days"]),
+                    "Last password set": days_format(c["pwdlastset"]),
+                    "Enabled": str(c["enabled"]),
+                }
+            )
         grid = Grid("Computers not connected since")
-        grid.setheaders(["name", "Last logon","Last password set","Enabled"])
+        grid.setheaders(["name", "Last logon", "Last password set", "Enabled"])
         grid.setData(data)
         page.addComponent(grid)
         page.render()
@@ -473,9 +549,13 @@ class Domains:
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dict["domain"]}
 
             tmp_data["name"] = (
+                (
                     '<i class="bi bi-gem" title="This user is domain admin"></i> '
                     + dict["name"]
-                ) if dict["name"] in self.admin_list else '<i class="bi bi-person-fill"></i> ' + dict["name"]
+                )
+                if dict["name"] in self.admin_list
+                else '<i class="bi bi-person-fill"></i> ' + dict["name"]
+            )
 
             tmp_data["last logon"] = days_format(dict["days"])
             tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"])
@@ -507,9 +587,14 @@ class Domains:
         for dict in self.users_pwd_not_changed_since_3months:
             tmp_data = {"user": dict["user"]}
             if dict["user"] in self.admin_list:
-                tmp_data["user"] = '<i class="bi bi-gem" title="This user is domain admin"></i> ' + tmp_data["user"]
+                tmp_data["user"] = (
+                    '<i class="bi bi-gem" title="This user is domain admin"></i> '
+                    + tmp_data["user"]
+                )
             else:
-                tmp_data["user"] = '<i class="bi bi-person-fill"></i> ' + tmp_data["user"]
+                tmp_data["user"] = (
+                    '<i class="bi bi-person-fill"></i> ' + tmp_data["user"]
+                )
             tmp_data["Last password change"] = days_format(dict["days"])
             tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"])
 
@@ -615,18 +700,23 @@ class Domains:
 
         data = []
 
-        self.computers_nb_domain_controllers = sorted(self.computers_nb_domain_controllers, key=lambda x: x["ghost"], reverse=True)
+        self.computers_nb_domain_controllers = sorted(
+            self.computers_nb_domain_controllers, key=lambda x: x["ghost"], reverse=True
+        )
 
         for d in self.computers_nb_domain_controllers:
             temp_data = {}
             temp_data["domain"] = '<i class="bi bi-globe2"></i> ' + d["domain"]
             if d["ghost"]:
-                temp_data["name"] = '<svg height="15px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#ff595e" d="M40.1 467.1l-11.2 9c-3.2 2.5-7.1 3.9-11.1 3.9C8 480 0 472 0 462.2V192C0 86 86 0 192 0S384 86 384 192V462.2c0 9.8-8 17.8-17.8 17.8c-4 0-7.9-1.4-11.1-3.9l-11.2-9c-13.4-10.7-32.8-9-44.1 3.9L269.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6l-26.6-30.5c-12.7-14.6-35.4-14.6-48.2 0L141.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6L84.2 471c-11.3-12.9-30.7-14.6-44.1-3.9zM160 192a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg> ' + d['name']
+                temp_data["name"] = (
+                    '<svg height="15px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#ff595e" d="M40.1 467.1l-11.2 9c-3.2 2.5-7.1 3.9-11.1 3.9C8 480 0 472 0 462.2V192C0 86 86 0 192 0S384 86 384 192V462.2c0 9.8-8 17.8-17.8 17.8c-4 0-7.9-1.4-11.1-3.9l-11.2-9c-13.4-10.7-32.8-9-44.1 3.9L269.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6l-26.6-30.5c-12.7-14.6-35.4-14.6-48.2 0L141.3 506c-3.3 3.8-8.2 6-13.3 6s-9.9-2.2-13.3-6L84.2 471c-11.3-12.9-30.7-14.6-44.1-3.9zM160 192a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg> '
+                    + d["name"]
+                )
             else:
-                temp_data["name"] = '<i class="bi bi-server"></i> ' + d['name']
-            if 'WINDOWS' in d['os'].upper():
-                temp_data['os'] = '<i class="bi bi-windows"></i> ' + d['os']
-            temp_data['last logon'] = days_format(d['lastLogon'])
+                temp_data["name"] = '<i class="bi bi-server"></i> ' + d["name"]
+            if "WINDOWS" in d["os"].upper():
+                temp_data["os"] = '<i class="bi bi-windows"></i> ' + d["os"]
+            temp_data["last logon"] = days_format(d["lastLogon"])
             data.append(temp_data)
         grid.setData(data)
         page.addComponent(grid)
@@ -672,8 +762,7 @@ class Domains:
             if "User" in path.nodes[0].labels:
                 self.users_to_domain_admin[path.nodes[-1].domain].append(path)
             elif "Computer" in path.nodes[0].labels:
-                self.computers_to_domain_admin[path.nodes[-1].domain].append(
-                    path)
+                self.computers_to_domain_admin[path.nodes[-1].domain].append(path)
             elif "Group" in path.nodes[0].labels:
                 self.groups_to_domain_admin[path.nodes[-1].domain].append(path)
             elif "OU" in path.nodes[0].labels:
@@ -777,13 +866,17 @@ class Domains:
             tmp_data[headers[0]] = '<i class="bi bi-globe2"></i> ' + domain
 
             count = count_object_from_path(users_to_domain[domain])
-            sortClass = str(count).zfill(6)  # used to make the sorting feature work with icons
+            sortClass = str(count).zfill(
+                6
+            )  # used to make the sorting feature work with icons
             if count != 0:
-                tmp_data[headers[1]] = grid_data_stringify({
-                    "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.users_to_domain_admin[domain])})",
-                    "link": "%s_users_to_da.html" % quote(str(domain)),
-                    "before_link": f"<i class='bi bi-person-fill {sortClass}' aria-hidden='true'></i> "
-                })
+                tmp_data[headers[1]] = grid_data_stringify(
+                    {
+                        "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.users_to_domain_admin[domain])})",
+                        "link": "%s_users_to_da.html" % quote(str(domain)),
+                        "before_link": f"<i class='bi bi-person-fill {sortClass}' aria-hidden='true'></i> ",
+                    }
+                )
             else:
                 tmp_data[headers[1]] = (
                     "<i class='bi bi-person-fill %s' aria-hidden='true'></i> %s (<i class='bi bi-shuffle' aria-hidden='true'></i> %s)"
@@ -792,13 +885,17 @@ class Domains:
             self.total_object += count
 
             count = count_object_from_path(computers_to_domain[domain])
-            sortClass = str(count).zfill(6)  # used to make the sorting feature work with icons
+            sortClass = str(count).zfill(
+                6
+            )  # used to make the sorting feature work with icons
             if count != 0:
-                tmp_data[headers[2]] = grid_data_stringify({
-                    "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.computers_to_domain_admin[domain])})",
-                    "link": "%s_computers_to_da.html" % quote(str(domain)),
-                    "before_link": f"<i class='bi bi-pc-display-horizontal {sortClass}' aria-hidden='true'></i>"
-                })
+                tmp_data[headers[2]] = grid_data_stringify(
+                    {
+                        "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.computers_to_domain_admin[domain])})",
+                        "link": "%s_computers_to_da.html" % quote(str(domain)),
+                        "before_link": f"<i class='bi bi-pc-display-horizontal {sortClass}' aria-hidden='true'></i>",
+                    }
+                )
             else:
                 tmp_data[headers[2]] = (
                     "<i class='bi bi-pc-display-horizontal %s' aria-hidden='true'></i> %s (<i class='bi bi-shuffle' aria-hidden='true'></i> %s)"
@@ -807,13 +904,17 @@ class Domains:
             self.total_object += count
 
             count = count_object_from_path(groups_to_domain[domain])
-            sortClass = str(count).zfill(6)  # used to make the sorting feature work with icons
+            sortClass = str(count).zfill(
+                6
+            )  # used to make the sorting feature work with icons
             if count != 0:
-                tmp_data[headers[3]] = grid_data_stringify({
-                    "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.groups_to_domain_admin[domain])})",
-                    "link": "%s_groups_to_da.html" % quote(str(domain)),
-                    "before_link": f"<i class='bi bi-people-fill {sortClass}' aria-hidden='true'></i>"
-                })
+                tmp_data[headers[3]] = grid_data_stringify(
+                    {
+                        "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.groups_to_domain_admin[domain])})",
+                        "link": "%s_groups_to_da.html" % quote(str(domain)),
+                        "before_link": f"<i class='bi bi-people-fill {sortClass}' aria-hidden='true'></i>",
+                    }
+                )
             else:
                 tmp_data[headers[3]] = (
                     "<i class='bi bi-people-fill %s' aria-hidden='true'></i> %s (<i class='bi bi-shuffle' aria-hidden='true'></i> %s)"
@@ -822,13 +923,17 @@ class Domains:
             self.total_object += count
 
             count = count_object_from_path(ou_to_domain[domain])
-            sortClass = str(count).zfill(6)  # used to make the sorting feature work with icons
+            sortClass = str(count).zfill(
+                6
+            )  # used to make the sorting feature work with icons
             if count != 0:
-                tmp_data[headers[4]] = grid_data_stringify({
-                    "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.ou_to_domain_admin[domain])})",
-                    "link": "%s_OU_to_da.html" % quote(str(domain)),
-                    "before_link": f"<i class='bi bi-building {sortClass}' aria-hidden='true'></i>"
-                })
+                tmp_data[headers[4]] = grid_data_stringify(
+                    {
+                        "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.ou_to_domain_admin[domain])})",
+                        "link": "%s_OU_to_da.html" % quote(str(domain)),
+                        "before_link": f"<i class='bi bi-building {sortClass}' aria-hidden='true'></i>",
+                    }
+                )
             else:
                 tmp_data[headers[4]] = (
                     "<i class='bi bi-building %s' aria-hidden='true'></i> %s (<i class='bi bi-shuffle' aria-hidden='true'></i> %s)"
@@ -837,13 +942,17 @@ class Domains:
             self.total_object += count
 
             count = count_object_from_path(gpo_to_domain[domain])
-            sortClass = str(count).zfill(6)  # used to make the sorting feature work with icons
+            sortClass = str(count).zfill(
+                6
+            )  # used to make the sorting feature work with icons
             if count != 0:
-                tmp_data[headers[5]] = grid_data_stringify({
-                    "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.gpo_to_domain_admin[domain])})",
-                    "link": "%s_GPO_to_da.html" % quote(str(domain)),
-                    "before_link": f"<i class='bi bi-journal-text {sortClass}' aria-hidden='true'></i>"
-                })
+                tmp_data[headers[5]] = grid_data_stringify(
+                    {
+                        "value": f"{count} (<i class='bi bi-shuffle' aria-hidden='true'></i> {len(self.gpo_to_domain_admin[domain])})",
+                        "link": "%s_GPO_to_da.html" % quote(str(domain)),
+                        "before_link": f"<i class='bi bi-journal-text {sortClass}' aria-hidden='true'></i>",
+                    }
+                )
             else:
                 tmp_data[headers[5]] = (
                     "<i class='bi bi-journal-text %s' aria-hidden='true'></i> %s (<i class='bi bi-shuffle' aria-hidden='true'></i> %s)"
@@ -946,11 +1055,12 @@ class Domains:
                     "link": "%s_users_to_dcsync.html" % quote(str(domain)),
                 }
             else:
-                tmp_data[
-                    "Users"
-                ] = "<i class='bi bi-person-fill %s' aria-hidden='true'></i> %s" % (
-                    str(len(self.users_to_dcsync[domain])).zfill(6),
-                    len(self.users_to_dcsync[domain]),
+                tmp_data["Users"] = (
+                    "<i class='bi bi-person-fill %s' aria-hidden='true'></i> %s"
+                    % (
+                        str(len(self.users_to_dcsync[domain])).zfill(6),
+                        len(self.users_to_dcsync[domain]),
+                    )
                 )
             if len(self.computers_to_dcsync[domain]) != 0:
                 tmp_data["Computers"] = {
@@ -979,11 +1089,12 @@ class Domains:
                     "link": "%s_groups_to_dcsync.html" % quote(str(domain)),
                 }
             else:
-                tmp_data[
-                    "Groups"
-                ] = "<i class='bi bi-people-fill %s' aria-hidden='true'></i> %s" % (
-                    str(len(self.groups_to_dcsync[domain])).zfill(6),
-                    len(self.groups_to_dcsync[domain]),
+                tmp_data["Groups"] = (
+                    "<i class='bi bi-people-fill %s' aria-hidden='true'></i> %s"
+                    % (
+                        str(len(self.groups_to_dcsync[domain])).zfill(6),
+                        len(self.groups_to_dcsync[domain]),
+                    )
                 )
             if len(self.ou_to_dcsync[domain]) != 0:
                 tmp_data["Ou"] = {
@@ -995,11 +1106,12 @@ class Domains:
                     "link": "%s_OU_to_dcsync.html" % quote(str(domain)),
                 }
             else:
-                tmp_data[
-                    "Ou"
-                ] = "<i class='bi bi-building %s' aria-hidden='true'></i> %s" % (
-                    str(len(self.ou_to_dcsync[domain])).zfill(6),
-                    len(self.ou_to_dcsync[domain]),
+                tmp_data["Ou"] = (
+                    "<i class='bi bi-building %s' aria-hidden='true'></i> %s"
+                    % (
+                        str(len(self.ou_to_dcsync[domain])).zfill(6),
+                        len(self.ou_to_dcsync[domain]),
+                    )
                 )
             if len(self.gpo_to_dcsync[domain]) != 0:
                 tmp_data["GPO"] = {
@@ -1011,11 +1123,12 @@ class Domains:
                     "link": "%s_GPO_to_dcsync.html" % quote(str(domain)),
                 }
             else:
-                tmp_data[
-                    "GPO"
-                ] = "<i class='bi bi-journal-text %s' aria-hidden='true'></i> %s" % (
-                    str(len(self.gpo_to_dcsync[domain])).zfill(6),
-                    len(self.gpo_to_dcsync[domain]),
+                tmp_data["GPO"] = (
+                    "<i class='bi bi-journal-text %s' aria-hidden='true'></i> %s"
+                    % (
+                        str(len(self.gpo_to_dcsync[domain])).zfill(6),
+                        len(self.gpo_to_dcsync[domain]),
+                    )
                 )
             grid_data.append(tmp_data)
         headers = ["Domain", "Users", "Computers", "Groups", "Ou", "GPO"]
@@ -1038,19 +1151,29 @@ class Domains:
             path_list = list()
             for i in range(len(self.domains_list)):
                 domain_name = self.domains_list[i][0]
-                id, labels, tenant_id, relation_type = i, 'Domain', 0, None
-                path_list.append(Path([Node(id,
-                                 labels,
-                                 domain_name,
-                                 domain_name,
-                                 tenant_id,
-                                 relation_type)]))
+                id, labels, tenant_id, relation_type = i, "Domain", 0, None
+                path_list.append(
+                    Path(
+                        [
+                            Node(
+                                id,
+                                labels,
+                                domain_name,
+                                domain_name,
+                                tenant_id,
+                                relation_type,
+                            )
+                        ]
+                    )
+                )
 
-            self.createGraphPage(self.arguments.cache_prefix,
-                                 "domain_map_trust",
-                                 "Map trust of domains ",
-                                 "domain_map_trust",
-                                 path_list)
+            self.createGraphPage(
+                self.arguments.cache_prefix,
+                "domain_map_trust",
+                "Map trust of domains ",
+                "domain_map_trust",
+                path_list,
+            )
             return
 
         self.createGraphPage(
@@ -1078,29 +1201,36 @@ class Domains:
             "Path to Unconstrained Delegations",
             "non-dc_with_unconstrained_delegations",
         )
-        grid = Grid("Numbers of path to domain admin using Kerberos Unconstrained Delegations")
+        grid = Grid(
+            "Numbers of path to domain admin using Kerberos Unconstrained Delegations"
+        )
         grid_data = []
 
         self.kud_list = self.kud_graphs.keys()
 
-        for end_node in self.kud_list :
+        for end_node in self.kud_list:
             # if len(self.kud_graphs[end_node]):
             node = self.kud_graphs[end_node][0].nodes[-1]
             node.relation_type = "UnconstrainedDelegations"
             domain = node.domain
             end = Node(
-                        id=42424243, labels="Domain", name=domain, domain="end", tenant_id=None, relation_type="UnconstrainedDelegations"
-                    )
+                id=42424243,
+                labels="Domain",
+                name=domain,
+                domain="end",
+                tenant_id=None,
+                relation_type="UnconstrainedDelegations",
+            )
             path = Path([self.kud_graphs[end_node][0].nodes[-1], end])
             self.kud_graphs[end_node].append(path)
 
             self.createGraphPage(
                 self.arguments.cache_prefix,
-                    end_node  + "_kud_graph",
-                    "Paths to Unconstrained Delegations",
-                    "graph_path_objects_to_unconstrained_delegation_users",
-                    self.kud_graphs[end_node]
-                )
+                end_node + "_kud_graph",
+                "Paths to Unconstrained Delegations",
+                "graph_path_objects_to_unconstrained_delegation_users",
+                self.kud_graphs[end_node],
+            )
 
             tmp_data = {}
 
@@ -1112,13 +1242,18 @@ class Domains:
                 pretty_name = end_node
 
             tmp_data["Configured for Kerberos Unconstrained Delegation"] = pretty_name
-            tmp_data["Compromise Paths"] = grid_data_stringify({
-                "value": f'{len(self.kud_graphs[end_node])} <i class="bi bi-shuffle 000001"></i>',
-                "link": "%s_kud_graph.html" % quote(str(end_node)),
-            })
+            tmp_data["Compromise Paths"] = grid_data_stringify(
+                {
+                    "value": f'{len(self.kud_graphs[end_node])} <i class="bi bi-shuffle 000001"></i>',
+                    "link": "%s_kud_graph.html" % quote(str(end_node)),
+                }
+            )
 
             grid_data.append(tmp_data)
-        headers = ["Configured for Kerberos Unconstrained Delegation", "Compromise Paths"]
+        headers = [
+            "Configured for Kerberos Unconstrained Delegation",
+            "Compromise Paths",
+        ]
         grid.setheaders(headers)
         grid.setData(grid_data)
         page.addComponent(grid)
@@ -1135,20 +1270,23 @@ class Domains:
         for domain in self.domains:
             domain = domain[0]
             nb_user = len(
-                [element for element in users if " " + domain in element["domain"]]) # Inclusion because of the icon. Space to check that it's the full domain name.
+                [element for element in users if " " + domain in element["domain"]]
+            )  # Inclusion because of the icon. Space to check that it's the full domain name.
             nb_computer = len(
                 [element for element in computers if element["domain"] == domain]
             )
             result.append([domain, nb_user, nb_computer])
         return result
 
-    def findAndCreatePathToDaFromComputersList(self, admin_computer, computers) -> tuple([int, int]):
+    def findAndCreatePathToDaFromComputersList(
+        self, admin_computer, computers
+    ) -> tuple([int, int]):
         """
         Returns the number of path to DA from admin_computer and the number of domains impacted
         """
         if self.computers_to_domain_admin is None:
             logger.print_error(" self.computers_to_domain_admin is None")
-            return 0,0
+            return 0, 0
         path_to_generate = []
 
         domains = []
@@ -1163,7 +1301,12 @@ class Domains:
                     #     id=88888, nodes=[node_to_add, path.nodes[0]], type="Relay"
                     # )
                     node_to_add = Node(
-                        id=42424243, labels="Computer", name=admin_computer, domain="start", tenant_id=None, relation_type="Relay"
+                        id=42424243,
+                        labels="Computer",
+                        name=admin_computer,
+                        domain="start",
+                        tenant_id=None,
+                        relation_type="Relay",
                     )
                     path.nodes.insert(0, node_to_add)
                     path_to_generate.append(path)
@@ -1189,7 +1332,12 @@ class Domains:
                 if path.nodes[0].name in computers:
                     # if path.start_node.name in computers:
                     node_to_add = Node(
-                        id=42424243, labels="User", name=admin_user, domain="start", tenant_id=None, relation_type="AdminTo"
+                        id=42424243,
+                        labels="User",
+                        name=admin_user,
+                        domain="start",
+                        tenant_id=None,
+                        relation_type="AdminTo",
                     )
                     # relation = Relation(
                     #     id=88888, nodes=[node_to_add, path.start_node], type="AdminTo"
@@ -1507,15 +1655,21 @@ class Domains:
         final_data = []
         for dico in self.vuln_functional_level:
             d = dico.copy()
-            if d['Level maturity'] is None:
+            if d["Level maturity"] is None:
                 continue
-            elif d['Level maturity'] <= 1:
+            elif d["Level maturity"] <= 1:
                 color = "red"
-            elif d['Level maturity'] <= 3:
+            elif d["Level maturity"] <= 3:
                 color = "orange"
             else:
                 color = "green"
-            d['Level maturity'] = f'<i class="bi bi-star-fill" style="color: {color}"></i>'*d['Level maturity'] + f'<i class="bi bi-star" style="color: {color}"></i>'*(5-d['Level maturity'])
+            d[
+                "Level maturity"
+            ] = f'<i class="bi bi-star-fill" style="color: {color}"></i>' * d[
+                "Level maturity"
+            ] + f'<i class="bi bi-star" style="color: {color}"></i>' * (
+                5 - d["Level maturity"]
+            )
             final_data.append(d)
         grid.setheaders(["Level maturity", "Full name", "Functional level"])
         grid.setData(final_data)
@@ -1548,30 +1702,60 @@ class Domains:
             domain = domain[0]
             headers.append(domain)
             graphDatas[domain] = {}
-            pathLengthss.append({"FROM / TO": '<i class="bi bi-globe2"></i> ' + domain, domain: "-"})
+            pathLengthss.append(
+                {"FROM / TO": '<i class="bi bi-globe2"></i> ' + domain, domain: "-"}
+            )
         for path in paths:
             # headers and pathLengths share the same index and it is cheaper to use headers here
             try:
-                rowIndex = headers.index(path.nodes[0].name.split('@')[1])
+                rowIndex = headers.index(path.nodes[0].name.split("@")[1])
             except ValueError:
                 # Dirty fix in case there is a domain missing
-                unknown_domain = path.nodes[0].name.split('@')[1]
+                unknown_domain = path.nodes[0].name.split("@")[1]
                 headers.append(unknown_domain)
                 graphDatas[unknown_domain] = {}
-                pathLengthss.append({"FROM / TO": '<i class="bi bi-globe2"></i> ' + unknown_domain, unknown_domain: "-"})
+                pathLengthss.append(
+                    {
+                        "FROM / TO": '<i class="bi bi-globe2"></i> ' + unknown_domain,
+                        unknown_domain: "-",
+                    }
+                )
                 rowIndex = headers.index(unknown_domain)
 
             # change value of the cell
             try:
-                pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]] = {"value": pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]]["value"] + 1, "link": quote(path.nodes[0].name.split('@')[1]+"_to_"+path.nodes[-1].name.split('@')[1])+".html"}
+                pathLengthss[rowIndex][path.nodes[-1].name.split("@")[1]] = {
+                    "value": pathLengthss[rowIndex][path.nodes[-1].name.split("@")[1]][
+                        "value"
+                    ]
+                    + 1,
+                    "link": quote(
+                        path.nodes[0].name.split("@")[1]
+                        + "_to_"
+                        + path.nodes[-1].name.split("@")[1]
+                    )
+                    + ".html",
+                }
             except KeyError:
-                pathLengthss[rowIndex][path.nodes[-1].name.split('@')[1]] = {"value": 1, "link": quote(path.nodes[0].name.split('@')[1]+"_to_"+path.nodes[-1].name.split('@')[1])+".html"}
+                pathLengthss[rowIndex][path.nodes[-1].name.split("@")[1]] = {
+                    "value": 1,
+                    "link": quote(
+                        path.nodes[0].name.split("@")[1]
+                        + "_to_"
+                        + path.nodes[-1].name.split("@")[1]
+                    )
+                    + ".html",
+                }
 
             # add a path to the list
             try:
-                graphDatas[path.nodes[0].name.split('@')[1]][path.nodes[-1].name.split('@')[1]].append(path)
+                graphDatas[path.nodes[0].name.split("@")[1]][
+                    path.nodes[-1].name.split("@")[1]
+                ].append(path)
             except KeyError:
-                graphDatas[path.nodes[0].name.split('@')[1]][path.nodes[-1].name.split('@')[1]] = [path]
+                graphDatas[path.nodes[0].name.split("@")[1]][
+                    path.nodes[-1].name.split("@")[1]
+                ] = [path]
 
         # fill the grid
         headers.insert(0, "FROM / TO")
@@ -1585,9 +1769,13 @@ class Domains:
                 if row[key] == "-":
                     continue
                 else:
-                    sortClass = str(row[key]['value']).zfill(6)
-                    row[key]['value'] = f"{row[key]['value']} path{'s' if row[key]['value'] > 1 else ''}"
-                    row[key]['before_link'] = f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
+                    sortClass = str(row[key]["value"]).zfill(6)
+                    row[key][
+                        "value"
+                    ] = f"{row[key]['value']} path{'s' if row[key]['value'] > 1 else ''}"
+                    row[key][
+                        "before_link"
+                    ] = f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     row[key] = grid_data_stringify(row[key])
             # Add some text to empty cells
             for header in headers:
@@ -1604,7 +1792,7 @@ class Domains:
                 intGraph = Graph()
                 # add each path to the graph
                 for path in paths:
-                    if (not(outputDomain in alreadySeenOutputDomains)):
+                    if not (outputDomain in alreadySeenOutputDomains):
                         # found a new domain reachable by the given input domain
                         self.crossDomain += 1
                         # each output domain is added once seen and the list is reset for each new input domain
@@ -1612,8 +1800,11 @@ class Domains:
                     intGraph.addPath(path)
                 intPage = Page(
                     self.arguments.cache_prefix,
-                    inputDomain+"_to_"+outputDomain,
-                    "Paths through Domain Admins between "+inputDomain+" and "+outputDomain,
+                    inputDomain + "_to_" + outputDomain,
+                    "Paths through Domain Admins between "
+                    + inputDomain
+                    + " and "
+                    + outputDomain,
                     "da_to_da",
                 )
                 intPage.addComponent(intGraph)
@@ -1652,7 +1843,9 @@ class Domains:
         headers = ["Empty Organizational Unit", "Full Reference"]
 
         for d in self.empty_ous:
-            d["Empty Organizational Unit"] = '<i class="bi bi-building"></i> ' + d["Empty Organizational Unit"]
+            d["Empty Organizational Unit"] = (
+                '<i class="bi bi-building"></i> ' + d["Empty Organizational Unit"]
+            )
 
         grid.setheaders(headers)
         grid.setData(self.empty_ous)

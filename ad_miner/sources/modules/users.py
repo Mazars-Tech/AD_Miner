@@ -6,7 +6,7 @@ from urllib.parse import quote
 from ad_miner.sources.modules import generic_computing
 from ad_miner.sources.modules import generic_formating
 from ad_miner.sources.modules import logger
-#from relation_neo4j import Relation
+# from relation_neo4j import Relation
 from ad_miner.sources.modules.utils import days_format, grid_data_stringify, timer_format
 
 from ad_miner.sources.modules.card_class import Card
@@ -30,6 +30,7 @@ class Users:
         logger.print_debug("Computing Users objects")
         self.neo4j = neo4j
         self.users = neo4j.all_requests["nb_enabled_accounts"]["result"]
+        self.disabled_users = neo4j.all_requests["nb_disabled_accounts"]["result"]
 
         self.users_admin_computer = neo4j.all_requests["users_admin_on_computers"][
             "result"
@@ -202,7 +203,6 @@ class Users:
 
         self.rbcd_nb_start_nodes = 0
         self.rbcd_nb_end_nodes = 0
-
 
         self.vuln_permissions_adminsdholder = neo4j.all_requests[
             "vuln_permissions_adminsdholder"
@@ -485,7 +485,9 @@ class Users:
                 u = couple["u"]
                 g = couple["gg"]
 
-                start = Node(couple["idu"], "User", u["name"], u["domain"], None, "MemberOf")
+                start = Node(
+                    couple["idu"], "User", u["name"], u["domain"], None, "MemberOf"
+                )
                 end = Node(couple["idg"], "Group", g["name"], g["domain"], None, "")
 
                 # rel = Relation(
@@ -500,7 +502,9 @@ class Users:
                 g = couple["g"]
                 gg = couple["gg"]
 
-                start = Node(couple["idg"], "Group", g["name"], g["domain"], None, "MemberOf")
+                start = Node(
+                    couple["idg"], "Group", g["name"], g["domain"], None, "MemberOf"
+                )
                 end = Node(couple["idgg"], "Group", gg["name"], gg["domain"], None, "")
 
                 # rel = Relation(
@@ -514,7 +518,9 @@ class Users:
                 g = couple["g"]
                 c = couple["c"]
 
-                start = Node(couple["idg"], "Group", g["name"], g["domain"], None, "AdminTo")
+                start = Node(
+                    couple["idg"], "Group", g["name"], g["domain"], None, "AdminTo"
+                )
                 end = Node(couple["idc"], "Computer", c["name"], c["domain"], None, "")
 
                 # rel = Relation(
@@ -528,7 +534,9 @@ class Users:
                 g = couple["g"]
                 c = couple["c"]
 
-                start = Node(couple["idg"], "User", g["name"], g["domain"], None, "AdminTo")
+                start = Node(
+                    couple["idg"], "User", g["name"], g["domain"], None, "AdminTo"
+                )
                 end = Node(couple["idc"], "Computer", c["name"], c["domain"], None, "")
 
                 # rel = Relation(
@@ -553,6 +561,8 @@ class Users:
             graph.addDCComputers(domain.dico_dc_computer)
             graph.addUserDA(domain.dico_user_da)
             graph.addGroupDA(domain.dico_da_group)
+            graph.addDisabledUsers(self.disabled_users)
+            graph.addKerberoastableUsers(self.users_kerberoastable_users)
 
             page.addComponent(graph)
             page.render()
@@ -560,22 +570,14 @@ class Users:
         def check_kerberoastable(account):
             for elem in self.users_kerberoastable_users:
                 if elem["name"] == account:
-                    return "<i class='bi bi-ticket-perforated-fill' title='This account is vulnerable to Kerberoasting'></i> YES"
+                    return "<i class='bi bi-ticket-perforated-fill' style='color: #b00404;' title='This account is vulnerable to Kerberoasting'></i> YES"
             return "-"
 
         def get_last_pass_change(account, domain):
             for elem in domain.users_pwd_not_changed_since:
                 if elem["user"] == account:
-                    sortClass = str(elem["days"]).zfill(
-                        6
-                    )  # used to make the sorting feature work with icons
-                    if elem["days"] is None:
-                        return "<i class='bi bi-calendar3'></i> Unknown"
-                    return "<i class='bi bi-calendar3 %s'></i> %d days ago" % (
-                        sortClass,
-                        elem["days"],
-                    )
-            return "<i class='bi bi-calendar3'></i> Unknown"
+                    return days_format(elem["days"], self.arguments.renewal_password)
+            return "<i class='bi bi-calendar3'></i> Very recently"
 
         generateGraphPathToAdmin(self, domain)
 
@@ -589,11 +591,14 @@ class Users:
 
             partDict[headers[3]] = self.users_admin_computer_list[key]
             try:  # Case when node is not present in graph
-                partDict[headers[4]] = grid_data_stringify({
-                    "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
-                    "value": "Path to computers <i class='bi bi-box-arrow-up-right'></i>",
-                    "before_link": f"<i class='bi bi-shuffle' aria-hidden='true'></i>"
-                })
+                n_computers = len(self.users_admin_computer_list[key])
+                partDict[headers[4]] = grid_data_stringify(
+                    {
+                        "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
+                        "value": f"path to {n_computers} computer{'s' if n_computers > 1 else ''}",
+                        "before_link": "<i class='bi bi-sign-turn-right' aria-hidden='true'></i>",
+                    }
+                )
             except KeyError:
                 partDict[headers[4]] = "No path to show"
 
@@ -602,11 +607,13 @@ class Users:
             )
             if nb_path_to_da > 0:
                 sortClass = str(nb_path_to_da).zfill(6)
-                partDict[headers[5]] = grid_data_stringify({
-                    "link": "users_path_to_da_from_%s.html" % quote(str(key)),
-                    "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''}) <i class='bi bi-box-arrow-up-right'></i>",
-                    "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
-                })
+                partDict[headers[5]] = grid_data_stringify(
+                    {
+                        "link": "users_path_to_da_from_%s.html" % quote(str(key)),
+                        "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''})",
+                        "before_link": f"<i class='bi bi-sign-turn-right-fill {sortClass}' style='color:#b00404;' aria-hidden='true'></i>",
+                    }
+                )
             else:
                 partDict[headers[5]] = "-"
             tmp_rslt.append(partDict)
@@ -622,11 +629,13 @@ class Users:
 
                 partDict[headers[3]] = "No data to show"
                 try:  # Case when node is not present in graph
-                    partDict[headers[4]] = grid_data_stringify({
-                        "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
-                        "value": "Path to computers <i class='bi bi-box-arrow-up-right'></i>",
-                        "before_link": f"<i class='bi bi-shuffle' aria-hidden='true'></i>"
-                    })
+                    partDict[headers[4]] = grid_data_stringify(
+                        {
+                            "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
+                            "value": "Path to computers <i class='bi bi-box-arrow-up-right'></i>",
+                            "before_link": f"<i class='bi bi-shuffle' aria-hidden='true'></i>",
+                        }
+                    )
                 except KeyError:
                     partDict[headers[4]] = "No path to show"
                 (
@@ -637,11 +646,13 @@ class Users:
                 )
                 if nb_path_to_da > 0:
                     sortClass = str(nb_path_to_da).zfill(6)
-                    partDict[headers[5]] = grid_data_stringify({
-                    "link": "users_path_to_da_from_%s.html" % quote(str(key)),
-                    "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''}) <i class='bi bi-box-arrow-up-right'></i>",
-                    "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
-                })
+                    partDict[headers[5]] = grid_data_stringify(
+                        {
+                            "link": "users_path_to_da_from_%s.html" % quote(str(key)),
+                            "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''}) <i class='bi bi-box-arrow-up-right'></i>",
+                            "before_link": f"<i class='bi bi-sign-turn-right {sortClass}' aria-hidden='true'></i>",
+                        }
+                    )
                 else:
                     partDict[headers[5]] = "-"
                 tmp_rslt.append(partDict)
@@ -650,13 +661,20 @@ class Users:
         formated_data_details = []
         for dict in tmp_rslt:
             if dict[headers[3]] != "No data to show":
-                sortClass = str(len(dict[headers[3]])).zfill(6)  # used to make the sorting feature work with icons
-                data_header_computer = grid_data_stringify({
-                    "link": "%s.html?parameter=%s"
-                    % ("users_admin_of_computers_details", quote(str(dict[headers[0]]))),
-                    "value": f" {len(dict[headers[3]])} Computer{'s' if len(dict[headers[3]]) > 1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
-                    "before_link": f"<i class='bi bi-pc-display-horizontal {sortClass}'></i>"
-                })
+                sortClass = str(len(dict[headers[3]])).zfill(
+                    6
+                )  # used to make the sorting feature work with icons
+                data_header_computer = grid_data_stringify(
+                    {
+                        "link": "%s.html?parameter=%s"
+                        % (
+                            "users_admin_of_computers_details",
+                            quote(str(dict[headers[0]])),
+                        ),
+                        "value": f" {len(dict[headers[3]])} computer{'s' if len(dict[headers[3]]) > 1 else ''}",
+                        "before_link": f"<i class='bi bi-hdd-network {sortClass}'></i>",
+                    }
+                )
                 formated_data_details.append(
                     {
                         headers_details[0]: dict[headers[0]],
@@ -666,7 +684,9 @@ class Users:
             if dict[headers[0]] in domain.admin_list:
                 formated_data.append(
                     {
-                        headers[0]: '<i class="bi bi-gem" title="This user is domain admin"></i> '
+                        headers[
+                            0
+                        ]: '<i class="bi bi-gem" style="color: #c0941c;" title="This user is domain admin"></i> '
                         + dict[headers[0]],
                         headers[1]: dict[headers[1]],
                         headers[2]: dict[headers[2]],
@@ -678,7 +698,7 @@ class Users:
             else:
                 formated_data.append(
                     {
-                        headers[0]: '<i class="bi bi-person-fill"></i> ' + dict[headers[0]],
+                        headers[0]: '<i class="bi bi-person"></i> ' + dict[headers[0]],
                         headers[1]: dict[headers[1]],
                         headers[2]: dict[headers[2]],
                         headers[3]: data_header_computer,
@@ -731,6 +751,22 @@ class Users:
         page.addComponent(grid)
         page.render()
 
+    # List of user account with AS-REP
+    def genASREPUsersPage(self):
+        if self.users_kerberos_as_rep is None:
+            return
+        page = Page(
+            self.arguments.cache_prefix,
+            "as_rep",
+            "List of all users with AS-REP",
+            "as_rep",
+        )
+        grid = Grid("Users with AS-REP")
+        grid.setheaders(["domain", "name", "is_Domain_Admin"])
+        grid.setData(json.dumps(self.users_kerberos_as_rep))
+        page.addComponent(grid)
+        page.render()
+
         # List of user without password expiration
 
     def genUsersWithoutPasswordExpirationPage(self, domain):
@@ -751,13 +787,12 @@ class Users:
         grid = Grid("Users without password expiration")
         grid.setheaders(["domain", "name", "Last login", "Last password change", "Account Creation Date"])
 
-
         data = []
         for dict in self.users_password_never_expires:
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dict["domain"], "name": dict["name"]}
-            tmp_data["Last login"] = days_format(dict["LastLogin"])
-            tmp_data["Last password change"] = days_format(dict["LastPasswChange"])
-            tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"])
+            tmp_data["Last login"] = days_format(dict["LastLogin"], self.arguments.renewal_password)
+            tmp_data["Last password change"] = days_format(dict["LastPasswChange"], self.arguments.renewal_password)
+            tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"], self.arguments.renewal_password)
 
             data.append(tmp_data)
         grid.setData(data)
@@ -821,12 +856,12 @@ class Users:
         for dict in self.users_kerberoastable_users:
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dict["domain"]}
             tmp_data["name"] = dict["name"]
-            tmp_data["Last password change"] = days_format(dict["pass_last_change"])
+            tmp_data["Last password change"] = days_format(dict["pass_last_change"], self.arguments.renewal_password)
             tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"])
             tmp_data["SPN"] = dict["SPN"]
             data.append(tmp_data)
 
-        #print("users_kerberoastable_users : ", json.dumps(self.users_kerberoastable_users))
+        # print("users_kerberoastable_users : ", json.dumps(self.users_kerberoastable_users))
         grid.setData(data)
         page.addComponent(grid)
         page.render()
@@ -849,10 +884,9 @@ class Users:
         for dict in self.users_krb_pwd_last_set:
             tmp_data = {"domain": '<i class="bi bi-globe2"></i> ' + dict["domain"]}
             tmp_data["name"] = '<i class="bi bi-ticket-perforated-fill"></i> ' + dict["name"]
-            tmp_data["Last password change"] = days_format(dict["pass_last_change"])
-            tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"])
+            tmp_data["Last password change"] = days_format(dict["pass_last_change"], self.arguments.renewal_password)
+            tmp_data["Account Creation Date"] = days_format(dict["accountCreationDate"], self.arguments.renewal_password)
             data.append(tmp_data)
-
 
         grid.setData(data)
         page.addComponent(grid)
@@ -886,7 +920,7 @@ class Users:
         )
         grid = Grid("Objects having AdminSDHolder")
         grid.setheaders(["domain", "type", "name"])
-        
+
         grid.setData(generic_formating.clean_data_type(self.objects_admincount_enabled, ["type"]))
         page.addComponent(grid)
         page.render()
@@ -924,12 +958,12 @@ class Users:
     def genRDPUsersComputerPage(self):
         if self.users_rdp_access_2 is None:
             return
-        #headers = ["Computers", "Number of users", "Users"]
-        #formated_data = generic_formating.formatGridValues3Columns(
+        # headers = ["Computers", "Number of users", "Users"]
+        # formated_data = generic_formating.formatGridValues3Columns(
         #    generic_formating.formatFor3Col(self.users_rdp_access_2, headers),
         #    headers,
         #    "computers_list_of_rdp_users",
-        #)
+        # )
         headers = ["Computers", "Users"]
         formated_data = []
         for key in self.users_rdp_access_2:
@@ -1235,7 +1269,6 @@ class Users:
         page.addComponent(grid)
         page.render()
 
-
     # Do not rewrite this feature to be centered around the Operator Group, the graph is horrible
     def generatePathToOperatorsMember(self, domain): 
         if self.objects_to_operators_member is None:
@@ -1310,7 +1343,6 @@ class Users:
             return
         logger.print_debug("Generate paths of objects that can RCBD on a computer")
 
-
         for path in self.rbcd_paths_to_da:
             starting_node = path.nodes[0]
             starting_node_name = starting_node.name
@@ -1329,7 +1361,6 @@ class Users:
                 self.rbcd_to_da_graphs[object_name]["paths"],
                 domain,
             )
-
 
         ending_nodes_names_distinct = []
 
@@ -1355,9 +1386,6 @@ class Users:
             if ending_node_name not in ending_nodes_names_distinct:
                 self.rbcd_nb_end_nodes += 1
                 ending_nodes_names_distinct.append(ending_node_name)
-
-
-
 
         for object_name in list(self.rbcd_graphs.keys()):
 
@@ -1466,7 +1494,7 @@ class Users:
             tmp_data = {}
             tmp_data["Domain"] = '<i class="bi bi-globe2"></i> ' + dic["domain"]
             tmp_data["User"] = '<i class="bi bi-person-fill"></i> ' + dic["user"]
-            tmp_data["Password last change"] = days_format(dic["pwdlastset"])
+            tmp_data["Password last change"] = days_format(dic["pwdlastset"], self.arguments.renewal_password)
             tmp_data["Last logon"] = days_format(dic["lastlogon"])
             grid_data.append(tmp_data)
         grid = Grid("Users that can bypass your password policy")
@@ -1474,7 +1502,6 @@ class Users:
         grid.setData(grid_data)
         page.addComponent(grid)
         page.render()
-
 
     def genGroupAnomalyAcl(self, domain):
 
@@ -1487,7 +1514,7 @@ class Users:
 
         for each in range(len(self.anomaly_acl_1)):
             self.anomaly_acl_1[each]['g.members_count'] = '-'
-        
+
         self.anomaly_acl = self.anomaly_acl_1 + self.anomaly_acl_2
 
         formated_data_details = []
@@ -1497,9 +1524,9 @@ class Users:
         for k in range(len(self.anomaly_acl)):
 
             label = generic_formating.clean_label(self.anomaly_acl[k]['LABELS(g)'])
-            
+
             name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}"
-            
+
             if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == label:
                 formated_data[name_label_instance]["targets"].append(self.anomaly_acl[k]["n.name"])
             elif formated_data.get(name_label_instance) and formated_data[name_label_instance]["targets"] == [self.anomaly_acl[k]["n.name"]] and self.anomaly_acl[k]["type(r2)"] not in formated_data[name_label_instance]["type"] and formated_data[name_label_instance]["label"] == label:
@@ -1533,7 +1560,12 @@ class Users:
                     name_user = u["User"].split("</i>")[1].strip()
                     if k==name_user:
                         if "No data to show" not in u['List of computers']:
-                            count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
+                            count = int(
+                                u["List of computers"][
+                                    u["List of computers"].find("'>", 120)
+                                    + 2 : u["List of computers"].find("computer", 120)
+                                ].strip()
+                            )
                             tmp_dict["Computers admin"] = grid_data_stringify({
                                 "link": u['Path to computers'].split("href='", 1)[-1].split("'", 1)[0],
                                 "value": f"Admin of {count} computer{'s' if count > 1 else ''}",
@@ -1550,7 +1582,6 @@ class Users:
             page = Page(
             self.arguments.cache_prefix, f"anomaly_acl_details_{name_label_instance.replace(' ', '_')}", "Group Anomaly ACL Details", "anomaly_acl"
         )
-
 
             grid = Grid("Target Details")
 
@@ -1612,7 +1643,6 @@ class Users:
                     row['admin of'] = u['List of computers']
                     target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
 
-            
             # add user icons
             type_label_a = generic_formating.clean_label(row['Type_a'])
             row['Has SID History'] = f"{generic_formating.get_label_icon(type_label_a)} {row['Has SID History']}"
@@ -1900,7 +1930,7 @@ class Users:
         ]
 
         data = []
-        
+
         for domain, account_name, objectid, type_list in sorted_list:
             tmp_data = {"Domain": '<i class="bi bi-globe2"></i> ' + domain}
 

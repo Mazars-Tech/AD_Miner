@@ -102,7 +102,7 @@ class Objects:
                 type_icon = '<i class="bi bi-question-circle-fill"></i>'
 
             if n.name in self.users_nb_domain_admins:
-                name_icon = '<i class="bi bi-gem stats-icon"></i>'
+                name_icon = '<i class="bi bi-gem"></i>'
             else:
                 name_icon = type_icon
 

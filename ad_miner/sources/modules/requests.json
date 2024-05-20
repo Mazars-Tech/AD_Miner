@@ -409,6 +409,11 @@
         "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
         "output_type": "dict"
     },
+    "nb_disabled_accounts": {
+        "name": "Number of domain accounts disabled",
+        "request": "MATCH p=(u:User{enabled:false} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
+        "output_type": "dict"
+    },
     "nb_groups": {
         "name": "Number of groups",
         "request": "MATCH p=(g:Group) WHERE NOT g.name IS NULL AND NOT g.domain IS NULL RETURN DISTINCT(g.domain) AS domain, g.name AS name, g.is_da AS da ORDER BY g.domain",
@@ -620,7 +625,7 @@
         "scope_query": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL RETURN count(m)"
     },
     "compromise_paths_of_OUs": {
-        "name": "TODO",
+        "name": "Compromisable OUs",
         "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((u)-[:MemberOf|GenericAll|GenericWrite|Owns|WriteOwner|WriteDacl*1..8]->(o:OU{contains_da_dc:true})) RETURN p",
         "output_type": "Graph",
         "scope_query": "MATCH (u:Computer{ou_candidate:true}) RETURN count(u)"
