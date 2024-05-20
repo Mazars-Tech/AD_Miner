@@ -3,7 +3,7 @@ import copy
 
 from urllib.parse import quote
 
-from ad_miner.sources.modules import generic_formating
+from ad_miner.sources.modules import generic_formating, generic_computing
 from ad_miner.sources.modules import logger
 from ad_miner.sources.modules.graph_class import Graph
 from ad_miner.sources.modules.grid_class import Grid
@@ -162,6 +162,24 @@ class Domains:
 
         self.kud = neo4j.all_requests["kud"]["result"]
 
+        self.contains_da = neo4j.all_requests["set_containsda"]["result"]
+        self.contains_dc = neo4j.all_requests["set_containsdc"]["result"]
+        self.compromise_paths_of_OUs = neo4j.all_requests["compromise_paths_of_OUs"][
+            "result"
+        ]
+
+        self.users_admin_computer = neo4j.all_requests["users_admin_on_computers"][
+            "result"
+        ]
+
+        self.computers_admin_computers = neo4j.all_requests[
+            "computers_admin_on_computers"
+        ]["result"]
+
+        self.computers_admin_computers_list = [
+            d["source_computer"] for d in self.computers_admin_computers
+        ]
+
         self.computers_to_domain_admin = {}
         self.users_to_domain_admin = {}
         self.groups_to_domain_admin = {}
@@ -251,7 +269,6 @@ class Domains:
         self.genDAPage()
         self.genInsufficientForestDomainsLevels()
 
-
         self.genDAToDAPaths()
         self.genDangerousPath()
 
@@ -263,8 +280,6 @@ class Domains:
         logger.print_warning(timer_format(time.time() - start))
 
         # All groups
-
-
 
     def genDangerousPath(self):
 
@@ -355,7 +370,6 @@ class Domains:
         page.render()
 
         return self
-
 
     def genAllGroupsPage(self):
         if self.groups is None:
@@ -1057,7 +1071,7 @@ class Domains:
                 self.kud_graphs[path.nodes[-1].name] = [path]
             else:
                 self.kud_graphs[path.nodes[-1].name].append(path)
-            
+
         page = Page(
             self.arguments.cache_prefix,
             "non-dc_with_unconstrained_delegations",
@@ -1066,7 +1080,7 @@ class Domains:
         )
         grid = Grid("Numbers of path to domain admin using Kerberos Unconstrained Delegations")
         grid_data = []
-        
+
         self.kud_list = self.kud_graphs.keys()
 
         for end_node in self.kud_list :
@@ -1089,7 +1103,7 @@ class Domains:
                 )
 
             tmp_data = {}
-            
+
             if node.labels == "User":
                 pretty_name = f'<i class="bi bi-person-fill"></i> {end_node}'
             elif node.labels == "Computer":
@@ -1102,7 +1116,7 @@ class Domains:
                 "value": f'{len(self.kud_graphs[end_node])} <i class="bi bi-shuffle 000001"></i>',
                 "link": "%s_kud_graph.html" % quote(str(end_node)),
             })
-        
+
             grid_data.append(tmp_data)
         headers = ["Configured for Kerberos Unconstrained Delegation", "Compromise Paths"]
         grid.setheaders(headers)
@@ -1173,7 +1187,7 @@ class Domains:
         for paths in self.computers_to_domain_admin.values():
             for path in paths:
                 if path.nodes[0].name in computers:
-                #if path.start_node.name in computers:
+                    # if path.start_node.name in computers:
                     node_to_add = Node(
                         id=42424243, labels="User", name=admin_user, domain="start", tenant_id=None, relation_type="AdminTo"
                     )
@@ -1194,53 +1208,34 @@ class Domains:
             )
         return (len(path_to_generate), len(list_domain))
 
-
     @staticmethod
     def generatePathToOUHandlers(self):
-        if self.objects_to_ou_handlers is None:
-            return
-        logger.print_debug(
-            "Generate paths to objects that can GPLink GPOs on OUs")
+        OU_to_DA_DC_dico = {}
+        all_compromise_paths = []
 
-        starting_nodes_by_admin = {}
-        ous_with_da_by_admin = {}
+        for p in self.contains_da:
+            if p.nodes[0].id not in OU_to_DA_DC_dico:
+                OU_to_DA_DC_dico[p.nodes[0].id] = [p]
+            else:
+                OU_to_DA_DC_dico[p.nodes[0].id].append(p)
+        for p in self.contains_dc:
+            if p.nodes[0].id not in OU_to_DA_DC_dico:
+                OU_to_DA_DC_dico[p.nodes[0].id] = [p]
+            else:
+                OU_to_DA_DC_dico[p.nodes[0].id].append(p)
 
-        for domain in self.domains:
-            starting_nodes_by_admin[domain[0]] = []
-            ous_with_da_by_admin[domain[0]] = []
+        for p1 in self.compromise_paths_of_OUs:
+            for p2 in OU_to_DA_DC_dico[p1.nodes[-1].id]:
+                assert p1.nodes[-1].id == p2.nodes[0].id
+                p = Path(p1.nodes[:-1] + p2.nodes)
+                all_compromise_paths.append(p)
 
-        for path in self.objects_to_ou_handlers:
-            try:
-                self.paths_to_ou_handlers[path.nodes[-1].domain].append(path)
-            except KeyError:
-                self.paths_to_ou_handlers[path.nodes[-1].domain] = [path]
-            if (
-                path.nodes[0].labels != "OU"
-                and path.nodes[0].name
-                not in starting_nodes_by_admin[path.nodes[-1].domain]
-            ):
-                starting_nodes_by_admin[path.nodes[-1].domain].append(
-                    path.nodes[0].name
-                )
-                self.nb_starting_nodes_to_ous += 1
-            elif (
-                path.nodes[0].labels == "OU"
-                and path.nodes[0].name
-                not in ous_with_da_by_admin[path.nodes[-1].domain]
-            ):
-                ous_with_da_by_admin[path.nodes[-1].domain].append(
-                    path.nodes[0].name)
-                self.nb_ous_with_da += 1
+        # Compute users and computers admin of computers to compute targets interest
+        # should be moved to a common cache (with GPO control, ACL anomaly, etc)
 
-        for domain in self.domains:
-            domain = domain[0]
-            self.createGraphPage(
-                self.arguments.cache_prefix,
-                domain + "_paths_to_ou_handlers",
-                "Paths to OU handlers",
-                "_paths_to_ou_handlers",
-                self.paths_to_ou_handlers[domain],
-            )
+        self.users_admin_computer_list = generic_computing.getListAdminTo(
+            self.users_admin_computer, "user", "computer"
+        )
 
         page = Page(
             self.arguments.cache_prefix,
@@ -1248,23 +1243,191 @@ class Domains:
             "Path to OU Handlers",
             "graph_path_objects_to_ou_handlers",
         )
-        grid = Grid("Numbers of path to ou handlers per domain and objects")
-        grid_data = []
-        for domain in self.domains:
-            domain = domain[0]
-            if len(self.paths_to_ou_handlers[domain]) != 0:
-                tmp_data = {}
-                sortClass = str(len(ous_with_da_by_admin[domain])).zfill(6)
-                tmp_data["Domain"] = '<i class="bi bi-globe2"></i> ' + domain
-                tmp_data["Compromission paths"] = grid_data_stringify({
-                    "value": f"{len(ous_with_da_by_admin[domain])} OU{'s' if len(ous_with_da_by_admin[domain]) > 1 else ''} exploitable by {len(starting_nodes_by_admin[domain])} object{'s' if len(starting_nodes_by_admin[domain]) > 1 else ''}",
-                    "link": "%s_paths_to_ou_handlers.html" % quote(str(domain)),
-                    "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
-                })
-                # tmp_data["Paths to OU handlers"]= {"value" : '%d non DA may GPLink on %d OU' %(len(starting_nodes_by_admin[domain]),len(ous_with_da_by_admin[domain])), "link": "%s_paths_to_ou_handlers.html" % domain}
-                grid_data.append(tmp_data)
-        headers = ["Domain", "Compromission paths"]
+
+        analysis_dict = {}
+
+        for p in all_compromise_paths:
+            for i in range(len(p.nodes)):
+                if p.nodes[i].labels == "OU":
+                    OU_node = p.nodes[i]
+                    inbound_path = Path(p.nodes[: i + 1])
+                    outbount_path = Path(p.nodes[i:])
+                    break
+            if OU_node not in analysis_dict:
+                analysis_dict[OU_node] = {"inbound_paths": [], "outbound_paths": []}
+
+            if inbound_path not in analysis_dict[OU_node]["inbound_paths"]:
+                analysis_dict[OU_node]["inbound_paths"].append(inbound_path)
+            if outbount_path not in analysis_dict[OU_node]["outbound_paths"]:
+                analysis_dict[OU_node]["outbound_paths"].append(outbount_path)
+
+        grid = Grid("TODO")
+        headers = [
+            "OU name",
+            "Inbound graph",
+            "Inbound list",
+            "Targets interest",
+            "Outbound list",
+            "Outbound graph",
+        ]
         grid.setheaders(headers)
+        grid_data = []
+
+        for OU_node in analysis_dict:
+
+            inbound_list = [
+                p.nodes[0].name for p in analysis_dict[OU_node]["inbound_paths"]
+            ]
+            inbound_list = list(dict.fromkeys(inbound_list))
+
+            outbound_list = [
+                p.nodes[-1].name for p in analysis_dict[OU_node]["outbound_paths"]
+            ]
+            outbound_list = list(dict.fromkeys(outbound_list))
+
+            # Generate page with inbound list
+            inbound_list_page = Page(
+                self.arguments.cache_prefix,
+                "path_objects_to_ou_handlers_inbound_list_" + OU_node.name,
+                "Objects that can get control over " + OU_node.name,
+                "path_objects_to_ou_handlers_inbound_list_",
+            )
+            inbound_grid = Grid("Objects that can get control over " + OU_node.name)
+            inbound_grid.setheaders(
+                ["Objects that can get control over " + OU_node.name]
+            )
+            inbound_grid_data = []
+
+            for name in inbound_list:
+                inbound_grid_data.append(
+                    {"Objects that can get control over " + OU_node.name: name}
+                )
+            inbound_grid.setData(inbound_grid_data)
+            inbound_list_page.addComponent(inbound_grid)
+            inbound_list_page.render()
+
+            # Generate page with outbound list
+            outbound_list_page = Page(
+                self.arguments.cache_prefix,
+                "path_objects_to_ou_handlers_outbound_list_" + OU_node.name,
+                "Objects that can get control over " + OU_node.name,
+                "path_objects_to_ou_handlers_outbound_list_",
+            )
+            outbound_grid = Grid("Objects controlled by " + OU_node.name)
+            outbound_grid.setheaders(["Objects controlled by " + OU_node.name])
+            outbound_grid_data = []
+
+            for name in outbound_list:
+                outbound_grid_data.append(
+                    {"Objects controlled by " + OU_node.name: name}
+                )
+            outbound_grid.setData(outbound_grid_data)
+            outbound_list_page.addComponent(outbound_grid)
+            outbound_list_page.render()
+
+            # Generate inbound graph page
+            self.createGraphPage(
+                self.arguments.cache_prefix,
+                "paths_to_OU_" + OU_node.name,
+                "Paths to OU handlers",
+                "paths_to_OU_",
+                analysis_dict[OU_node]["inbound_paths"],
+            )
+
+            # Generate outbound graph page
+            self.createGraphPage(
+                self.arguments.cache_prefix,
+                "paths_from_OU_" + OU_node.name,
+                "Paths from OU handlers",
+                "paths_from_OU_",
+                analysis_dict[OU_node]["outbound_paths"],
+            )
+
+            tmp_data = {}
+            tmp_data["OU name"] = OU_node.name
+
+            inbound_objects_count = len(inbound_list)
+            tmp_data["Inbound list"] = grid_data_stringify(
+                {
+                    "value": f"{inbound_objects_count} object{'s' if inbound_objects_count > 1 else ''}",
+                    "link": "path_objects_to_ou_handlers_inbound_list_"
+                    + str(quote(OU_node.name))
+                    + ".html",
+                    "before_link": '<i class="bi bi-list-columns-reverse" aria-hidden="true"></i>',
+                }
+            )
+            outbound_objects_count = len(outbound_list)
+            tmp_data["Outbound list"] = grid_data_stringify(
+                {
+                    "value": f"{outbound_objects_count} object{'s' if outbound_objects_count > 1 else ''}",
+                    "link": "path_objects_to_ou_handlers_outbound_list_"
+                    + str(quote(OU_node.name))
+                    + ".html",
+                    "before_link": '<i class="bi bi-list-columns-reverse" aria-hidden="true"></i>',
+                }
+            )
+            inbound_paths_count = len(analysis_dict[OU_node]["inbound_paths"])
+            tmp_data["Inbound graph"] = grid_data_stringify(
+                {
+                    "value": f"{inbound_paths_count} path{'s' if inbound_paths_count > 1 else ''}",
+                    "link": "paths_to_OU_" + str(quote(OU_node.name)) + ".html",
+                    "before_link": '<i class="bi bi-diagram-3-fill" aria-hidden="true"></i>',
+                }
+            )
+            outbound_paths_count = len(analysis_dict[OU_node]["outbound_paths"])
+            tmp_data["Outbound graph"] = grid_data_stringify(
+                {
+                    "value": f"{outbound_paths_count} path{'s' if outbound_paths_count > 1 else ''}",
+                    "link": "paths_from_OU_" + str(quote(OU_node.name)) + ".html",
+                    "before_link": '<i class="bi bi-diagram-3-fill" aria-hidden="true"></i>',
+                }
+            )
+
+            # Rate the interest of the OU
+
+            # 0 star  : no object impacted
+            # 1 star  : at least one object impacted
+            # 2 stars : at least one admin account impacted
+            # 3 stars : full domain or at least one domain admin impacted
+            paths = analysis_dict[OU_node]["outbound_paths"]
+
+            if len(paths) == 0:
+                interest = 0
+            else:
+                interest = 1
+
+            for path in paths:
+                for i in range(len(path.nodes)):
+                    if path.nodes[i].labels == "Domain":
+                        interest = 3
+                        break
+                    if path.nodes[i].name in self.admin_list:
+                        interest = 3
+                        break
+                    if (
+                        path.nodes[i].name in self.users_admin_computer_list
+                        or path.nodes[i].name in self.computers_admin_computers_list
+                    ):
+                        interest = max(2, interest)
+
+            # Color for stars
+            if interest == 3:
+                color = "red"
+            elif interest == 2:
+                color = "orange"
+            else:
+                color = "green"
+
+            icon = (
+                f"<span class='{interest}'></span><i class='bi bi-star-fill' style='color: {color}'></i>"
+                * interest
+                + f"<i class='bi bi-star' style='color: {color}'></i>" * (3 - interest)
+            )
+
+            tmp_data["Targets interest"] = icon
+
+            grid_data.append(tmp_data)
+
         grid.setData(grid_data)
         page.addComponent(grid)
         page.render()
@@ -1459,7 +1622,6 @@ class Domains:
         page.addComponent(grid)
         page.render()
 
-
     def genEmptyGroups(self):
         page = Page(
             self.arguments.cache_prefix,
@@ -1497,197 +1659,251 @@ class Domains:
 
         page.addComponent(grid)
         page.render()
-    
+
     def genPathsCrossDomainsAdminPrivileges(self):
-            # get the result of the cypher request (a list of Path objects)
-            paths_local_admins = self.cross_domain_local_admins_paths
+        # get the result of the cypher request (a list of Path objects)
+        paths_local_admins = self.cross_domain_local_admins_paths
 
-            paths_domain_admins = self.cross_domain_domain_admins_paths
-            # create the page
-            page = Page(
-                self.arguments.cache_prefix,
-                "cross_domain_admin_privileges",
-                "Cross-Domain admin privileges",
-                "cross_domain_admin_privileges",
-            )
+        paths_domain_admins = self.cross_domain_domain_admins_paths
+        # create the page
+        page = Page(
+            self.arguments.cache_prefix,
+            "cross_domain_admin_privileges",
+            "Cross-Domain admin privileges",
+            "cross_domain_admin_privileges",
+        )
+        # create the grid
+        grid = Grid("Cross-Domain admin privileges")
+        # create the headers (domains)
+        headers = [
+            "user",
+            "crossLocalAdminAsGraph",
+            "crossLocalAdminAsList",
+            "crossDomainAdminAsGraph",
+            "crossDomainAdminAsList",
+        ]
+
+        data_local_admins = {}
+        for path in paths_local_admins:
+            user = path.nodes[0].name
+            target_domain = path.nodes[-1].domain
+            if user in data_local_admins.keys():
+                # data_local_admins[user].append(path)
+                if target_domain in data_local_admins[user]:
+                    data_local_admins[user][target_domain].append(path)
+                else:
+                    data_local_admins[user][target_domain] = [path]
+            else:
+                data_local_admins[user] = {target_domain: [path]}
+
+        data = {}
+
+        data_domain_admins = {}
+        for path in paths_domain_admins:
+            user = path.nodes[0].name
+            target_domain = path.nodes[-1].domain
+            if user in data_domain_admins.keys():
+                # data_domain_admins[user].append(path)
+                if target_domain in data_domain_admins[user]:
+                    data_domain_admins[user][target_domain].append(path)
+                else:
+                    data_domain_admins[user][target_domain] = [path]
+            else:
+                data_domain_admins[user] = {target_domain: [path]}
+
+        user_keys_raw = list(data_local_admins.keys()) + list(data_domain_admins.keys())
+        unique_users_keys = set(user_keys_raw)
+
+        grid_data = []
+
+        self.cross_domain_total_admin_accounts = len(list(unique_users_keys))
+        self.cross_domain_local_admin_accounts = len(list(data_local_admins))
+        self.cross_domain_domain_admin_accounts = len(list(data_domain_admins))
+
+        for key in unique_users_keys:
+            user = key
+            tmp_data = {}
+
+            tmp_data["user"] = '<i class="bi bi-person-fill"></i> ' + user
+            grid_list_local_admin_targets_data = []
+            grid_list_domain_admin_targets_data = []
             # create the grid
-            grid = Grid("Cross-Domain admin privileges")
-            # create the headers (domains)
-            headers = ["user","crossLocalAdminAsGraph","crossLocalAdminAsList","crossDomainAdminAsGraph","crossDomainAdminAsList"]
+            grid_list_local_admin_targets = Grid(
+                "List of computers from a foreign domain where "
+                + user
+                + " happens to be a local admin"
+            )
+            grid_list_domain_admin_targets = Grid(
+                "List of foreign domains where "
+                + user
+                + " happens to be a domain admin"
+            )
+            if key in data_local_admins.keys():
+                local_targets = []
+                local_distinct_ends = []
+                for domain in data_local_admins[key]:
+                    list_local_admin_targets_tmp_data = {
+                        "domain": '<i class="bi bi-globe2"></i> ' + domain
+                    }
+                    numberofpaths = 0
+                    for path in data_local_admins[key][domain]:
+                        list_local_admin_targets_tmp_data_copy = copy.deepcopy(
+                            list_local_admin_targets_tmp_data
+                        )
+                        last_node_name = path.nodes[-1].name
+                        local_targets.append(path)
+                        if last_node_name not in local_distinct_ends:
+                            local_distinct_ends.append(last_node_name)
+                            sortClass = last_node_name.zfill(6)
+                            list_local_admin_targets_tmp_data_copy["target"] = (
+                                grid_data_stringify(
+                                    {
+                                        "value": f"{last_node_name}",
+                                        "link": "%s_paths_cross_domain_local_admin.html"
+                                        % user,
+                                        "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>',
+                                    }
+                                )
+                            )
 
-            data_local_admins={}
-            for path in paths_local_admins:
-                user = path.nodes[0].name
-                target_domain = path.nodes[-1].domain
-                if user in data_local_admins.keys():    
-                    # data_local_admins[user].append(path)
-                    if target_domain in data_local_admins[user]:
-                        data_local_admins[user][target_domain].append(path)
-                    else:
-                        data_local_admins[user][target_domain]=[path]
-                else:
-                    data_local_admins[user]={target_domain:[path]}
-            
-            data={}
-
-            data_domain_admins={}
-            for path in paths_domain_admins:
-                user = path.nodes[0].name
-                target_domain = path.nodes[-1].domain
-                if user in data_domain_admins.keys():    
-                    # data_domain_admins[user].append(path)
-                    if target_domain in data_domain_admins[user]:
-                        data_domain_admins[user][target_domain].append(path)
-                    else:
-                        data_domain_admins[user][target_domain]=[path]
-                else:
-                    data_domain_admins[user]={target_domain:[path]}
-
-            user_keys_raw = list(data_local_admins.keys())+list(data_domain_admins.keys())
-            unique_users_keys = set(user_keys_raw)
-
-
-            grid_data = []
-
-            self.cross_domain_total_admin_accounts=len(list(unique_users_keys))
-            self.cross_domain_local_admin_accounts=len(list(data_local_admins))
-            self.cross_domain_domain_admin_accounts=len(list(data_domain_admins))
-
-            for key in unique_users_keys:
-                user=key
-                tmp_data={}
-
-                tmp_data["user"] = '<i class="bi bi-person-fill"></i> '+user
-                grid_list_local_admin_targets_data=[]
-                grid_list_domain_admin_targets_data=[]
-                # create the grid
-                grid_list_local_admin_targets = Grid("List of computers from a foreign domain where "+user+" happens to be a local admin")
-                grid_list_domain_admin_targets = Grid("List of foreign domains where "+user+" happens to be a domain admin")
-                if key in data_local_admins.keys():
-                    local_targets=[]
-                    local_distinct_ends=[]
-                    for domain in data_local_admins[key]:
-                        list_local_admin_targets_tmp_data={"domain":'<i class="bi bi-globe2"></i> '+domain}
-                        numberofpaths = 0
-                        for path in data_local_admins[key][domain]:
-                            list_local_admin_targets_tmp_data_copy = copy.deepcopy(list_local_admin_targets_tmp_data)
-                            last_node_name = path.nodes[-1].name
-                            local_targets.append(path)
-                            if last_node_name not in local_distinct_ends:
-                                local_distinct_ends.append(last_node_name)
-                                sortClass = last_node_name.zfill(6)
-                                list_local_admin_targets_tmp_data_copy["target"]=grid_data_stringify({
-                                    "value": f"{last_node_name}",
-                                    "link": "%s_paths_cross_domain_local_admin.html" % user,
-                                    "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
-                                })
-
-                                grid_list_local_admin_targets_data.append(list_local_admin_targets_tmp_data_copy)
-                        nb_local_distinct_ends=len(local_distinct_ends)
-                    sortClass = str(nb_local_distinct_ends).zfill(6)
-                    tmp_data["crossLocalAdminAsGraph"]=grid_data_stringify({
+                            grid_list_local_admin_targets_data.append(
+                                list_local_admin_targets_tmp_data_copy
+                            )
+                    nb_local_distinct_ends = len(local_distinct_ends)
+                sortClass = str(nb_local_distinct_ends).zfill(6)
+                tmp_data["crossLocalAdminAsGraph"] = grid_data_stringify(
+                    {
                         "value": f"{nb_local_distinct_ends} computers impacted",
                         "link": "%s_paths_cross_domain_local_admin.html" % user,
-                        "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
-                    })
-                    self.createGraphPage(
-                            self.arguments.cache_prefix,
-                            user + "_paths_cross_domain_local_admin",
-                            "Paths from "+ user +" to machines of privileged groups from other domains making them domainadmin",
-                            "cross_domain_admin_privileges",
-                            local_targets,
-                        )
+                        "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>',
+                    }
+                )
+                self.createGraphPage(
+                    self.arguments.cache_prefix,
+                    user + "_paths_cross_domain_local_admin",
+                    "Paths from "
+                    + user
+                    + " to machines of privileged groups from other domains making them domainadmin",
+                    "cross_domain_admin_privileges",
+                    local_targets,
+                )
 
-
-
-                    page_list_local_admin_targets = Page(
-                        self.arguments.cache_prefix,
-                        "cross_domain_local_admins_targets_from_"+user,
-                        "List of computers from a foreign domain where "+user+" happens to be a local admin",
-                        "cross_domain_admin_privileges",
-                        )
-                    # create the headers (domains)
-                    local_admins_list_page_headers = ["domain","target"]    
-                    grid_list_local_admin_targets.setheaders(local_admins_list_page_headers )
-                    grid_list_local_admin_targets.setData(grid_list_local_admin_targets_data)
-                    page_list_local_admin_targets.addComponent(grid_list_local_admin_targets)
-                    page_list_local_admin_targets.render()
-                    tmp_data["crossLocalAdminAsList"]=grid_data_stringify({
+                page_list_local_admin_targets = Page(
+                    self.arguments.cache_prefix,
+                    "cross_domain_local_admins_targets_from_" + user,
+                    "List of computers from a foreign domain where "
+                    + user
+                    + " happens to be a local admin",
+                    "cross_domain_admin_privileges",
+                )
+                # create the headers (domains)
+                local_admins_list_page_headers = ["domain", "target"]
+                grid_list_local_admin_targets.setheaders(local_admins_list_page_headers)
+                grid_list_local_admin_targets.setData(
+                    grid_list_local_admin_targets_data
+                )
+                page_list_local_admin_targets.addComponent(
+                    grid_list_local_admin_targets
+                )
+                page_list_local_admin_targets.render()
+                tmp_data["crossLocalAdminAsList"] = grid_data_stringify(
+                    {
                         "value": "<i class='bi bi-list-columns-reverse'></i></span>",
-                        "link": "cross_domain_local_admins_targets_from_%s.html" % user
-                    })
+                        "link": "cross_domain_local_admins_targets_from_%s.html" % user,
+                    }
+                )
 
-                else:
-                    tmp_data["crossLocalAdminAsGraph"]="-"
-                    tmp_data["crossLocalAdminAsList"]="-"
+            else:
+                tmp_data["crossLocalAdminAsGraph"] = "-"
+                tmp_data["crossLocalAdminAsList"] = "-"
 
+            if key in data_domain_admins.keys():
+                domain_targets = []
+                domain_distinct_ends = []
+                for domain in data_domain_admins[key]:
+                    list_domain_admin_targets_tmp_data = {
+                        "domain": '<i class="bi bi-globe2"></i> ' + domain
+                    }
 
+                    for path in data_domain_admins[key][domain]:
+                        list_domain_admin_targets_tmp_data_copy = copy.deepcopy(
+                            list_domain_admin_targets_tmp_data
+                        )
+                        last_node_name = path.nodes[-1].name
+                        domain_targets.append(path)
+                        if last_node_name not in domain_distinct_ends:
 
-                if key in data_domain_admins.keys():
-                    domain_targets=[]
-                    domain_distinct_ends=[]
-                    for domain in data_domain_admins[key]:
-                        list_domain_admin_targets_tmp_data={"domain":'<i class="bi bi-globe2"></i> '+domain}
+                            domain_distinct_ends.append(last_node_name)
 
-                        for path in data_domain_admins[key][domain]:
-                            list_domain_admin_targets_tmp_data_copy = copy.deepcopy(list_domain_admin_targets_tmp_data)
-                            last_node_name = path.nodes[-1].name
-                            domain_targets.append(path)
-                            if last_node_name not in domain_distinct_ends:
+                            sortClass = last_node_name.zfill(6)
+                            list_domain_admin_targets_tmp_data_copy["target"] = (
+                                grid_data_stringify(
+                                    {
+                                        "value": f"{last_node_name}",
+                                        "link": "%s_paths_cross_domain_domain_admin.html"
+                                        % user,
+                                        "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>',
+                                    }
+                                )
+                            )
 
-                                domain_distinct_ends.append(last_node_name)
+                            grid_list_domain_admin_targets_data.append(
+                                list_domain_admin_targets_tmp_data_copy
+                            )
 
-                                sortClass = last_node_name.zfill(6)
-                                list_domain_admin_targets_tmp_data_copy["target"]=grid_data_stringify({
-                                    "value": f"{last_node_name}",
-                                    "link": "%s_paths_cross_domain_domain_admin.html" % user,
-                                    "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
-                                })
-
-                                grid_list_domain_admin_targets_data.append(list_domain_admin_targets_tmp_data_copy)
-
-                        nb_domain_distinct_ends=len(domain_distinct_ends)
-                    sortClass = str(len(list(data_domain_admins[key].keys()))).zfill(6)
-                    tmp_data["crossDomainAdminAsGraph"]=grid_data_stringify({
+                    nb_domain_distinct_ends = len(domain_distinct_ends)
+                sortClass = str(len(list(data_domain_admins[key].keys()))).zfill(6)
+                tmp_data["crossDomainAdminAsGraph"] = grid_data_stringify(
+                    {
                         "value": f"{len(list(data_domain_admins[key].keys()))} domains impacted",
                         "link": "%s_paths_cross_domain_domain_admin.html" % user,
-                        "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>'
-                    })
-                    self.createGraphPage(
-                            self.arguments.cache_prefix,
-                            user + "_paths_cross_domain_domain_admin",
-                            "Paths from "+ user +" to privileged groups from other domains making him/her domain admin",
-                            "cross_domain_admin_privileges",
-                            domain_targets,
-                        )
+                        "before_link": f'<i class="bi bi-shuffle {sortClass}"></i>',
+                    }
+                )
+                self.createGraphPage(
+                    self.arguments.cache_prefix,
+                    user + "_paths_cross_domain_domain_admin",
+                    "Paths from "
+                    + user
+                    + " to privileged groups from other domains making him/her domain admin",
+                    "cross_domain_admin_privileges",
+                    domain_targets,
+                )
 
-
-
-                    page_list_domain_admin_targets = Page(
-                        self.arguments.cache_prefix,
-                        "cross_domain_domain_admins_targets_from_"+user,
-                        "List of other domains where "+user+" happens to be a domain admin",
-                        "cross_domain_admin_privileges",
-                        )
-                    # create the headers (domains)
-                    domain_admins_list_page_headers = ["domain","target"]    
-                    grid_list_domain_admin_targets.setheaders(domain_admins_list_page_headers )
-                    grid_list_domain_admin_targets.setData(grid_list_domain_admin_targets_data)
-                    page_list_domain_admin_targets.addComponent(grid_list_domain_admin_targets)
-                    page_list_domain_admin_targets.render()
-                    tmp_data["crossDomainAdminAsList"]=grid_data_stringify({
+                page_list_domain_admin_targets = Page(
+                    self.arguments.cache_prefix,
+                    "cross_domain_domain_admins_targets_from_" + user,
+                    "List of other domains where "
+                    + user
+                    + " happens to be a domain admin",
+                    "cross_domain_admin_privileges",
+                )
+                # create the headers (domains)
+                domain_admins_list_page_headers = ["domain", "target"]
+                grid_list_domain_admin_targets.setheaders(
+                    domain_admins_list_page_headers
+                )
+                grid_list_domain_admin_targets.setData(
+                    grid_list_domain_admin_targets_data
+                )
+                page_list_domain_admin_targets.addComponent(
+                    grid_list_domain_admin_targets
+                )
+                page_list_domain_admin_targets.render()
+                tmp_data["crossDomainAdminAsList"] = grid_data_stringify(
+                    {
                         "value": "<i class='bi bi-list-columns-reverse'></i></span>",
-                        "link": "cross_domain_domain_admins_targets_from_%s.html" % user
-                    })
+                        "link": "cross_domain_domain_admins_targets_from_%s.html"
+                        % user,
+                    }
+                )
 
-                else:
-                    tmp_data["crossDomainAdminAsGraph"]="-"
-                    tmp_data["crossDomainAdminAsList"]="-"
-                grid_data.append(tmp_data)
-              
+            else:
+                tmp_data["crossDomainAdminAsGraph"] = "-"
+                tmp_data["crossDomainAdminAsList"] = "-"
+            grid_data.append(tmp_data)
 
-            grid.setheaders(headers)
-            grid.setData(grid_data)
-            page.addComponent(grid)
-            page.render()
-
+        grid.setheaders(headers)
+        grid.setData(grid_data)
+        page.addComponent(grid)
+        page.render()

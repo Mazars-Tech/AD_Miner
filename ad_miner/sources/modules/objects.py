@@ -8,7 +8,7 @@ from ad_miner.sources.modules.graph_class import Graph
 from ad_miner.sources.modules.grid_class import Grid
 from ad_miner.sources.modules.node_neo4j import Node
 from ad_miner.sources.modules.page_class import Page
-#from relation_neo4j import Relation
+# from relation_neo4j import Relation
 from ad_miner.sources.modules.path_neo4j import Path
 from ad_miner.sources.modules.utils import grid_data_stringify, timer_format
 from urllib.parse import quote
@@ -160,7 +160,7 @@ class Objects:
             except KeyError:
                 continue
         data = []
-        #print(raw_data)
+        # print(raw_data)
         for k in raw_data.keys():
             graph_page = Page(
             self.arguments.cache_prefix,
@@ -187,7 +187,6 @@ class Objects:
         page.addComponent(grid)
         page.render()
 
-    
     def get_unpriv_users_to_GPO(self):
         if self.arguments.gpo_low and self.domain.unpriv_users_to_GPO is None:
             return
@@ -289,7 +288,7 @@ class Objects:
                     interest = 0
                 else:
                     interest = 1
-                
+
                 for path in paths:
                     for i in range(len(path.nodes)):
                         if path.nodes[i].labels == "Domain":
@@ -300,7 +299,7 @@ class Objects:
                             break
                         if path.nodes[i].name in self.users_with_admin_rights or path.nodes[i].name in self.computers_with_admin_rights:
                             interest = max(2, interest)
-                
+
                 # Color for stars
                 if interest == 3:
                     color = "red"
@@ -308,7 +307,7 @@ class Objects:
                     color = "orange"
                 else:
                     color = "green"
-                
+
                 icon = f"<span class='{interest}'></span><i class='bi bi-star-fill' style='color: {color}'></i>"*interest + f"<i class='bi bi-star' style='color: {color}'></i>"*(3-interest)
 
                 output.append(
@@ -352,7 +351,7 @@ class Objects:
                     icon = '<i class="bi bi-house-fill"></i> '
                 else:
                     icon = '<i class="bi bi-question-circle-fill"></i> '
-                
+
                 if n[0] in self.computers_with_admin_rights or n[0] in self.users_with_admin_rights:
                     icon = icon + '<i class="bi bi-gem" title="This object has administration rights" style="color:grey;"></i> '
                 if n[0] in self.domain.admin_list:
@@ -457,7 +456,6 @@ class Objects:
             )
             page_left_grid.addComponent(entry_grid)
 
-            
             end_grid = Grid("List of users impacted by %s" % GPO[headers[0]])
             end_grid.setheaders([GPO[headers[0]]])
             end_grid.setData(
