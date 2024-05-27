@@ -368,7 +368,7 @@ class Users:
                 "domain": '<i class="bi bi-globe2"></i> ' + d["domain"],
                 "name": '<i class="bi bi-person-fill"></i> ' + d["name"],
                 "target": grid_data_stringify({
-                    "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
+                    "value": f"{len(d['paths'])} paths to {len(d['target'])} target{'s' if len(d['target'])>1 else ''}",
                     "link": f"users_shadow_credentials_from_{quote(str(d['name']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
                 })
@@ -414,7 +414,7 @@ class Users:
                     "domain": '<i class="bi bi-globe2"></i> ' + data[target]["domain"],
                     "target": '<i class="bi bi-bullseye"></i> ' + data[target]["target"],
                     "paths": grid_data_stringify({
-                        "value": f"{nb_paths} paths to target <i class='bi bi-box-arrow-up-right'></i>",
+                        "value": f"{nb_paths} paths to target",
                         "link": f"users_shadow_credentials_to_non_admins_to_{quote(str(data[target]['target']))}.html",
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     })
@@ -632,7 +632,7 @@ class Users:
                     partDict[headers[4]] = grid_data_stringify(
                         {
                             "link": f"users_to_computers.html?node={quote(str(self.users_to_computer_admin[key]))}",
-                            "value": "Path to computers <i class='bi bi-box-arrow-up-right'></i>",
+                            "value": "Path to computers",
                             "before_link": f"<i class='bi bi-shuffle' aria-hidden='true'></i>",
                         }
                     )
@@ -649,7 +649,7 @@ class Users:
                     partDict[headers[5]] = grid_data_stringify(
                         {
                             "link": "users_path_to_da_from_%s.html" % quote(str(key)),
-                            "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''}) <i class='bi bi-box-arrow-up-right'></i>",
+                            "value": f" {nb_path_to_da} path{'s' if nb_path_to_da > 1 else ''} to DA ({nb_domain} domain{'s' if nb_domain > 1 else ''})",
                             "before_link": f"<i class='bi bi-sign-turn-right {sortClass}' aria-hidden='true'></i>",
                         }
                     )
@@ -1317,7 +1317,7 @@ class Users:
                 "domain": d["domain"],
                 "name": d["name"],
                 "paths": grid_data_stringify({
-                    "value": f"{len(d['paths'])} paths target{'s' if len(d['target'])>1 else ''} <i class='bi bi-box-arrow-up-right'></i>",
+                    "value": f"{len(d['paths'])} paths target{'s' if len(d['target'])>1 else ''}",
                     "link": f"objects_to_operators_{quote(str(d['link']))}.html",
                     "before_link": f"<i class='{sortClass} bi bi-shuffle' aria-hidden='true'></i>"
                 }),
@@ -1598,7 +1598,7 @@ class Users:
                     "members count": f'<i class="{str(formated_data[name_label_instance]["members_count"]).zfill(6)} bi bi-people-fill"></i> ' + str(formated_data[name_label_instance]["members_count"]) if formated_data[name_label_instance]["members_count"] != '-' else '-',
                     "targets count": grid_data_stringify({
                         "link": f"anomaly_acl_details_{quote(str(name_label_instance.replace(' ', '_')))}.html",
-                        "value": f"{str(len(formated_data[name_label_instance]['targets'])) +' targets' if len(formated_data[name_label_instance]['targets']) > 1 else formated_data[name_label_instance]['targets'][0]} <i class='bi bi-box-arrow-up-right' aria-hidden='true'></i>",
+                        "value": f"{str(len(formated_data[name_label_instance]['targets'])) +' targets' if len(formated_data[name_label_instance]['targets']) > 1 else formated_data[name_label_instance]['targets'][0]}",
                         "before_link": f"<i class='<i bi bi-bullseye {str(len(formated_data[name_label_instance]['targets'])).zfill(6)}'></i> "
                     }),
                     "interest": f"<span class='{interest}'></span><i class='bi bi-star-fill'></i>"*interest + "<i class='bi bi-star'></i>"*(3-interest)

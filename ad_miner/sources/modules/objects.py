@@ -114,12 +114,12 @@ class Objects:
                     "name": name_icon + ' ' + n.name,
                     "path to account": grid_data_stringify({
                         "link": "path_to_%s_with_dcsync.html" % quote(str(n.name)),
-                        "value": f"{len(paths_left)} paths <i class='bi bi-box-arrow-up-right'></i>",
+                        "value": f"{len(paths_left)} paths",
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     }),
                     "path to dcsync": grid_data_stringify({
                         "link": "dcsync_from_%s.html" % quote(str(n.name)),
-                        "value": f"DCSync path <i class='bi bi-box-arrow-up-right'></i>",
+                        "value": f"DCSync path",
                         "before_link": f"<i class='bi bi-shuffle {sortClass}' aria-hidden='true'></i>"
                     }),
                 }
