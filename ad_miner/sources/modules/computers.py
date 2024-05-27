@@ -288,7 +288,7 @@ class Computers:
                 }
                 if num_path > 0:
                     tmp_line["Paths to domain admin"] = grid_data_stringify({
-                            "value": f"{num_path} paths to DA ({nb_domains} domain{'s' if nb_domains>1 else ''} impacted) <i class='bi bi-box-arrow-up-right'></i>",
+                            "value": f"{num_path} paths to DA ({nb_domains} domain{'s' if nb_domains>1 else ''} impacted)",
                             "link": f"computers_path_to_da_from_{quote(str(admin_computer))}.html",
                             "before_link": f"<i class='bi bi-shuffle {sortClass2}' aria-hidden='true'></i>"
                         })

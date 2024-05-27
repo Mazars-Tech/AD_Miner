@@ -169,6 +169,7 @@ class Domains:
         self.compromise_paths_of_OUs = neo4j.all_requests["compromise_paths_of_OUs"][
             "result"
         ]
+        self.vulnerable_OU_impact = neo4j.all_requests["vulnerable_OU_impact"]["result"]
 
         self.users_admin_computer = neo4j.all_requests["users_admin_on_computers"][
             "result"
@@ -1358,22 +1359,29 @@ class Domains:
 
     @staticmethod
     def generatePathToOUHandlers(self):
-        OU_to_DA_DC_dico = {}
+        OU_to_targets_dico = {}
         all_compromise_paths = []
 
         for p in self.contains_da:
-            if p.nodes[0].id not in OU_to_DA_DC_dico:
-                OU_to_DA_DC_dico[p.nodes[0].id] = [p]
+            if p.nodes[0].id not in OU_to_targets_dico:
+                OU_to_targets_dico[p.nodes[0].id] = [p]
             else:
-                OU_to_DA_DC_dico[p.nodes[0].id].append(p)
+                OU_to_targets_dico[p.nodes[0].id].append(p)
         for p in self.contains_dc:
-            if p.nodes[0].id not in OU_to_DA_DC_dico:
-                OU_to_DA_DC_dico[p.nodes[0].id] = [p]
+            if p.nodes[0].id not in OU_to_targets_dico:
+                OU_to_targets_dico[p.nodes[0].id] = [p]
             else:
-                OU_to_DA_DC_dico[p.nodes[0].id].append(p)
+                OU_to_targets_dico[p.nodes[0].id].append(p)
+        for p in self.vulnerable_OU_impact:
+            if p.nodes[0].id not in OU_to_targets_dico:
+                OU_to_targets_dico[p.nodes[0].id] = [p]
+            else:
+                OU_to_targets_dico[p.nodes[0].id].append(p)
 
         for p1 in self.compromise_paths_of_OUs:
-            for p2 in OU_to_DA_DC_dico[p1.nodes[-1].id]:
+            if p1.nodes[-1].id not in OU_to_targets_dico:
+                continue
+            for p2 in OU_to_targets_dico[p1.nodes[-1].id]:
                 assert p1.nodes[-1].id == p2.nodes[0].id
                 p = Path(p1.nodes[:-1] + p2.nodes)
                 all_compromise_paths.append(p)

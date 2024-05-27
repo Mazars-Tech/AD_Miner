@@ -137,10 +137,13 @@ def timer_format(delta_time):
     return "Done in %.2f %s" % (delta, suffix)
 
 
-def days_format(nb_days: int, critical_time:int = 90) -> str:
+def days_format(nb_days: int, critical_time=90) -> str:
     """
     Returns the date in a nice format
     """
+
+    critical_time = int(critical_time)
+
     sortClass = str(nb_days).zfill(6)
     if nb_days is None:
         return f"<i class='{sortClass} bi bi-x-circle' style='color: rgb(255, 89, 94);'></i> Unknown"
@@ -171,6 +174,6 @@ def grid_data_stringify(raw_data: dict) -> str:
     }
     """
     try:
-        return f"{raw_data['before_link']} <a class=\"grid-link\" target='_blank' href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
+        return f"{raw_data['before_link']} <a class=\"grid-link\" href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
     except KeyError:
-        return f"<a class=\"grid-link\" target='_blank' href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
+        return f"<a class=\"grid-link\" href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
