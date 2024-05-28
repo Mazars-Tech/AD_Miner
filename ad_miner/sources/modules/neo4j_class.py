@@ -139,8 +139,10 @@ class Neo4j:
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
 
-        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GPLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced"
-        path_to_group_operators_props = properties.replace('|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC','')
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GPLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced|WriteGPLink"
+        path_to_group_operators_props = properties.replace(
+            "|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC", ""
+        )
 
         if boolean_azure:
             properties += "|AZAKSContributor|AZAddMembers|AZAddOwner|AZAddSecret|AZAutomationContributor|AZAvereContributor|AZCloudAppAdmin|AZContains|AZContributor|AZExecuteCommand|AZGetCertificates|AZGetKeys|AZGetSecrets|AZGlobalAdmin|AZHasRole|AZKeyVaultContributor|AZLogicAppContributor|AZMGAddMember|AZMGAddOwner|AZMGAddSecret|AZMGAppRoleAssignment_ReadWrite_All|AZMGApplication_ReadWrite_All|AZMGDirectory_ReadWrite_All|AZMGGrantAppRoles|AZMGGrantRole|AZMGGroupMember_ReadWrite_All|AZMGGroup_ReadWrite_All|AZMGRoleManagement_ReadWrite_Directory|AZMGServicePrincipalEndpoint_ReadWrite_All|AZManagedIdentity|AZMemberOf|AZNodeResourceGroup|AZOwner|AZOwns|AZPrivilegedAuthAdmin|AZPrivilegedRoleAdmin|AZResetPassword|AZRunAs|AZScopedTo|AZUserAccessAdministrator|AZVMAdminLogin|AZVMContributor|AZWebsiteContributor"

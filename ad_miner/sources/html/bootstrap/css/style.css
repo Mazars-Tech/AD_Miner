@@ -247,3 +247,22 @@
 h5 {
   margin-bottom: 0 !important;
 }
+
+.grid-link {
+  text-decoration: none !important;
+  color: #181D1F;
+}
+
+.grid-link:hover {
+  text-decoration: underline !important;
+  color: #0969da;
+}
+
+.bi.stats-icon {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.ag-cell-value {
+  font-size: 14px;
+}

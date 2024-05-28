@@ -23,22 +23,26 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark mb-3" style="background-color: rgb(44, 62, 80); width: 100%">
       <div class="nav-left">
-        <a class="navbar-brand" href="index.html" id="title">
-          <img src="../assets/hub.svg" class="mx-2" height="30" id="hub" />
-          AD Miner
-        </a>
-
-        <div style="display:{{boolean_azure}}">
-          <label class="btn btn-primary">
-            <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise"
-              autocomplete="off" checked> On Premise
-          </label>
-          <label class="btn btn-primary">
-            <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off">
-            Azure
-          </label>
+<div style="display:{{boolean_azure}}">
+  <div class="radio-group">
+                  <a class="navbar-brand" href="index.html" id="title">
+                    <img src="../assets/hub.svg" class="mx-2" height="30" id="hub" />
+                    AD Miner
+                  </a>
+        <label class="btn btn-primary custom-radio">
+          <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise" autocomplete="off"
+            checked="">
+          <span class="radio-btn"></span>
+          On Premise
+        </label>
+        <label class="btn btn-primary custom-radio">
+          <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off">
+        <span class="radio-btn"></span>
+        Azure
+        </label>
         </div>
-        
+
+        </div>
 
       </div>
 
@@ -58,9 +62,6 @@
         </div>
 
       </div>
-      </div>
-      <div class="nav-right">
-        <img src="../assets/Mazars_white.png" height="12" style="margin: auto" />
       </div>
     </nav>
   </header>
@@ -207,7 +208,6 @@
           <div class="tab-content">
             <div class="tab-pane active" id="recap" role="tabpanel">
               <div class="card-body" id="stats-tab-overview">
-                <h5 class="card-title stats-title">General statistics</h5>
                 <div class="d-flex justify-content-between align-items-center stats-div">
                   <div>
                     <p class="stats-text">
@@ -224,7 +224,7 @@
                   <div>
                     <p class="stats-text">
                       <span class="stats-number"><i class="bi bi-gem stats-icon"></i>{{nb_dc}}</span>
-                      Domain controllers
+                      domain controllers
                     </p>
                   </div>
                   <div>
@@ -236,7 +236,7 @@
                   <div>
                     <p class="stats-text">
                       <span class="stats-number"><i class="bi bi-gem stats-icon"></i>{{nb_da}}</span>
-                      Domain admins
+                      domain admins
                     </p>
                   </div>
                   <div>
@@ -249,7 +249,7 @@
                   <div>
                     <p class="stats-text">
                       <span class="stats-number"><i class="bi bi-person-fill stats-icon"></i>{{nb_users}}</span>
-                      Users
+                      users
                     </p>
                   </div>
                   <div>
@@ -261,7 +261,7 @@
                   <div>
                     <p class="stats-text">
                       <span class="stats-number"><i class="bi bi-people-fill stats-icon"></i>{{nb_groups}}</span>
-                      Groups
+                      groups
                     </p>
                   </div>
                   <div>
@@ -274,7 +274,7 @@
                   <div>
                     <p class="stats-text">
                       <span class="stats-number"><i class="bi bi-pc-display stats-icon"></i>{{nb_computers}}</span>
-                      Computers
+                      computers
                     </p>
                   </div>
                   <div>
@@ -347,7 +347,7 @@
                     <div>
                       <p class="stats-text">
                         <span class="stats-number"><i class="bi bi-person-fill stats-icon"></i>{{azure_nb_users}}</span>
-                        Users
+                        users
                       </p>
                     </div>
                     <div>
@@ -361,7 +361,7 @@
                       <p class="stats-text">
                         <span class="stats-number"><i
                             class="bi bi-people-fill stats-icon"></i>{{azure_nb_groups}}</span>
-                        Groups
+                        groups
                       </p>
                     </div>
                     <div>
@@ -767,7 +767,7 @@
             </div>
 
             <!-- On-premise -->
-            <div class="tab-pane fade" id="exposure-on-premise" role="tabpanel">
+            <div class="tab-pane fade overview" style="max-height: 780px;" id="exposure-on-premise" role="tabpanel">
 
               <div class="row" style="margin-bottom: 15px">
                 <div class="col-graph-main-left">
@@ -1254,7 +1254,7 @@
       <div class="col-right">
 
         <!-- On-premise -->
-        <div class="card main-card-category shadow limit-height mb-3 overview" id="right-col-on-prem">
+        <div class="card main-card-category shadow mb-3 overview" id="right-col-on-prem">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-exclamation-diamond-fill" style="color: rgb(245, 75, 75); margin-right: 5px"></i>
@@ -1341,8 +1341,7 @@
   <script type="text/javascript" src="../js/main_circle.js"></script>
   <script type="text/javascript" src="../js/hide_cards.js"></script>
   <script type="text/javascript" src="../js/search_bar.js"></script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script type="text/javascript" src="../js/chartjs-adapter-date-fns.bundle.min.js"></script>
 
   <script>
     // evolution time 2

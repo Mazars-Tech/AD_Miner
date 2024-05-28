@@ -32,7 +32,7 @@ def rating(users, domains, computers, objects, azure, arguments):
     )
     d["on_premise"][
         time_since(
-            max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set], default=None),
+            max([dict["pass_last_change"] for dict in users.users_krb_pwd_last_set if dict["pass_last_change"] is not None ], default=None),
             age=1 * 365,
             criticity=2,
         )
@@ -147,7 +147,7 @@ def rating(users, domains, computers, objects, azure, arguments):
 
     d["on_premise"][4 if computers.stat_laps < 20 else 3].append("computers_without_laps")
 
-    d["on_premise"][presence_of(domains.objects_to_ou_handlers)].append(
+    d["on_premise"][presence_of(domains.compromise_paths_of_OUs)].append(
         "graph_path_objects_to_ou_handlers"
     )
     d["on_premise"][
@@ -176,8 +176,6 @@ def rating(users, domains, computers, objects, azure, arguments):
     else:
         d["on_premise"][-1].append("empty_groups")
         d["on_premise"][-1].append("empty_ous")
-    
-    
 
     d["on_premise"][presence_of(users.has_sid_history, 2)].append("has_sid_history")
     d["on_premise"][rate_cross_domain_privileges(domains.cross_domain_local_admin_accounts,domains.cross_domain_domain_admin_accounts)].append("cross_domain_admin_privileges")
@@ -201,7 +199,7 @@ def rating(users, domains, computers, objects, azure, arguments):
     d["azure"][presence_of(azure.azure_accounts_disabled_on_prem, 3)].append("azure_accounts_disabled_on_prem")
     d["azure"][presence_of(azure.azure_accounts_not_found_on_prem, 3)].append("azure_accounts_not_found_on_prem")
     d["azure"][1 if azure.azure_total_cross_ga_da_compromission > 0 else 5].append("azure_cross_ga_da")
-    
+
     return d
 
 

@@ -64,7 +64,7 @@ def formatGridValues2Columns(data, headers, prefix, icon="", icon2=""):
                     headers[1]: grid_data_stringify({
                         "link": "%s.html?object=%s" % (quote(str(prefix)), quote(str(key))),
                         "before_link": f'{icon[:-6]} {sortClass}"></i>',
-                        "value": str(value) + ' <i class="bi bi-box-arrow-up-right"></i>',
+                        "value": str(value),
                     }),
                 }
             )

@@ -1,63 +1,36 @@
-var icon_group_options = {
-  cluster_Group: {
-    image: url_with_color('Group_cluster', 'none', 'none', 'rgba(252,147,3,1)'),
-  },
-  Unknown: { image: url_with_color('Unknown', 'none', 'none', 'rgba(77,77,77,1)') },
-};
+// This object is used by vis.js to retrieve node icon
+var icon_group_options = {};
 
-var list_type_icone = [
-  'Domain',
-  'GPO',
-  'Group',
-  'Container',
-  'Container',
-  'OU',
-  'Computer',
-  'User',
-  'Foreignsecurityprincipal',
-  'Unknown',
-  'Device',
-  'AZTenant',
-  'AZRole',
-  'ADLocalGroup'
-];
-var list_attribute = ['ghost', 'da', 'none'];
-var list_temporality = ['start', 'intermediate', 'end'];
+var existing_attribute_strings = []
 
-//cluster_Group = ;
-//intermediate_Unknown = url_with_color('Unknown', "none", "none", "rgba(77,77,77,1)");
+for (var i = 0; i < window.data_nodes.length; i++) {
 
-for (var i = 0; i < list_type_icone.length; i++) {
-  for (var j = 0; j < list_attribute.length; j++) {
-    for (var l = 0; l < list_attribute.length; l++) {
-      for (var k = 0; k < list_temporality.length; k++) {
-        if (list_temporality[k] === 'start') {
-          var color = '#26a269';
-        } else if (list_temporality[k] === 'intermediate') {
-          var color = '#5e5c64';
-        } else {
-          var color = '#c01c28';
-        }
-        
+  // Creates a string to describe each nodes and its attribute
+  // to create the object that will contain each icon for vis.js
+  var node_attribute_string = "";
 
-        icon_group_options[
-          list_temporality[k] +
-            '_' +
-            list_type_icone[i] +
-            '_' +
-            list_attribute[j] +
-            '_' +
-            list_attribute[l]
-        ] = {
-          image: url_with_color(
-            list_type_icone[i],
-            list_attribute[j],
-            list_attribute[l],
-            color,
-          ),
-        };
-      }
-    }
+  node_attribute_string = node_attribute_string.concat(window.data_nodes[i].instance);
+
+  node_attribute_string = node_attribute_string.concat('_');
+  node_attribute_string = node_attribute_string.concat(window.data_nodes[i].position);
+
+  window.data_nodes[i].attributes.sort();
+  for (var j = 0; j < window.data_nodes[i].attributes.length; j++) {
+    node_attribute_string = node_attribute_string.concat('_');
+    node_attribute_string = node_attribute_string.concat(window.data_nodes[i].attributes[j]);
+  }
+
+  window.data_nodes[i].group = node_attribute_string;
+
+  if (!existing_attribute_strings.includes(node_attribute_string)) {
+    existing_attribute_strings.push(node_attribute_string);
+  }
+}
+
+for (var i = 0; i < existing_attribute_strings.length; i++) {
+  icon_group_options[existing_attribute_strings[i]] = {
+    image: get_image(existing_attribute_strings[i]),
+    shadow: { enabled: true }
   }
 }
 
@@ -265,7 +238,7 @@ function manageMultipleEdges(edges) {
     }
   }
 
-  for (var i=0; i<to_smooth.length; i++) {
+  for (var i = 0; i < to_smooth.length; i++) {
     siblings = to_smooth[i]
     /* Determine the arc roundness depending on the number og sibling edges
     following this pattern :
@@ -279,18 +252,18 @@ function manageMultipleEdges(edges) {
     */
     if (siblings.length % 2 == 0) {
       roundness = [];
-      for (var k=1; k<siblings.length/2+1; k++) {
-        roundness = [-0.25*k, ...roundness, 0.25*k];
+      for (var k = 1; k < siblings.length / 2 + 1; k++) {
+        roundness = [-0.25 * k, ...roundness, 0.25 * k];
       }
     }
     else {
       roundness = [0];
-      for (var k=1; k<(siblings.length-1)/2+1; k++) {
-        roundness = [-0.3*k, ...roundness, 0.3*k];
+      for (var k = 1; k < (siblings.length - 1) / 2 + 1; k++) {
+        roundness = [-0.3 * k, ...roundness, 0.3 * k];
       }
     }
-    for (var j=0; j<siblings.length; j++) {
-      edges[siblings[j][0]]["smooth"] = {type: 'curvedCW', roundness: roundness[j]*siblings[j][1]};
+    for (var j = 0; j < siblings.length; j++) {
+      edges[siblings[j][0]]["smooth"] = { type: 'curvedCW', roundness: roundness[j] * siblings[j][1] };
     }
   }
   return edges
@@ -759,8 +732,8 @@ function percentage_path_passing_through_nodes() {
 
       allNodes[dico_rank_nodes[rank_node - 1][i]].title = htmlTitle(
         "<span style='width: 180px;background-color: black;color: #fff;text-align: center;padding: 5px 0;border-radius: 6px;position: absolute;'>" +
-          string_tooltip +
-          '</span>',
+        string_tooltip +
+        '</span>',
       );
 
       dico_rank_nodes[rank_node] = dico_rank_nodes[rank_node]
@@ -1276,7 +1249,7 @@ function markClustersForward(threshold) {
         //console.log("ignoring", nodeId, " is not an end node");
         return;
       }
-      if(node in allNodescopy) {
+      if (node in allNodescopy) {
 
         if (allNodescopy[node].group.includes('Group')) {
           return;
@@ -1321,7 +1294,7 @@ function markClusterComplete(nodeId) {
     printRecurseWarning(
       (typeof allNodescopy[nodeId].label !== 'undefined' &&
         allNodescopy[nodeId].label) ||
-        allNodescopy[nodeId].hiddenLabel,
+      allNodescopy[nodeId].hiddenLabel,
     );
     return;
   }
@@ -1334,7 +1307,7 @@ function markClusterComplete(nodeId) {
     printRecurseWarning(
       (typeof allNodescopy[nodeId].label !== 'undefined' &&
         allNodescopy[nodeId].label) ||
-        allNodescopy[nodeId].hiddenLabel,
+      allNodescopy[nodeId].hiddenLabel,
     );
     markUnclusterable(nodeId);
     return;
@@ -1558,8 +1531,8 @@ function openCluster(nodeId) {
     if (
       confirm(
         'This cluster contains ' +
-          allNodescopy[nodeId].clusterChildren.length +
-          ' nodes, do you want to open it anyway?',
+        allNodescopy[nodeId].clusterChildren.length +
+        ' nodes, do you want to open it anyway?',
       )
     ) {
       unmarkCluster(nodeId);
@@ -1642,12 +1615,10 @@ function searchNode(string) {
   searchbarResults = document.createElement('div');
   searchbarResults.classList.add('list-group');
   searchbarResults.id = 'searchbarResults';
-  searchbarResults.style = `opacity:0.9;margin-left:${
-    document.getElementById('search-bar-list-group').offsetLeft
-  }px;position:absolute;top:${
-    document.getElementById('search-bar-list-group').offsetTop +
+  searchbarResults.style = `opacity:0.9;margin-left:${document.getElementById('search-bar-list-group').offsetLeft
+    }px;position:absolute;top:${document.getElementById('search-bar-list-group').offsetTop +
     document.getElementById('search-bar-list-group').offsetHeight
-  }px;`;
+    }px;`;
 
   for (node in allNodescopy) {
     if (typeof allNodes[node] !== 'undefined') {
@@ -1665,12 +1636,12 @@ function searchNode(string) {
         // var result = createElementFromHTML(`<a class='list-group-item list-group-item-action' onclick=network.moveTo(` + JSON.stringify(opts) + `);neighbourhoodHighlight({"nodes":[` + node +`]});>` + label + `</a>`);
         var result = createElementFromHTML(
           `<a class='list-group-item list-group-item-action' onclick=network.focus(` +
-            node +
-            `);neighbourhoodHighlight({"nodes":[` +
-            node +
-            `]});>` +
-            label +
-            `</a>`,
+          node +
+          `);neighbourhoodHighlight({"nodes":[` +
+          node +
+          `]});>` +
+          label +
+          `</a>`,
         );
         searchbarResults.appendChild(result);
       }
@@ -1688,12 +1659,12 @@ function searchNode(string) {
 
         var result = createElementFromHTML(
           `<a class='list-group-item list-group-item-action' onclick=network.focus(findParentCluster(` +
-            node +
-            `));neighbourhoodHighlight({"nodes":[findParentCluster(` +
-            node +
-            `)]});>` +
-            label +
-            ` (in a cluster)</a>`,
+          node +
+          `));neighbourhoodHighlight({"nodes":[findParentCluster(` +
+          node +
+          `)]});>` +
+          label +
+          ` (in a cluster)</a>`,
         );
         // var result = createElementFromHTML(`<a class='list-group-item list-group-item-action' onclick=network.moveTo(` + JSON.stringify(opts) + `);neighbourhoodHighlight({"nodes":[findParentCluster(`+ node + `)]});>` + label + ` (in a cluster)</a>`)
         searchbarResults.appendChild(result);

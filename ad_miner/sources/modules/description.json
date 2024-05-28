@@ -410,6 +410,30 @@
     "risk": "OUs that can be used to leverage access to privileged accounts or objects are particularly sensitive.",
     "poa": "Review the exploitation paths for these OUs and remove dangerous links."
   },
+  "path_objects_to_ou_handlers_inbound_list_": {
+    "title": "Objects have paths to compromise OU handlers",
+    "description": "Objects that have paths to compromise OU handlers.",
+    "risk": "OUs that can be used to leverage access to privileged accounts or objects are particularly sensitive.",
+    "poa": "Review the exploitation paths for these OUs and remove dangerous links."
+  },
+  "path_objects_to_ou_handlers_outbound_list_": {
+    "title": "Objects have paths to compromise OU handlers",
+    "description": "Objects that can be compromised by vulnerable OU handlers.",
+    "risk": "OUs that can be used to leverage access to privileged accounts or objects are particularly sensitive.",
+    "poa": "Review the exploitation paths for these OUs and remove dangerous links."
+  },
+  "paths_to_OU_": {
+    "title": "Objects have paths to compromise OU handlers",
+    "description": "Objects that have paths to compromise OU handlers.",
+    "risk": "OUs that can be used to leverage access to privileged accounts or objects are particularly sensitive.",
+    "poa": "Review the exploitation paths for these OUs and remove dangerous links."
+  },
+  "paths_from_OU_": {
+    "title": "Objects have paths to compromise OU handlers",
+    "description": "Objects that can be compromised by vulnerable OU handlers.",
+    "risk": "OUs that can be used to leverage access to privileged accounts or objects are particularly sensitive.",
+    "poa": "Review the exploitation paths for these OUs and remove dangerous links."
+  },
   "can_read_gmsapassword_of_adm": {
     "title": "Objects can read GMSA passwords of administrators",
     "description": "GMSA stands for Group Managed Service Account. GMSAs are a special type of service account that are designed to provide improved security and manageability for service applications. GMSAs have their own passwords that are managed by the Active Directory and automatically rotated, making them more secure than traditional service accounts.",

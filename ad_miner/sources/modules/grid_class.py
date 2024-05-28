@@ -46,7 +46,7 @@ class Grid:
                                 else {
                                     var prepend = "";
                                 }
-                                params.data[params.column.colId] = prepend + '<a style="color: blue" target="_blank" href="' + params.data[params.column.colId].link + '">'+ params.data[params.column.colId].value + '</a>';
+                                params.data[params.column.colId] = prepend + '<a onMouseOver="this.style.color=#99c3ff" onMouseOut="this.style.color=#000" href="' + params.data[params.column.colId].link + '">'+ params.data[params.column.colId].value + '</a>';
                                 return params.data[params.column.colId];
                             }
                             return params.data[params.column.colId];
@@ -55,7 +55,9 @@ class Grid:
                             return params.value;
                         }
                     },
-                },""" % (header)
+                },""" % (
+                    header
+                )
 
             textToInsert = textToInsert + "];\nvar rowData=%s;\n" % (self.data)
 

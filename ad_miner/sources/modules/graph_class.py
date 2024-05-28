@@ -1,5 +1,5 @@
-
 from ad_miner.sources.modules.utils import HTML_DIRECTORY
+
 
 class Graph:
     def __init__(self, template="graph", path_limit=80000):
@@ -15,6 +15,9 @@ class Graph:
         self.dc_computer = {}
         self.user_da = {}
         self.group_da = {}
+        self.enabled_users = {}
+        self.kerberoastable_users = {}
+        self.disabled_users_dict = {}
 
     def addPath(self, path):
         self.paths.append(path)
@@ -37,6 +40,14 @@ class Graph:
     def addGroupDA(self, group_da):
         self.group_da = group_da
 
+    def addDisabledUsers(self, disabled_users):
+        self.disabled_users_dict = {}
+        for d in disabled_users:
+            self.disabled_users_dict[d["name"]] = True
+
+    def addKerberoastableUsers(self, kerberoastable_users):
+        self.kerberoastable_users = kerberoastable_users
+
     def render(self, page_f):
 
         # Write header
@@ -48,6 +59,9 @@ class Graph:
 
         for index, path in enumerate(self.paths):
             for i in range(len(path.nodes)):
+
+                node = path.nodes[i]
+
                 # Compute node style
                 if i == 0:
                     node_position = "start"
@@ -56,32 +70,61 @@ class Graph:
                 else:
                     node_position = "intermediate"
 
-                if self.ghost_computer.get(path.nodes[i].name) or self.ghost_user.get(
-                    path.nodes[i].name
-                ):
-                    attribute1 = "ghost"
-                else:
-                    attribute1 = "none"
+                # Add new labels here. A corresponding svg icon should be defined
+                # dico_icon in the icon.js file.
+                list_labels = [
+                    "User",
+                    "Foreignsecurityprincipal",
+                    "GPO",
+                    "Computer",
+                    "OU",
+                    "Group",
+                    "Domain",
+                    "ADLocalGroup",
+                    "Container",
+                    "Unknown",
+                    "Group_cluster",
+                    "Device",
+                    "AZTenant",
+                    "AZRole",
+                ]
 
-                if (
-                    self.dc_computer.get(path.nodes[i].name)
-                    or self.user_da.get(path.nodes[i].name)
-                    or self.group_da.get(path.nodes[i].name)
-                ):
-                    attribute2 = "da"
-                else:
-                    attribute2 = "none"
-
-
-                list_labels = ["User", "Foreignsecurityprincipal", "GPO", "Computer", "OU", "Group", "Domain", "ADLocalGroup", "Container", "Unknown", "Group_cluster", "Device", "AZTenant", "AZRole"]
-
-
-                if path.nodes[i].labels in list_labels:
-                    label_instance = path.nodes[i].labels
+                if node.labels in list_labels:
+                    label_instance = node.labels
                 elif path.nodes[i].labels[2:] in list_labels:
-                    label_instance = path.nodes[i].labels[2:]
+                    label_instance = node.labels[2:]
                 else:
                     label_instance = "Unknown"
+
+                node_attributes = []
+
+                # Add DA icon if node is DC, DA or Domain
+                if (
+                    node.name in [dc for dc in self.dc_computer if self.dc_computer[dc]]
+                    or label_instance == "Domain"
+                    or node.name in [da for da in self.user_da if self.user_da[da]]
+                    or node.name in [dag for dag in self.group_da if self.group_da[dag]]
+                ):
+                    node_attributes.append("da")
+
+                # Add ghost icon if ghost
+                if node.name in [
+                    g for g in self.ghost_user if self.ghost_user[g]
+                ] or node.name in [
+                    gc for gc in self.ghost_computer if self.ghost_computer[gc]
+                ]:
+                    node_attributes.append("ghost")
+
+                if (
+                    label_instance == "User"
+                    and node.name in self.disabled_users_dict.keys()
+                ):
+                    node_attributes.append("disabled")
+
+                # New nodes attributes that should be added to the node icon
+                # should be added here to the node_attributes list.
+                # A corresponding svg icon should the be added to the
+                # dico_icon in icon.js
 
                 if not self.nodes.get(path.nodes[i].id):
 
@@ -89,21 +132,17 @@ class Graph:
                         "id": path.nodes[i].id,
                         "label": path.nodes[i].name,
                         "shape": "image",
-                        "group": f"{node_position}_{label_instance}_{attribute1}_{attribute2}",
+                        "instance": label_instance,
+                        "position": node_position,
+                        "attributes": node_attributes,
                     }
                     self.nodes[path.nodes[i].id] = final_graph_node
 
-                else:
-                    if node_position != self.nodes[path.nodes[i].id]["group"].split("_")[0]:
-                        self.nodes[path.nodes[i].id][
-                            "group"
-                        ] = f"intermediate_{label_instance}_{attribute1}_{attribute2}"
-
-                if i!=0:
+                if i != 0:
                     relation = {
-                        "from": path.nodes[i-1].id,
+                        "from": path.nodes[i - 1].id,
                         "to": path.nodes[i].id,
-                        "label": path.nodes[i-1].relation_type,
+                        "label": path.nodes[i - 1].relation_type,
                     }
 
                     # Avoid relation duplicated to keep graph clean
@@ -117,15 +156,9 @@ class Graph:
                         self.relations.append(relation)
                         self.relations_hashes[hash_rel] = True
 
-            # Check if nodes number reaches soft limit
-            # if (len(self.nodes_ids) > self.path_limit):
-            # 	print("Info : A lot of nodes have to be processed, this could take awhile")
         nodes = list(self.nodes.values())
         for n in nodes:  # Sanitize None values (otherwise it creates a bug in JS)
             if n["label"] == None:
                 n["label"] = "???"
         page_f.write(f'<script type="text/javascript">window.data_nodes = {nodes};\n')
         page_f.write(f"window.data_edges = {self.relations};</script>\n")
-        # 	Write data of the graph in a different file
-        # with open(self.template_base_path + self.template + "_footer.html", 'r') as footer_f:
-        # 	page_f.write(footer_f.read() % (self.nodes, self.relations))

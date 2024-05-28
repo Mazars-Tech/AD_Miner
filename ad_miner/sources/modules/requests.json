@@ -30,13 +30,19 @@
     },
     "preparation_request_nodes": {
         "name": "Clean AD Miner custom attributes",
-        "request": "MATCH (n) REMOVE n.is_server,n.is_dc,n.is_da,n.is_dag,n.can_dcsync,n.path_candidate,n.ou_candidate,n.contains_da_dc,n.is_da_dc,n.ghost_computer,n.has_path_to_da,n.is_admin,n.is_group_operator,n.nbr_adm_machines,n.members_count,n.has_members,n.user_members_count,n.is_operator_member,n.is_group_account_operator,n.is_group_backup_operator,n.is_group_server_operator,n.is_group_print_operator,n.is_account_operator,n.is_backup_operator,n.is_server_operator,n.is_print_operator,n.gpolinks_count,n.has_links,n.dangerous_inbound, n.is_adminsdholder,n.is_dnsadmin,n.da_types",
+        "request": "MATCH (n) REMOVE n.is_server,n.is_dc,n.is_da,n.is_dag,n.can_dcsync,n.path_candidate,n.ou_candidate,n.contains_da_dc,n.is_da_dc,n.ghost_computer,n.has_path_to_da,n.is_admin,n.is_group_operator,n.nbr_adm_machines,n.members_count,n.has_members,n.user_members_count,n.is_operator_member,n.is_group_account_operator,n.is_group_backup_operator,n.is_group_server_operator,n.is_group_print_operator,n.is_account_operator,n.is_backup_operator,n.is_server_operator,n.is_print_operator,n.gpolinks_count,n.has_links,n.dangerous_inbound, n.is_adminsdholder,n.is_dnsadmin,n.da_types,n.vulnerable_ou",
         "output_type": "list",
         "is_a_write_request": "true"
     },
     "delete_unresolved": {
         "name": "Delete objects for which SID could not resolved",
         "request": "MATCH (n) WHERE ((NOT EXISTS(n.domain) AND NOT (n:Domain)) OR NOT EXISTS(n.name)) AND NOT EXISTS(n.tenantid) DETACH DELETE n",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "delete_ADLocalGroup": {
+        "name": "Delete ADLocalGroup objects",
+        "request": "MATCH (d:ADLocalGroup) DETACH DELETE d",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -73,6 +79,12 @@
     "set_nondc": {
         "name": "Set dc=FALSE to computers that are not domain controllers)",
         "request": "MATCH (c:Computer) WHERE c.is_dc IS NULL SET c.is_dc=FALSE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "onpremid_ompremsesecurityidentifier": {
+        "name": "Setting onpremid in case of old collector",
+        "request": "MATCH (a)  WHERE NOT a.onpremisesecurityidentifier IS NULL set a.onpremid=a.onpremisesecurityidentifier",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -230,14 +242,14 @@
     },
     "set_containsda": {
         "name": "Set contains_da_dc=TRUE to all objects that contains a domain administrator",
-        "request": "MATCH (o:OU)-[r:Contains*1..]->(x{is_da:true}) SET o.contains_da_dc=true",
-        "output_type": "list",
+        "request": "MATCH p=(o:OU)-[r:Contains*1..]->(x{is_da:true}) SET o.contains_da_dc=true RETURN p",
+        "output_type": "Graph",
         "is_a_write_request": "true"
     },
     "set_containsdc": {
         "name": "Set contains_da_dc=TRUE to all objects that contains a domain controller",
-        "request": "MATCH (o:OU)-[r:Contains*1..]->(x{is_dc:true}) SET o.contains_da_dc=true",
-        "output_type": "list",
+        "request": "MATCH p=(o:OU)-[r:Contains*1..]->(x{is_dc:true}) SET o.contains_da_dc=true RETURN p",
+        "output_type": "Graph",
         "is_a_write_request": "true"
     },
     "set_is_da_dc": {
@@ -401,6 +413,11 @@
     "nb_enabled_accounts": {
         "name": "Number of domain accounts enabled",
         "request": "MATCH p=(u:User{enabled:true} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
+        "output_type": "dict"
+    },
+    "nb_disabled_accounts": {
+        "name": "Number of domain accounts disabled",
+        "request": "MATCH p=(u:User{enabled:false} ) RETURN DISTINCT(u.domain) AS domain, u.name AS name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS logon ORDER BY u.domain",
         "output_type": "dict"
     },
     "nb_groups": {
@@ -613,11 +630,17 @@
         "output_type": "Graph",
         "scope_query": "MATCH (m:Computer{is_rbcd_target:true}) WHERE NOT m.name IS NULL RETURN count(m)"
     },
-    "objects_to_ou_handlers": {
-        "name": "paths to objects that can link a gpo on an OU",
-        "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH p1=shortestPath((u)-[:MemberOf|GenericAll|GenericWrite|Owns|WriteOwner|WriteDacl*1..8]->(o:OU{contains_da_dc:true})) WHERE NOT u=o CALL{WITH p1,o RETURN DISTINCT(p1) as p UNION ALL WITH o MATCH p=shortestPath((o:OU{contains_da_dc:true})-[:Contains*1..]->(v{is_da_dc:true})) RETURN DISTINCT(p) as p }RETURN p",
+    "compromise_paths_of_OUs": {
+        "name": "Compromisable OUs",
+        "request": "MATCH (o:OU) WITH o ORDER BY o.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((u{ou_candidate:true})-[:MemberOf|GenericAll|GenericWrite|Owns|WriteOwner|WriteDacl|WriteGPLink*1..8]->(o:OU)) SET o.vulnerable_OU = TRUE RETURN p",
         "output_type": "Graph",
-        "scope_query": "MATCH (u:Computer{ou_candidate:true}) RETURN count(u)"
+        "scope_query": "MATCH (o:OU) RETURN count(o)"
+    },
+    "vulnerable_OU_impact": {
+        "name": "Impact of compromisable OUs",
+        "request": "MATCH (o:OU{vulnerable_OU:true}) WITH o ORDER BY o.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((o)-[:Contains|MemberOf*1..]->(e)) WHERE o <> e AND (e:User OR e:Computer) RETURN p",
+        "output_type": "Graph",
+        "scope_query": "MATCH (o:OU{vulnerable_OU:true}) RETURN count(o)"
     },
     "vuln_functional_level": {
         "name": "Insufficient forest and domains functional levels. According to ANSSI (on a scale from 1 to 5, 5 being the better): the security level is at 1 if functional level (FL) <= Windows 2008 R2, at 3 if FL <= Windows 2012R2, at 4 if FL <= Windows 2016 / 2019 / 2022.",
