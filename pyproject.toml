@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "AD_Miner"
-version = "1.2.0"
+version = "1.3.0"
 description = "AD Miner is an Active Directory audit tool that leverages cypher queries to crunch data from the Bloodhound graph database to uncover security weaknesses."
 authors = [ "Jean-Michel Besnard", "Jonathan Andreu" , "Joseph Pradines", "Louis Lambron", "Emilien Vannier", "Samy Bontemps", "Thomas Girard", "Tanguy Boisset", "Vangelis Hoareau", "Clément Teytaud", "Lucas Bozon", "Alexandre Lac", "Théophile Gaulin"]
 license = "GPL-3.0"
