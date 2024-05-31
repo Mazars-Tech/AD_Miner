@@ -438,7 +438,7 @@ def render(
     descriptions = DESCRIPTION_MAP
     dico_name_title = {k: descriptions[k].get("title") for k in descriptions.keys()}
 
-    data["boolean_azure"] = "inline" if neo4j.boolean_azure else "none"
+    data["boolean_azure"] = "flex" if neo4j.boolean_azure else "none"
 
     # On premise
     data["on_premise"] = {}
