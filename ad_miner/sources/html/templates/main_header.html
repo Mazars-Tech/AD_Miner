@@ -23,27 +23,25 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark mb-3" style="background-color: rgb(44, 62, 80); width: 100%">
       <div class="nav-left">
-<div style="display:{{boolean_azure}}">
-  <div class="radio-group">
-                  <a class="navbar-brand" href="index.html" id="title">
-                    <img src="../assets/hub.svg" class="mx-2" height="30" id="hub" />
-                    AD Miner
-                  </a>
-        <label class="btn btn-primary custom-radio">
-          <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise" autocomplete="off"
-            checked="">
-          <span class="radio-btn"></span>
-          On Premise
-        </label>
-        <label class="btn btn-primary custom-radio">
+        <div class="radio-group">
+          <a class="navbar-brand" href="index.html" id="title">
+            <img src="../assets/hub.svg" class="mx-2" height="30" id="hub" />
+            AD Miner
+          </a>
+          <div style="display:{{boolean_azure}}">
+            <label class="btn btn-primary custom-radio">
+            <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise" autocomplete="off" checked="">
+            <span class="radio-btn"></span>
+            On Premise
+          </label>
+          <label class="btn btn-primary custom-radio">
           <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off">
-        <span class="radio-btn"></span>
-        Azure
-        </label>
-        </div>
+          <span class="radio-btn"></span>
+          Azure
+          </label>
+          </div>
 
         </div>
-
       </div>
 
       <div class="nav-center">

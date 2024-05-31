@@ -4,6 +4,7 @@ import multiprocessing as mp
 import json
 
 from datetime import date
+from os.path import sep
 
 today = date.today()
 current_date = today.strftime("%Y%m%d")
@@ -173,7 +174,8 @@ def grid_data_stringify(raw_data: dict) -> str:
         "before_link"
     }
     """
+    link = raw_data['link'].replace(sep, '_').replace('/', '_')
     try:
-        return f"{raw_data['before_link']} <a class=\"grid-link\" href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
+        return f"{raw_data['before_link']} <a class=\"grid-link\" href='{link}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
     except KeyError:
-        return f"<a class=\"grid-link\" href='{raw_data['link']}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
+        return f"<a class=\"grid-link\" href='{link}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
