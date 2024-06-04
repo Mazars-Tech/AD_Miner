@@ -115,9 +115,9 @@ displayHideText(document.getElementById('switchHideText'));
 function getChangeOfDomain(nodesList, edgesList) {
   var taggedEdgesKeys = [];
   for (const [key, value] of Object.entries(edgesList)) {
-    var start_node = nodesList[value['from']]['label'];
-    var end_node = nodesList[value['to']]['label'];
-    if (start_node.split('@').pop() !== end_node.split('@').pop()) {
+    var start_node_domain = nodesList[value['from']]['domain'];
+    var end_node_domain = nodesList[value['to']]['domain'];
+    if (start_node_domain !== end_node_domain) {
       taggedEdgesKeys.push(key);
     }
   }
