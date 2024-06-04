@@ -111,6 +111,26 @@ network.fit();
 
 displayHideText(document.getElementById('switchHideText'));
 
+// Return the ID of edges that link two nodes from different domains
+function getChangeOfDomain(nodesList, edgesList) {
+  var taggedEdgesKeys = [];
+  for (const [key, value] of Object.entries(edgesList)) {
+    var start_node = nodesList[value['from']]['label'];
+    var end_node = nodesList[value['to']]['label'];
+    if (start_node.split('@').pop() !== end_node.split('@').pop()) {
+      taggedEdgesKeys.push(key);
+    }
+  }
+  return taggedEdgesKeys;
+}
+
+// Color edges that link two nodes from different domains
+function colorTaggedEdges(taggedEdgesKeys) {
+  for (const edgeKey of taggedEdgesKeys) {
+    edges.update({id: edgeKey, color: {color: 'rgba(102, 0, 204, 1)'}, dashes: true, width: 3});
+  }
+}
+
 // Initializes and starts the network
 function initNetwork(n, e) {
   nodesdeepcopy = new vis.DataSet(n);
@@ -152,6 +172,9 @@ function startNetwork(data, opts) {
   tmp_allEdges = edges.get({ returnType: 'Object' });
 
   allEdges = manageMultipleEdges(tmp_allEdges);
+
+  taggedEdges = getChangeOfDomain(allNodes, allEdges);
+  colorTaggedEdges(taggedEdges);
 
   bindRightClick(); // attach context menu to new network object
 
@@ -851,7 +874,12 @@ function neighbourhoodHighlight(params) {
 
     for (var edgeId in allEdges) {
       allEdges[edgeId].background = { enabled: false };
-      allEdges[edgeId].color = 'rgba(77,77,77,0.15)';
+      if (taggedEdges.includes(edgeId)) {
+        allEdges[edgeId].color = 'rgba(102, 0, 204, 0.15)';
+      }
+      else {
+        allEdges[edgeId].color = 'rgba(77,77,77,0.15)';
+      }
       for (j = 0; j < path_to_highlight.length - 1; j++) {
         if (
           allEdges[edgeId].from == path_to_highlight[j] &&
@@ -862,7 +890,13 @@ function neighbourhoodHighlight(params) {
             enabled: true,
             color: 'rgba(0, 176, 255,1)',
           };
-          allEdges[edgeId].color = 'rgba(77,77,77,1)';
+          // Check if link between two different domains
+          if (taggedEdges.includes(edgeId)) {
+            allEdges[edgeId].color = 'rgba(102, 0, 204, 1)';
+          }
+          else {
+            allEdges[edgeId].color = 'rgba(77,77,77,1)';
+          }
 
           if (
             allEdges[edgeId].hiddenLabel !== undefined &&
@@ -922,7 +956,13 @@ function neighbourhoodHighlight(params) {
 
       for (var edgeId in allEdges) {
         allEdges[edgeId].background = { enabled: false };
-        allEdges[edgeId].color = 'rgba(77,77,77,1)';
+        // Check if link between two different domains
+        if (taggedEdges.includes(edgeId)) {
+          allEdges[edgeId].color = 'rgba(102, 0, 204, 1)';
+        }
+        else {
+          allEdges[edgeId].color = 'rgba(77,77,77,1)';
+        }
 
         if (
           allEdges[edgeId].label !== undefined &&
@@ -946,7 +986,13 @@ function neighbourhoodHighlight(params) {
 
       for (var edgeId in allEdges) {
         allEdges[edgeId].background = { enabled: false };
-        allEdges[edgeId].color = 'rgba(77,77,77,1)';
+        // Check if link between two different domains
+        if (taggedEdges.includes(edgeId)) {
+          allEdges[edgeId].color = 'rgba(102, 0, 204, 1)';
+        }
+        else {
+          allEdges[edgeId].color = 'rgba(77,77,77,1)';
+        }
 
         if (
           allEdges[edgeId].hiddenLabel !== undefined &&
