@@ -1638,10 +1638,10 @@ class Users:
             for u in self.users_admin_of_computers:
                 if row['Has SID History'] in u['User']:
                     row['Admin of'] = u['List of computers']
-                    origin_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
+                    origin_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('computer')].strip())
                 if row['Target'] in u['User']:
                     row['admin of'] = u['List of computers']
-                    target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('Computer')].strip())
+                    target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('computer')].strip())
 
             # add user icons
             type_label_a = generic_formating.clean_label(row['Type_a'])
