@@ -131,6 +131,7 @@ class Graph:
                     final_graph_node = {
                         "id": path.nodes[i].id,
                         "label": path.nodes[i].name,
+                        "domain": path.nodes[i].domain,
                         "shape": "image",
                         "instance": label_instance,
                         "position": node_position,
