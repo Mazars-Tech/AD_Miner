@@ -513,7 +513,7 @@ a:hover{
 .radio-btn {
   width: 20px;
   height: 20px;
-  border: 2px solid #007BFF;
+  border: 2px solid #FFFFFF;
   border-radius: 50%;
   margin-right: 10px;
   position: relative;
@@ -525,7 +525,7 @@ a:hover{
   content: '';
   width: 12px;
   height: 12px;
-  background-color: #007BFF;
+  background-color: #FFFFFF;
   border-radius: 50%;
   position: absolute;
   top: 50%;
@@ -536,7 +536,7 @@ a:hover{
 
 /* Change the color of the radio button when checked */
 .custom-radio input[type="radio"]:checked+.radio-btn {
-  border-color: #007BFF;
+  border-color: #FFFFFF;
 }
 
 /* Scale the dot inside the radio button when checked */
@@ -546,13 +546,11 @@ a:hover{
 
 /* Style the label text */
 .custom-radio:hover .radio-btn {
-  border-color: #0056b3;
+  border-color: #FFFFFF;
 }
 
 /* Container for the radio buttons */
 .radio-group {
   display: flex;
-  /* Arrange children in a row */
   align-items: center;
-  /* Center items vertically */
 }
