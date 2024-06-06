@@ -1,3 +1,19 @@
+# [1.4.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.3.0...v1.4.0) (2024-06-06)
+
+
+### Bug Fixes
+
+* crash when generating reports ([#143](https://github.com/Mazars-Tech/AD_Miner/issues/143)) ([61fefd5](https://github.com/Mazars-Tech/AD_Miner/commit/61fefd5eecf4e1ff4ed8bb04663982fde44c420a))
+* switch AZ / onprem and AD Miner not displayed ([a15367e](https://github.com/Mazars-Tech/AD_Miner/commit/a15367ef3472b1cd37cdac29700a170589cc4162))
+* windows compatibility ([ceaa481](https://github.com/Mazars-Tech/AD_Miner/commit/ceaa48137c3e958fca3ed6fd8d066a2b638debf6))
+
+
+### Features
+
+* Stylised edges between different domains ([#142](https://github.com/Mazars-Tech/AD_Miner/issues/142)) ([b15b5e9](https://github.com/Mazars-Tech/AD_Miner/commit/b15b5e9e5a899e70121df627ae3af75b3f646f8b))
+
+
+
 # [1.3.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.2.0...v1.3.0) (2024-05-28)
 
 
@@ -56,29 +72,6 @@
 ### BREAKING CHANGES
 
 * bump to version 1.0.0
-
-
-
-# [0.7.0](https://github.com/Mazars-Tech/AD_Miner/compare/v0.6.0...v0.7.0) (2023-12-20)
-
-
-### Bug Fixes
-
-* changing alignment of titles in firefox ([013a283](https://github.com/Mazars-Tech/AD_Miner/commit/013a28325224d8e0d29291849d2505197117a2a3))
-* Fix bug with 'Base' labels in neo4j databases ([82541be](https://github.com/Mazars-Tech/AD_Miner/commit/82541be0a2f57fee025a2db740087a43c34a318d))
-* fixing donut js ([a07deaf](https://github.com/Mazars-Tech/AD_Miner/commit/a07deafdee838dd10c690fad56cf7509a1e53c54))
-* more logical calculation of ghost computers ([a359e38](https://github.com/Mazars-Tech/AD_Miner/commit/a359e38f719b59348b488e6b9f249ccec7cca032))
-* paths to Operators groups ([#110](https://github.com/Mazars-Tech/AD_Miner/issues/110)) ([239cada](https://github.com/Mazars-Tech/AD_Miner/commit/239cada9895b6bdec7a8639e7083184394ef62d5))
-* temporary fix to enable serialization of neo4j datetime objects ([3695d9e](https://github.com/Mazars-Tech/AD_Miner/commit/3695d9e5c456b53c07b30df0d07e02b5d31d0ee5))
-
-
-### Features
-
-* changing on prem background circle ([3952bff](https://github.com/Mazars-Tech/AD_Miner/commit/3952bff05ca6bb23e352be863db36348b87784f7))
-* changing the azure circle ([70a49c4](https://github.com/Mazars-Tech/AD_Miner/commit/70a49c41502373c69e58a030ed79d96e017f5dd2))
-* Kerberos unconstrained delegation control rework ([0eef50f](https://github.com/Mazars-Tech/AD_Miner/commit/0eef50f2c81f97467fa86bd372b1f68021da8974))
-* **main_page:** init version of automatic hexagon placement ([59864b1](https://github.com/Mazars-Tech/AD_Miner/commit/59864b125fb142996f30757bf49babece28e43c5))
-* new icons ([5f3d80e](https://github.com/Mazars-Tech/AD_Miner/commit/5f3d80eb6c2b605380f8979d2c7931b846d96186))
 
 
 
