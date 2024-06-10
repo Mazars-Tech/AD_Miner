@@ -161,8 +161,8 @@ function display_all_hexagons(dico_entry) {
   card_right.forEach((el) =>
     el.addEventListener('mouseover', (event) => {
       var div = document.querySelectorAll('.hexa-main-div');
-      div.forEach(e => e.querySelectorAll('h5').innerText = el.getAttribute('custom-title'));
-      div.forEach(e => e.querySelectorAll('p').innerHTML = el.getAttribute('custom-status'));
+      div.forEach(e => e.querySelector('h5').innerText = el.getAttribute('custom-title'));
+      div.forEach(e => e.querySelector('p').innerHTML = el.getAttribute('custom-status'));
       div.forEach(e => e.style.opacity = 1);
     }),
   );
