@@ -682,19 +682,8 @@ class Users:
                     }
                 )
             if dict[headers[0]] in domain.admin_list:
-                formated_data.append(
-                    {
-                        headers[
-                            0
-                        ]: '<i class="bi bi-gem" style="color: #c0941c;" title="This user is domain admin"></i> '
-                        + dict[headers[0]],
-                        headers[1]: dict[headers[1]],
-                        headers[2]: dict[headers[2]],
-                        headers[3]: data_header_computer,
-                        headers[4]: dict[headers[4]],
-                        headers[5]: dict[headers[5]],
-                    }
-                )
+                # Not displaying DA with admin rights on computers
+                continue
             else:
                 formated_data.append(
                     {
