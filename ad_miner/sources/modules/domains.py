@@ -32,12 +32,6 @@ class Domains:
         self.objects_to_domain_admin = neo4j.all_requests["objects_to_domain_admin"][
             "result"
         ]
-        self.objects_to_unconstrained_delegation = neo4j.all_requests[
-            "objects_to_unconstrained_delegation"
-        ]["result"]
-        self.objects_to_unconstrained_delegation_2 = neo4j.all_requests[
-            "users_to_unconstrained_delegation"
-        ]["result"]
         self.domain_map_trust = neo4j.all_requests["domain_map_trust"]["result"]
         self.domains_list = neo4j.all_requests["domains"]["result"]
         self.objects_to_dcsync = neo4j.all_requests["objects_to_dcsync"]["result"]
