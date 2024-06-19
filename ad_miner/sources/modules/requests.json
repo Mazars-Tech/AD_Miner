@@ -52,11 +52,18 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
-    "set_domain_attrutes_to_domains": {
+    "set_domain_attributes_to_domains": {
         "name": "Set domain attributes to domain objects when not the case",
         "request": "MATCH (d:Domain) where d.domain IS NULL SET d.domain = toUpper(d.name)",
         "output_type": "list",
         "is_a_write_request": "true"
+    },
+    "check_if_all_domain_objects_exist": {
+        "name": "Check for unexisting domain objects",
+        "request": "MATCH (d:Domain) WITH DISTINCT d.domain AS domain WITH COLLECT(domain) AS domains MATCH (o) WHERE NOT o.domain IN domains RETURN count(o)",
+        "output_type": "list",
+        "is_a_write_request": "true",
+        "postProcessing": "Neo4j.check_all_domain_objects_exist"
     },
     "preparation_request_relations": {
         "name": "Clean AD Miner custom relations",

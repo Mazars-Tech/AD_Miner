@@ -203,6 +203,7 @@ class Neo4j:
                         "Neo4j.setDangerousInboundOnGPOs": self.setDangerousInboundOnGPOs,
                         "Neo4j.check_gds_plugin": self.check_gds_plugin,
                         "Neo4j.check_unkown_relations": self.check_unkown_relations,
+                        "Neo4j.check_all_domain_objects_exist": self.check_all_domain_objects_exist,
                     }.get(self.all_requests[request_key]["postProcessing"])
         except json.JSONDecodeError as error:
             logger.print_error(
@@ -958,3 +959,19 @@ class Neo4j:
                         q += str(round(i/1000, 3))
                         tx.run(q)
                         self.gds_cost_type_table[i] = r
+
+    @staticmethod
+    def check_all_domain_objects_exist(self, result):
+        objects_with_unexisting_domains = result[0][0]
+
+        if objects_with_unexisting_domains > 0:
+            error_message = f"Warning: {objects_with_unexisting_domains} objects have a domain attribute that does not correspond to any domain object.\n"
+            error_message += "This is often due to using the Bloodhound Community Edition ingestor while data has been collected with the old Sharphound collector.\n"
+            error_message += "The database lacks some paths due to these unexisting domain objects and AD Miner will probably crash.\n\n"
+            error_message += "The AD Miner team advise to use these combinations :\n\n"
+            error_message += "Sharphound v1 -> Old Bloodhound Client (https://github.com/BloodHoundAD/BloodHound)\n"
+            error_message += "Sharphound v2 -> Bloodhound Community Edition (https://github.com/SpecterOps/BloodHound)"
+
+            logger.print_error(error_message)
+
+ 
