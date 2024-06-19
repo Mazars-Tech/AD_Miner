@@ -1359,6 +1359,8 @@ class Domains:
 
     @staticmethod
     def generatePathToOUHandlers(self):
+        if self.compromise_paths_of_OUs is None:
+            return
         OU_to_targets_dico = {}
         all_compromise_paths = []
 
