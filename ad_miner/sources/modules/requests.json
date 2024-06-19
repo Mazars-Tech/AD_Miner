@@ -228,12 +228,6 @@
         "request": "MATCH (n{can_dcsync:true}) RETURN n.domain as domain, n.name as name",
         "output_type": "dict"
     },
-    "set_path_candidate": {
-        "name": "Set path_candidate=TRUE to candidates eligible to shortestPath to DA",
-        "request": "MATCH (o) WHERE NOT o.name IS NULL AND (o.is_da=false OR o.is_da IS NULL) AND NOT o:Domain AND ((o.enabled=True AND o:User) OR NOT o:User) SET o.path_candidate=TRUE",
-        "output_type": "list",
-        "is_a_write_request": "true"
-    },
     "set_ou_candidate": {
         "name": "Set ou_candidate=TRUE to candidates eligible to shortestou to DA",
         "request": "MATCH (m) WHERE NOT m.name IS NULL AND ((m:Computer AND (m.is_dc=false OR NOT EXISTS(m.is_dc))) OR (m:User AND (m.is_da=false OR NOT EXISTS(m.is_da)))) SET m.ou_candidate=TRUE",
@@ -255,6 +249,18 @@
     "set_is_da_dc": {
         "name": "Set is_da_dc=TRUE to all objects that are domain controller or domain admins",
         "request": "MATCH (u) WHERE (u.is_da=true OR u.is_dc=true) SET u.is_da_dc=true",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "set_is_not_da_dc": {
+        "name": "Set is_da_dc=FALSE to objects without is_da_dc = TRUE",
+        "request": "MATCH (o:Base) WHERE o.is_da_dc IS NULL SET o.is_da_dc = FALSE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "set_path_candidate": {
+        "name": "Set path_candidate=TRUE to candidates eligible to shortestPath to DA",
+        "request": "MATCH (o{is_da_dc:false}) WHERE NOT o:Domain AND ((o.enabled=True AND o:User) OR NOT o:User) SET o.path_candidate=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
