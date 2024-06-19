@@ -52,6 +52,19 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "set_domain_attributes_to_domains": {
+        "name": "Set domain attributes to domain objects when not the case",
+        "request": "MATCH (d:Domain) where d.domain IS NULL SET d.domain = toUpper(d.name)",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "check_if_all_domain_objects_exist": {
+        "name": "Check for unexisting domain objects",
+        "request": "MATCH (d:Domain) WITH DISTINCT d.domain AS domain WITH COLLECT(domain) AS domains MATCH (o) WHERE NOT o.domain IN domains RETURN count(o)",
+        "output_type": "list",
+        "is_a_write_request": "true",
+        "postProcessing": "Neo4j.check_all_domain_objects_exist"
+    },
     "preparation_request_relations": {
         "name": "Clean AD Miner custom relations",
         "request": "MATCH (g:Group)-[r:CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC]->(c:Computer) DELETE r ",
@@ -228,12 +241,6 @@
         "request": "MATCH (n{can_dcsync:true}) RETURN n.domain as domain, n.name as name",
         "output_type": "dict"
     },
-    "set_path_candidate": {
-        "name": "Set path_candidate=TRUE to candidates eligible to shortestPath to DA",
-        "request": "MATCH (o) WHERE NOT o.name IS NULL AND (o.is_da=false OR o.is_da IS NULL) AND NOT o:Domain AND ((o.enabled=True AND o:User) OR NOT o:User) SET o.path_candidate=TRUE",
-        "output_type": "list",
-        "is_a_write_request": "true"
-    },
     "set_ou_candidate": {
         "name": "Set ou_candidate=TRUE to candidates eligible to shortestou to DA",
         "request": "MATCH (m) WHERE NOT m.name IS NULL AND ((m:Computer AND (m.is_dc=false OR NOT EXISTS(m.is_dc))) OR (m:User AND (m.is_da=false OR NOT EXISTS(m.is_da)))) SET m.ou_candidate=TRUE",
@@ -255,6 +262,18 @@
     "set_is_da_dc": {
         "name": "Set is_da_dc=TRUE to all objects that are domain controller or domain admins",
         "request": "MATCH (u) WHERE (u.is_da=true OR u.is_dc=true) SET u.is_da_dc=true",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "set_is_not_da_dc": {
+        "name": "Set is_da_dc=FALSE to objects without is_da_dc = TRUE",
+        "request": "MATCH (o:Base) WHERE o.is_da_dc IS NULL SET o.is_da_dc = FALSE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "set_path_candidate": {
+        "name": "Set path_candidate=TRUE to candidates eligible to shortestPath to DA",
+        "request": "MATCH (o{is_da_dc:false}) WHERE NOT o:Domain AND ((o.enabled=True AND o:User) OR NOT o:User) SET o.path_candidate=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -452,7 +471,7 @@
     },
     "nb_kerberoastable_accounts": {
         "name": "Number of Kerberoastable accounts",
-        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date$ - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
+        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.gmsa IS NULL AND u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date$ - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
         "output_type": "dict"
     },
     "nb_as-rep_roastable_accounts": {
@@ -555,18 +574,6 @@
         "name": "Domain map trust",
         "request": "MATCH p=shortestpath((d:Domain)-[:TrustedBy]->(m:Domain)) WHERE d<>m RETURN DISTINCT(p)",
         "output_type": "Graph"
-    },
-    "objects_to_unconstrained_delegation": {
-        "name": "Object with path to non-DC computers with unconstrained delegations ",
-        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[:$properties$*1..$recursive_level$]->(m:Computer{unconstraineddelegation:true,is_dc:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
-        "output_type": "Graph",
-        "scope_query": "MATCH (n{path_candidate:true}) RETURN count(n)"
-    },
-    "users_to_unconstrained_delegation": {
-        "name": "Objects with paths to users that have unconstrained delegations ",
-        "request": "MATCH (n{path_candidate:true}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n:User{is_da:false,enabled:true})-[:$inbound_control_edges$*1..$recursive_level$]->(m:User{unconstraineddelegation:true,enabled:true,sensitive:false})) WHERE NOT n=m AND NOT m.name IS NULL RETURN DISTINCT(p)",
-        "output_type": "Graph",
-        "scope_query": "MATCH (n{path_candidate:true}) RETURN count(n)"
     },
     "kud": {
         "name": "Shortest paths to objects configured for KUD",

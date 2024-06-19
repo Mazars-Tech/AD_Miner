@@ -23,6 +23,14 @@ pip install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
 
 But remain careful and aware that doing this with pip will "polute" your packages.
 
+## Prerequisites
+
+To run AD Miner, you first need a neo4j database which contains the Active Directory objects:
+
+ 1. To extract the data from the domain, you can use tools like [SharpHound](https://github.com/BloodHoundAD/SharpHound), [RustHound](https://github.com/NH-RED-TEAM/RustHound) or [BloodHound.py](https://github.com/dirkjanm/BloodHound.py).
+ 2. Ingest the json files using [BloodHound](https://github.com/BloodHoundAD/BloodHound) or [BloodHound CE](https://github.com/SpecterOps/BloodHound). To automate this step, you can use [BloodHound Automation](https://github.com/Tanguy-Boisset/bloodhound-automation).
+ 3. By default, BloodHound creates a neo4j base accessible on port 7687.
+
 ## Usage ##
 
 Run the tool:

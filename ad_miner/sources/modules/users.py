@@ -682,19 +682,8 @@ class Users:
                     }
                 )
             if dict[headers[0]] in domain.admin_list:
-                formated_data.append(
-                    {
-                        headers[
-                            0
-                        ]: '<i class="bi bi-gem" style="color: #c0941c;" title="This user is domain admin"></i> '
-                        + dict[headers[0]],
-                        headers[1]: dict[headers[1]],
-                        headers[2]: dict[headers[2]],
-                        headers[3]: data_header_computer,
-                        headers[4]: dict[headers[4]],
-                        headers[5]: dict[headers[5]],
-                    }
-                )
+                # Not displaying DA with admin rights on computers
+                continue
             else:
                 formated_data.append(
                     {
@@ -1562,8 +1551,8 @@ class Users:
                         if "No data to show" not in u['List of computers']:
                             count = int(
                                 u["List of computers"][
-                                    u["List of computers"].find("'>", 120)
-                                    + 2 : u["List of computers"].find("computer", 120)
+                                    u["List of computers"].find("'>", 55)
+                                    + 2 : u["List of computers"].find("computer", 105)
                                 ].strip()
                             )
                             tmp_dict["Computers admin"] = grid_data_stringify({
@@ -1638,10 +1627,10 @@ class Users:
             for u in self.users_admin_of_computers:
                 if row['Has SID History'] in u['User']:
                     row['Admin of'] = u['List of computers']
-                    origin_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('computer')].strip())
+                    origin_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('computer', 105)].strip())
                 if row['Target'] in u['User']:
                     row['admin of'] = u['List of computers']
-                    target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('computer')].strip())
+                    target_count = int(u['List of computers'][u['List of computers'].find("'>", 55)+2:u['List of computers'].find('computer', 105)].strip())
 
             # add user icons
             type_label_a = generic_formating.clean_label(row['Type_a'])

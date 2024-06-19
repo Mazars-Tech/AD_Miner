@@ -39,7 +39,8 @@ function updateDropdown(filteredControls) {
         "red": '<i class="bi bi-exclamation-diamond-fill search-element-icon" style="color: rgb(245, 75, 75);"></i>',
         "orange": '<i class="bi bi-exclamation-triangle-fill search-element-icon" style="color: rgb(245, 177, 75);"></i>',
         "yellow": '<i class="bi bi-dash-circle-fill search-element-icon" style="color: rgb(255, 221, 0);"></i>',
-        "green": '<i class="bi bi-check-circle-fill search-element-icon" style="color: rgb(91, 180, 32);"></i>'
+        "green": '<i class="bi bi-check-circle-fill search-element-icon" style="color: rgb(91, 180, 32);"></i>',
+        "grey": '<i class="bi bi-dash-circle-fill search-element-icon" style="color: rgb(133,135,150);"></i>'
     };
     filteredControls.forEach(control => {
         const dropdownItem = document.createElement("a");
