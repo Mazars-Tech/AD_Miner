@@ -452,7 +452,7 @@
     },
     "nb_kerberoastable_accounts": {
         "name": "Number of Kerberoastable accounts",
-        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date$ - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
+        "request": "MATCH (u:User{hasspn:true,enabled:true}) WHERE u.gmsa IS NULL AND u.name IS NOT NULL RETURN u.domain AS domain, u.name AS name, toInteger(($extract_date$ - u.pwdlastset)/86400) AS pass_last_change, u.is_da AS is_Domain_Admin, u.serviceprincipalnames AS SPN, toInteger(($extract_date$ - u.whencreated)/86400) AS accountCreationDate ORDER BY pass_last_change DESC",
         "output_type": "dict"
     },
     "nb_as-rep_roastable_accounts": {
