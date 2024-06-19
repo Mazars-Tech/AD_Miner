@@ -78,6 +78,7 @@ def populate_data_and_cache(neo4j: Neo4j) -> None:
             except Exception as error:  # FIXME specify exception
                 logger.print_error(error)
                 logger.print_error(traceback.format_exc())
+                req["result"] = None
                 pass
         else:
             req["result"] = None

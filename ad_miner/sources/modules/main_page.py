@@ -399,7 +399,7 @@ def render(
         "computers_os_obsolete": f"{dico_data['value']['computers_os_obsolete']} computers with obsolete OS",
         "users_pwd_cleartext": f"{dico_data['value']['users_pwd_cleartext']} users with clear text password",
         "computers_without_laps": f"{dico_data['value']['computers_without_laps']} % computers without LAPS",
-        "graph_path_objects_to_ou_handlers": f"{len(domains.compromise_paths_of_OUs)} dangerous control paths over OUs",
+        "graph_path_objects_to_ou_handlers": f"{len(domains.compromise_paths_of_OUs or [])} dangerous control paths over OUs",
         "vuln_functional_level": f"{dico_data['value']['vuln_functional_level']} insufficient forest and domains functional levels",
         "vuln_permissions_adminsdholder": f"{dico_data['value']['vuln_permissions_adminsdholder']} paths to an AdminSDHolder container",
         "graph_list_objects_rbcd": f"{users.rbcd_nb_start_nodes} users can perform an RBCD attack on {users.rbcd_nb_end_nodes} computers",
