@@ -139,7 +139,7 @@ class Neo4j:
         recursive_level = arguments.level
         self.password_renewal = int(arguments.renewal_password)
 
-        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GPLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced|WriteGPLink"
+        properties = "MemberOf|HasSession|AdminTo|AllExtendedRights|AddMember|ForceChangePassword|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ExecuteDCOM|AllowedToDelegate|ReadLAPSPassword|Contains|GPLink|AddAllowedToAct|AllowedToAct|SQLAdmin|ReadGMSAPassword|HasSIDHistory|CanPSRemote|AddSelf|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC|UnconstrainedDelegations|WriteAccountRestrictions|DumpSMSAPassword|Synced|WriteGPLink|ADCSESC1|ADCSESC2|ADCSESC3|ADCSESC4|ADCSESC5|ADCSESC6|ADCSESC7|ADCSESC8|ADCSESC9|ADCSESC10|ADCSESC11|ADCSESC12|ADCSESC13"
         path_to_group_operators_props = properties.replace(
             "|CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC", ""
         )
