@@ -527,7 +527,7 @@
     },
     "computers_members_high_privilege": {
         "name": "High privilege group computer member",
-        "request": "MATCH(c:Computer{is_dc:false})-[r:MemberOf*1..4]->(g:Group{highvalue:true}) WHERE NOT c.name IS NULL RETURN distinct(c.name) AS computer, g.name AS group, g.domain AS domain",
+        "request": "MATCH(c:Computer{is_dc:false})-[r:MemberOf*1..4]->(g:Group{is_da:true}) WHERE NOT c.name IS NULL RETURN distinct(c.name) AS computer, g.name AS group, g.domain AS domain",
         "output_type": "dict"
     },
     "objects_to_domain_admin": {
