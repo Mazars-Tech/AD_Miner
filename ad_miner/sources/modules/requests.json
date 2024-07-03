@@ -691,6 +691,12 @@
         "request": "MATCH p=allShortestPaths((g:Group{is_dag:true})-[r:$properties$*1..$recursive_level$]->(gg:Group{is_dag:true})) WHERE g<>gg AND g.domain <> gg.domain RETURN p",
         "output_type": "Graph"
     },
+    "set_isacl_adcs": {
+        "name": "Set isacl to TRUE for ADCS privilege escalation paths (ADCSESCxx)",
+        "request": "MATCH (u)-[r]->(g) WHERE r.isacl IS NULL AND type(r) CONTAINS 'ADCSESC' SET r.isacl=TRUE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },    
     "anomaly_acl_1": {
         "name": "anomaly_acl_1",
         "request": "MATCH (gg) WHERE NOT gg:Group with gg as g MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN n.name,g.name,type(r2),LABELS(g)",
