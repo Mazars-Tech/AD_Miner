@@ -9,6 +9,7 @@
         "set_non_server": "true",
         "set_dc": "true",
         "set_nondc": "true",
+        "set_isacl_adcs": "true",
         "set_can_extract_dc_secrets": "true",
         "set_unconstrained_delegations": "true",
         "set_is_adminsdholder": "true",
