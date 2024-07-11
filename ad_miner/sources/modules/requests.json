@@ -95,6 +95,12 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "set_isacl_adcs": {
+        "name": "Set isacl to TRUE for ADCS privilege escalation paths (ADCSESCxx)",
+        "request": "MATCH (u)-[r]->(g) WHERE r.isacl IS NULL AND type(r) CONTAINS 'ADCSESC' SET r.isacl=TRUE",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "onpremid_ompremsesecurityidentifier": {
         "name": "Setting onpremid in case of old collector",
         "request": "MATCH (a)  WHERE NOT a.onpremisesecurityidentifier IS NULL set a.onpremid=a.onpremisesecurityidentifier",
@@ -527,7 +533,7 @@
     },
     "computers_members_high_privilege": {
         "name": "High privilege group computer member",
-        "request": "MATCH(c:Computer{is_dc:false})-[r:MemberOf*1..4]->(g:Group{highvalue:true}) WHERE NOT c.name IS NULL RETURN distinct(c.name) AS computer, g.name AS group, g.domain AS domain",
+        "request": "MATCH(c:Computer{is_dc:false})-[r:MemberOf*1..4]->(g:Group{is_da:true}) WHERE NOT c.name IS NULL RETURN distinct(c.name) AS computer, g.name AS group, g.domain AS domain",
         "output_type": "dict"
     },
     "objects_to_domain_admin": {
@@ -690,7 +696,7 @@
         "name": "Paths between two domain admins belonging to different domains",
         "request": "MATCH p=allShortestPaths((g:Group{is_dag:true})-[r:$properties$*1..$recursive_level$]->(gg:Group{is_dag:true})) WHERE g<>gg AND g.domain <> gg.domain RETURN p",
         "output_type": "Graph"
-    },
+    },  
     "anomaly_acl_1": {
         "name": "anomaly_acl_1",
         "request": "MATCH (gg) WHERE NOT gg:Group with gg as g MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN n.name,g.name,type(r2),LABELS(g)",
