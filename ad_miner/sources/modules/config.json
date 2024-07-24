@@ -17,6 +17,7 @@
         "set_can_load_code": "true",
         "set_can_logon_dc": "true",
         "set_da": "true",
+        "set_msol":"true",
         "set_da_types": "true",
         "set_dag": "true",
         "set_dag_types": "true",

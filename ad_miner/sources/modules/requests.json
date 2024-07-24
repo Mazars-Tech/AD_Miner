@@ -150,6 +150,13 @@
         "is_a_write_request": "true",
         "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
+    "set_msol": {
+        "name": "Set is_da=TRUE and is_msol=TRUE to accounts associated with Microsoft Online Services",
+        "request": "MATCH (c:User) where c.name STARTS WITH 'MSOL_' SET c.is_da=TRUE, c.is_msol=true",
+        "output_type": "list",
+        "is_a_write_request": "true",
+        "_comment": "For user accounts with names starting with MSOL_, these refer to accounts associated with Microsoft Online Services"
+    },
     "set_da_types": {
         "name": "Set the da type (domain, enterprise, key or builtin)",
         "request": "MATCH (c:User)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Schema Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-525\" THEN \"Protected Users\" WHEN g.objectid ENDS WITH \"-526\" THEN \"_ Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Enterprise Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
@@ -462,7 +469,7 @@
     },
     "nb_domain_admins": {
         "name": "Number of domain admin accounts",
-        "request": "MATCH (n{enabled:true}) WHERE n.is_da = TRUE RETURN n.domain AS domain, n.name AS name, n.da_types AS `admin type`, n.admincount AS `admincount`",
+        "request": "MATCH (n{enabled:true}) WHERE n.is_msol IS NULL AND n.is_da = TRUE RETURN n.domain AS domain, n.name AS name, n.da_types AS `admin type`, n.admincount AS `admincount`",
         "output_type": "dict"
     },
     "os": {
