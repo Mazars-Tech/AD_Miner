@@ -5,7 +5,7 @@ class Node:
         self.id = id
         self.labels = labels
         self.name = name
-        self.domain = domain
+        self.domain = str(domain)
         self.tenant_id = tenant_id
         self.relation_type = relation_type
 
