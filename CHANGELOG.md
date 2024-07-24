@@ -1,3 +1,13 @@
+## [1.5.1](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.0...v1.5.1) (2024-07-24)
+
+
+### Bug Fixes
+
+* add EDCS edges and fix not displayed graphs bug ([d17b843](https://github.com/Mazars-Tech/AD_Miner/commit/d17b843388535439a77db024f6c7527c806794fd))
+* remove MSOL from path candidates ([8451485](https://github.com/Mazars-Tech/AD_Miner/commit/8451485e81092fcb058c8a6474830e431effe0c0))
+
+
+
 # [1.5.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.4.0...v1.5.0) (2024-06-19)
 
 
@@ -60,30 +70,6 @@
 ### Features
 
 * update requests.json ([589eb7b](https://github.com/Mazars-Tech/AD_Miner/commit/589eb7bcd0f7b0f1290c94ed878718054c85370c))
-
-
-
-# [1.1.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.0.0...v1.1.0) (2024-02-15)
-
-
-### Bug Fixes
-
-* better request for low privilege impersonation ([#121](https://github.com/Mazars-Tech/AD_Miner/issues/121)) ([71ceb57](https://github.com/Mazars-Tech/AD_Miner/commit/71ceb571d8526fa888cb029c40faa6be78658ee8))
-* bug with u.name ([#123](https://github.com/Mazars-Tech/AD_Miner/issues/123)) ([26cb9d8](https://github.com/Mazars-Tech/AD_Miner/commit/26cb9d873eda64c0e874b9ba9b2585c81ace6382))
-* bugs with charts and azure data ([#114](https://github.com/Mazars-Tech/AD_Miner/issues/114)) ([7523229](https://github.com/Mazars-Tech/AD_Miner/commit/7523229e2c6873c66ba30f9101fbf3ce0426cc68))
-* correct spelling of GPLink to take it into account when computing paths ([337320d](https://github.com/Mazars-Tech/AD_Miner/commit/337320d64293f18c61cf281a6b8e6f8cd87c2b76))
-* fix typo in request leading to missing DCs ([#118](https://github.com/Mazars-Tech/AD_Miner/issues/118)) ([3867f20](https://github.com/Mazars-Tech/AD_Miner/commit/3867f2045d3412f5830c63bb59aadc7c372895d6))
-
-
-### Features
-
-* adding fgpp control ([#113](https://github.com/Mazars-Tech/AD_Miner/issues/113)) ([6431abf](https://github.com/Mazars-Tech/AD_Miner/commit/6431abf00c945c40fb4e9714af01c22d4dc6a751))
-* smartest path ([#119](https://github.com/Mazars-Tech/AD_Miner/issues/119)) ([2d59408](https://github.com/Mazars-Tech/AD_Miner/commit/2d5940813cf950056bf7e857138af820a1ec4042))
-
-
-### Performance Improvements
-
-* parallelization of the rdp request ([#122](https://github.com/Mazars-Tech/AD_Miner/issues/122)) ([5d18ab0](https://github.com/Mazars-Tech/AD_Miner/commit/5d18ab0e87d0b24d515a37dfedc0e5111568f817))
 
 
 
