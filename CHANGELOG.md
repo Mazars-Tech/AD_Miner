@@ -1,3 +1,12 @@
+## [1.5.2](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.1...v1.5.2) (2024-07-25)
+
+
+### Bug Fixes
+
+* fix deadlock issue ([6017b2b](https://github.com/Mazars-Tech/AD_Miner/commit/6017b2b0d576de9b1c94d1bde400cd7fdeb63293))
+
+
+
 ## [1.5.1](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.0...v1.5.1) (2024-07-24)
 
 
@@ -61,15 +70,6 @@
 ### Features
 
 * rework of OU control ([830936e](https://github.com/Mazars-Tech/AD_Miner/commit/830936edd6ef138ad6e348ce25870e6b2bc73021))
-
-
-
-# [1.2.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.1.0...v1.2.0) (2024-03-12)
-
-
-### Features
-
-* update requests.json ([589eb7b](https://github.com/Mazars-Tech/AD_Miner/commit/589eb7bcd0f7b0f1290c94ed878718054c85370c))
 
 
 
