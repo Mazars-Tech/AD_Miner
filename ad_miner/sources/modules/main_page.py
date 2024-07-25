@@ -561,7 +561,7 @@ def render(
     data["on_premise"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["on_premise"]["permissions_data"], data["on_premise"]["kerberos_data"], data["on_premise"]["passwords_data"], data["on_premise"]["misc_data"])]
     data["azure"]["main_graph_data"] = [l1 + l2 + l3 + l4 for l1, l2, l3, l4 in zip(data["azure"]["ms_graph_data"], data["azure"]["az_permissions_data"], data["azure"]["az_passwords_data"], data["azure"]["az_misc_data"])]
 
-    with open("./render_%s/html/index.html" % arguments.cache_prefix, "w") as page_f:
+    with open("reports/%s/html/index.html" % arguments.cache_prefix, "w") as page_f:
         with (TEMPLATES_DIRECTORY / "main_header.html").open(mode='r') as header_f:
             # This part extracts the {{something}} variables in the html template and replaces them with their value in the getData function
             # Every ` char will be skipped
@@ -641,12 +641,12 @@ def render(
             # html = secondary.returnHtml()
 
     with open(
-        f"./render_{arguments.cache_prefix}/data_{arguments.cache_prefix}_{extract_date}.json",
+        f"reports/{arguments.cache_prefix}/data_{arguments.cache_prefix}_{extract_date}.json",
         "w",
     ) as f:
         f.write(json.dumps(dico_data, indent=4))
 
-    with open(f"./render_{arguments.cache_prefix}/js/main_circle.js", "a") as f_page:
+    with open(f"reports/{arguments.cache_prefix}/js/main_circle.js", "a") as f_page:
 
         dico_js = {}
 

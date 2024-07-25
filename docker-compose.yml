@@ -1,0 +1,86 @@
+services:
+  app-db:
+    image: docker.io/library/postgres:latest
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - backend
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h 127.0.0.1 -p ${POSTGRES_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  graph-db:
+    image: docker.io/library/neo4j:4.4
+    env_file:
+      - .env
+    environment:
+      NEO4J_AUTH: ${USER_NEO}/${PASSWORD_NEO}
+      NEO4J_dbms_allow__upgrade: true
+      NEO4J_PLUGINS: '["graph-data-science"]'
+    ports:
+      - "127.0.0.1:${DB_PORT_NEO}:7687"
+      - "127.0.0.1:${WEB_PORT_NEO}:7474"
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null -q http://localhost:7474 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 7
+      start_period: 40s
+
+  bloodhound:
+    image: docker.io/specterops/bloodhound:latest
+    env_file:
+      - .env
+    environment:
+      - bhe_disable_cypher_complexity_limit=${bhe_disable_cypher_complexity_limit}
+      - bhe_enable_cypher_mutations=${bhe_enable_cypher_mutations}
+      - bhe_graph_query_memory_limit=${bhe_graph_query_memory_limit}
+      - bhe_database_connection=user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} host=app-db
+      - bhe_neo4j_connection=neo4j://${USER_NEO}:${PASSWORD_NEO}@graph-db:7687/
+    ports:
+      - "127.0.0.1:${BLOODHOUND_PORT}:8080"
+    depends_on:
+      app-db:
+        condition: service_healthy
+      graph-db:
+        condition: service_healthy
+    networks:
+      - backend
+
+  miner:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    depends_on:
+      graph-db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - BOLT_URL=bolt://graph-db:7687
+      - USER_NEO=${USER_NEO}
+      - PASSWORD_NEO=${PASSWORD_NEO}
+    volumes:
+      - ./reports:/app/reports
+    networks:
+      - backend
+
+volumes:
+  neo4j-data:
+  postgres-data:
+
+networks:
+  backend:

@@ -96,7 +96,7 @@ def prepare_render(arguments) -> None:
         arguments: Parsed command line arguments.
     """
 
-    folder_name = Path(f"render_{arguments.cache_prefix}")
+    folder_name = Path(f"reports/{arguments.cache_prefix}")
 
     if folder_name.exists():
         shutil.rmtree(folder_name)
@@ -202,10 +202,11 @@ def main() -> None:
     )
 
     neo4j.close()
-
+    folder_name = Path(f"reports/{arguments.cache_prefix}")
     logger.print_success(
-        f"Program finished in {utils.timer_format(time.time() - start)}!"
+        f"Program finished in {utils.timer_format(time.time() - start)}!\nReport saved to {folder_name}"
     )
+
 
 
 if __name__ == "__main__":
