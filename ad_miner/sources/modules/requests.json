@@ -30,7 +30,7 @@
     },
     "preparation_request_nodes": {
         "name": "Clean AD Miner custom attributes",
-        "request": "MATCH (n) REMOVE n.is_server,n.is_dc,n.is_da,n.is_dag,n.can_dcsync,n.path_candidate,n.ou_candidate,n.contains_da_dc,n.is_da_dc,n.ghost_computer,n.has_path_to_da,n.is_admin,n.is_group_operator,n.nbr_adm_machines,n.members_count,n.has_members,n.user_members_count,n.is_operator_member,n.is_group_account_operator,n.is_group_backup_operator,n.is_group_server_operator,n.is_group_print_operator,n.is_account_operator,n.is_backup_operator,n.is_server_operator,n.is_print_operator,n.gpolinks_count,n.has_links,n.dangerous_inbound, n.is_adminsdholder,n.is_dnsadmin,n.da_types,n.vulnerable_ou",
+        "request": "MATCH (n) REMOVE n.is_server,n.is_dc,n.is_da,n.is_dag,n.can_dcsync,n.path_candidate,n.ou_candidate,n.contains_da_dc,n.is_da_dc,n.ghost_computer,n.has_path_to_da,n.is_admin,n.is_group_operator,n.nbr_adm_machines,n.members_count,n.has_members,n.user_members_count,n.is_operator_member,n.is_group_account_operator,n.is_group_backup_operator,n.is_group_server_operator,n.is_group_print_operator,n.is_account_operator,n.is_backup_operator,n.is_server_operator,n.is_print_operator,n.gpolinks_count,n.has_links,n.dangerous_inbound, n.is_adminsdholder,n.is_dnsadmin,n.da_types,n.vulnerable_ou,n.dac,n.dac_types,n.is_adcs,n.target_kud,n.is_gag,n.is_msol,n.is_rbcd_target",
         "output_type": "list",
         "is_a_write_request": "true"
     },
