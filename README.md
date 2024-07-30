@@ -23,6 +23,13 @@ pip install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
 
 But remain careful and aware that doing this with pip will "polute" your packages.
 
+ADMiner is also available on some Linux distributions:
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/ad-miner.svg)](https://repology.org/project/ad-miner/versions)
+
+- BlackArch: `pacman -S ad-miner`
+- NixOS: `nix-env -iA nixos.ad-miner`
+
 ## Prerequisites
 
 To run AD Miner, you first need a neo4j database which contains the Active Directory objects:
