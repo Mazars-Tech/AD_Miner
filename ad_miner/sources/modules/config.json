@@ -98,6 +98,8 @@
         "rbcd": "true",
         "graph_rbcd": "true",
         "graph_rbcd_to_da": "true",
+        "compromise_paths_of_OUs": "true",
+        "vulnerable_OU_impact":"true,
         "objects_to_ou_handlers": "true",
         "vuln_functional_level": "true",
         "vuln_sidhistory_dangerous": "true",
