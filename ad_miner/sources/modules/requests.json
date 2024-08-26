@@ -30,7 +30,7 @@
     },
     "preparation_request_nodes": {
         "name": "Clean AD Miner custom attributes",
-        "request": "MATCH (n) REMOVE n.is_server,n.is_dc,n.is_da,n.is_dag,n.can_dcsync,n.path_candidate,n.ou_candidate,n.contains_da_dc,n.is_da_dc,n.ghost_computer,n.has_path_to_da,n.is_admin,n.is_group_operator,n.nbr_adm_machines,n.members_count,n.has_members,n.user_members_count,n.is_operator_member,n.is_group_account_operator,n.is_group_backup_operator,n.is_group_server_operator,n.is_group_print_operator,n.is_account_operator,n.is_backup_operator,n.is_server_operator,n.is_print_operator,n.gpolinks_count,n.has_links,n.dangerous_inbound, n.is_adminsdholder,n.is_dnsadmin,n.da_types,n.vulnerable_ou",
+        "request": "MATCH (n) REMOVE n.is_server,n.is_dc,n.is_da,n.is_dag,n.can_dcsync,n.path_candidate,n.ou_candidate,n.contains_da_dc,n.is_da_dc,n.ghost_computer,n.has_path_to_da,n.is_admin,n.is_group_operator,n.nbr_adm_machines,n.members_count,n.has_members,n.user_members_count,n.is_operator_member,n.is_group_account_operator,n.is_group_backup_operator,n.is_group_server_operator,n.is_group_print_operator,n.is_account_operator,n.is_backup_operator,n.is_server_operator,n.is_print_operator,n.gpolinks_count,n.has_links,n.dangerous_inbound, n.is_adminsdholder,n.is_dnsadmin,n.da_types,n.vulnerable_ou,n.dac,n.dac_types,n.is_adcs,n.target_kud,n.is_gag,n.is_msol,n.is_rbcd_target",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -202,6 +202,21 @@
         "request": "MATCH (g:Group) WHERE g.objectid ENDS WITH \"-512\"  SET g.is_dag=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
+    },
+    "set_dac": {
+        "name": "Set dac=TRUE to computers that are domain admins or administrators or enterprise admin and not DC computer",
+        "request": "MATCH (c:Computer{is_dc:False})-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" SET c.is_dac=TRUE, c.da_types=[]",
+        "output_type": "list",
+        "is_a_write_request": "true",
+        "_comment": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
+    },
+    "set_da_types_computer": {
+        "name": "Set the da_types (domain, enterprise, key or builtin) for computers",
+        "request": "MATCH (c:Computer)-[:MemberOf*1..3]->(g:Group) WHERE g.objectid ENDS WITH \"-512\" OR g.objectid ENDS WITH \"-518\" OR g.objectid ENDS WITH \"-519\" OR g.objectid ENDS WITH \"-525\" OR g.objectid ENDS WITH \"-526\" OR g.objectid ENDS WITH \"-527\" OR g.objectid ENDS WITH \"-544\" WITH c,g, CASE WHEN g.objectid ENDS WITH \"-512\" THEN \"Domain Admin\" WHEN g.objectid ENDS WITH \"-518\" THEN \"Schema Admin\" WHEN g.objectid ENDS WITH \"-519\" THEN \"Enterprise Admin\" WHEN g.objectid ENDS WITH \"-525\" THEN \"Protected Users\" WHEN g.objectid ENDS WITH \"-526\" THEN \"_ Key Admin\" WHEN g.objectid ENDS WITH \"-527\" THEN \"Enterprise Key Admin\" WHEN g.objectid ENDS WITH \"-544\" THEN \"Builtin Administrator\" ELSE null END AS da_type SET c.da_types = c.da_types + da_type",
+        "output_type": "list",
+        "is_a_write_request": "true",
+        "_comment": "for unknown reasons checking the whole condition has to be checked twice or it doesn't work",
+        "_comment2": "-512 for DA, -518 for Schema admin, -519 for Enterprise Admin, -525 for Protected Users, -526 for Key Admin, -527 for Entreprise Key Admin, -544 for Builtin Admin"
     },
     "set_nonda": {
         "name": "Set is_da=FALSE to all objects that do not have is_da=TRUE",
