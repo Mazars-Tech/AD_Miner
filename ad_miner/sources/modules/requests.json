@@ -65,6 +65,12 @@
         "is_a_write_request": "true",
         "postProcessing": "Neo4j.check_all_domain_objects_exist"
     },
+    "check_if_all_group_objects_have_domain_attribute": {
+        "name": "Check for Group objects without domain attribute",
+        "request": "MATCH (g:Group) WHERE g.domain <> split(g.name, \"@\")[-1] SET g.domain=split(g.name, \"@\")[-1]",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "preparation_request_relations": {
         "name": "Clean AD Miner custom relations",
         "request": "MATCH (g:Group)-[r:CanExtractDCSecrets|CanLoadCode|CanLogOnLocallyOnDC]->(c:Computer) DELETE r ",
