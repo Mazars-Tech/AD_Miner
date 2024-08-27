@@ -39,18 +39,18 @@ Run the tool:
 
 Example:
 
-    AD-miner -c -cf My_Report -u neo4j -p mypassword
+    AD-miner -c -cf My_Report -u neo4j -p bloodhoundcommunityedition
 
 To better handle large data sets, it is possible to enable multi-threading and also to use a cluster of neo4j databases, as shown in the following example (where server1 handles 32 threads and server2 handles 16) :
 
-    AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p mypassword  --cluster server1:7687:32,server2:7687:16
+    AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p bloodhoundcommunityedition  --cluster server1:7687:32,server2:7687:16
 
 Options:
 
     -h, --help              Show this help message and exit
     -b, --bolt              Neo4j bolt connection (default: bolt://127.0.0.1:7687)
     -u, --username          Neo4j username (default : neo4j)
-    -p, --password          Neo4j password (default : neo5j)
+    -p, --password          Neo4j password (default : bloodhoundcommunityedition)
     -e, --extract_date      Extract date (e.g., 20220131). Default: last logon date
     -r, --renewal_password  Password renewal policy in days. Default: 90
     -c, --cache             Use local file for neo4j data
