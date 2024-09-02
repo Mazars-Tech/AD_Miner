@@ -129,6 +129,10 @@ def main() -> None:
     """Main execution function for the script."""
     start = time.time()
     arguments = utils.args()
+    cache_check=utils.cache_check(f"{arguments.cache_prefix}_*",arguments.cache)
+
+    if cache_check["nb_cache"] > 0:
+        logger.print_warning(cache_check["message"])
 
     if arguments.cluster:
         main_server = arguments.bolt.replace("bolt://", "")
