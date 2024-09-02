@@ -179,3 +179,20 @@ def grid_data_stringify(raw_data: dict) -> str:
         return f"{raw_data['before_link']} <a class=\"grid-link\" href='{link}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
     except KeyError:
         return f"<a class=\"grid-link\" href='{link}'>{raw_data['value']}&nbsp;<i class='bi bi-box-arrow-up-right' style='color: #0969da;'></i></a>"
+
+def cache_check(template:str,cache:bool) -> dict:
+    res={'nb_cache':0}
+    cache_directory=Path("./cache_neo4j/")
+    if cache and cache_directory.is_dir():
+        # Reload from cache is active, and the directory cache_neo4j exists
+        # Check Files list against the template.
+        res['nb_cache']=len(list(cache_directory.glob(template)))
+        if res['nb_cache'] > 0:
+            res['message'] =  f"{res['nb_cache']} cache files detected!\n"
+            res['message'] += f"Any modifications made to the database after the last run will not be considered, as data will be retrieved from the existing cache files.\n"
+            res['message'] += f"If you have made changes to your data, you have two options:\n"
+            res['message'] += f"1. Delete Cache Files: Remove the existing cache files located in `cache_neo4j/{template}` to ensure that all Cypher queries are executed from scratch.\n"
+            res['message'] += f"2. Use a Different Prefix: Choose a different prefix for your cache files to force a fresh execution of all Cypher queries, bypassing the current cache.\n"
+            res['message'] += f"Proceeding without taking these actions will result in ignoring all modifications made to the database."
+
+    return res
