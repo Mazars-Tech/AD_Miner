@@ -39,11 +39,14 @@ Run the tool:
 
 Example:
 
-    AD-miner -c -cf My_Report -u neo4j -p bloodhoundcommunityedition
+    AD-miner -c -cf My_Report -u neo4j -p mypassword
 
 To better handle large data sets, it is possible to enable multi-threading and also to use a cluster of neo4j databases, as shown in the following example (where server1 handles 32 threads and server2 handles 16) :
 
-    AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p bloodhoundcommunityedition  --cluster server1:7687:32,server2:7687:16
+    AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p mypassword  --cluster server1:7687:32,server2:7687:16
+
+> [!TIP]
+> The default password of the Bloodhound CE neo4j database is `bloodhoundcommunityedition`
 
 Options:
 
