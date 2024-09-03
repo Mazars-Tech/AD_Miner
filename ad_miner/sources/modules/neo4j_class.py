@@ -62,6 +62,8 @@ def pre_request(arguments):
         driver.close()
     except Exception as e:
         logger.print_error("Connection to neo4j database impossible.")
+        logger.print_error("The default Bloodhound CE neo4j password is bloodhoundcommunityedition.")
+        logger.print_error("The default exegol neo4j database password is exegol4thewin.")
         logger.print_error(e)
         driver.close()
         sys.exit(-1)
