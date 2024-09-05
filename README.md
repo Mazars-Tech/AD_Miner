@@ -2,6 +2,8 @@
 
 ADMiner is an Active Directory audit tool that leverages cypher queries to crunch data from the [BloodHound](https://github.com/BloodHoundAD/BloodHound) graph database (neo4j) and gives you a global overview of existing weaknesses through a web-based static report, including detailed listing, dynamic graphs, key indicators history, along with risk ratings.
 
+[![Rawsec's CyberSecurity Inventory](https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.raw.pm/tools.html#ADMiner)
+
 ![Main page](doc/img/main.gif)
 
 You can also observe indicators over time to help measuring mitigation efficiency.
@@ -22,6 +24,13 @@ pip install 'git+https://github.com/Mazars-Tech/AD_Miner.git'
 ```
 
 But remain careful and aware that doing this with pip will "polute" your packages.
+
+ADMiner is also available on some Linux distributions:
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/ad-miner.svg)](https://repology.org/project/ad-miner/versions)
+
+- BlackArch: `pacman -S ad-miner`
+- NixOS: `nix-env -iA nixos.ad-miner`
 
 ## Prerequisites
 
@@ -45,12 +54,15 @@ To better handle large data sets, it is possible to enable multi-threading and a
 
     AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p mypassword  --cluster server1:7687:32,server2:7687:16
 
+> [!TIP]
+> The default password of the Bloodhound CE neo4j database is `bloodhoundcommunityedition`
+
 Options:
 
     -h, --help              Show this help message and exit
     -b, --bolt              Neo4j bolt connection (default: bolt://127.0.0.1:7687)
     -u, --username          Neo4j username (default : neo4j)
-    -p, --password          Neo4j password (default : neo5j)
+    -p, --password          Neo4j password (default : bloodhoundcommunityedition)
     -e, --extract_date      Extract date (e.g., 20220131). Default: last logon date
     -r, --renewal_password  Password renewal policy in days. Default: 90
     -c, --cache             Use local file for neo4j data
