@@ -1,3 +1,18 @@
+# [1.6.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.2...v1.6.0) (2024-09-10)
+
+
+### Bug Fixes
+
+* add missing requests in config.json ([#168](https://github.com/Mazars-Tech/AD_Miner/issues/168)) ([5afe7db](https://github.com/Mazars-Tech/AD_Miner/commit/5afe7db6f633a121b0d2f9f53c59bac04018dfe9))
+* fix crash when a computer is member of DA ([9416e78](https://github.com/Mazars-Tech/AD_Miner/commit/9416e78093990102391d17231b16dc01b66c0efe))
+
+
+### Features
+
+* add cache files warning (chores) ([1ced00e](https://github.com/Mazars-Tech/AD_Miner/commit/1ced00ec8a8d64ef310502acf9c05acb33c3faef))
+
+
+
 ## [1.5.2](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.1...v1.5.2) (2024-07-25)
 
 
@@ -54,22 +69,6 @@
 ### Features
 
 * Stylised edges between different domains ([#142](https://github.com/Mazars-Tech/AD_Miner/issues/142)) ([b15b5e9](https://github.com/Mazars-Tech/AD_Miner/commit/b15b5e9e5a899e70121df627ae3af75b3f646f8b))
-
-
-
-# [1.3.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.2.0...v1.3.0) (2024-05-28)
-
-
-### Bug Fixes
-
-* clean ADLocalGroup objects to avoid acl_anomaly bug ([92c7a90](https://github.com/Mazars-Tech/AD_Miner/commit/92c7a900688174165cf7a54588c23e7ef2ce88cf))
-* rating crash on NoneType pwdlastset ([55705cf](https://github.com/Mazars-Tech/AD_Miner/commit/55705cf3526ac10aeeec1f01e88089029a9cef92))
-* update offline main page charts script ([511ddbb](https://github.com/Mazars-Tech/AD_Miner/commit/511ddbbb477d9d057495dedd3e5d755d9dcd9058))
-
-
-### Features
-
-* rework of OU control ([830936e](https://github.com/Mazars-Tech/AD_Miner/commit/830936edd6ef138ad6e348ce25870e6b2bc73021))
 
 
 
