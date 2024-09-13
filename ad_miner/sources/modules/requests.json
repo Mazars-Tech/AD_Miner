@@ -386,6 +386,18 @@
         "output_type": "list",
         "is_a_write_request": "true"
     },
+    "set_az_privileged": {
+        "name": "Find all Azure objects that are privileged and set is_priv is true",
+        "request":"MATCH (n:AZBase) WHERE 'admin_tier_0' IN split(n.system_tags, ' ') AND n.name =~ '(?i)Global Administrator.*|User Administrator.*|Cloud Application Administrator.*|Authentication Policy Administrator.*|Exchange Administrator.*|Helpdesk Administrator.*|Privileged Authentication Administrator.*'  SET n.is_priv=true",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
+    "set_az_not_privileged": {
+        "name": "Find all Azure objects that are not privileged and set is_priv is false",
+        "request":"MATCH (n:AZBase) WHERE n.is_priv IS NULL SET n.is_priv=false",
+        "output_type": "list",
+        "is_a_write_request": "true"
+    },
     "nb_domain_collected": {
         "name": "Count number of domains collected",
         "request": "MATCH (m:Domain)-[r]->() RETURN distinct(COALESCE(m.domain, m.name))",
@@ -856,8 +868,9 @@
     },
     "azure_users_paths_high_target": {
         "name": "Find all Azure Users with a Path to High Value Targets ",
-        "request":"MATCH (m:AZUser),(n {highvalue:true}),p=shortestPath((m)-[r:$properties$*1..$recursive_level$]->(n)) WHERE NOT m=n RETURN p",
-        "output_type": "Graph"
+        "request":"MATCH (n:AZBase{is_priv:false}) WITH n ORDER BY n.name SKIP PARAM1 LIMIT PARAM2 MATCH p=shortestPath((n)-[r:$properties$*1..$recursive_level$]->(m:AZBase{is_priv:true})) WHERE m<>n RETURN p",
+        "output_type": "Graph",
+        "scope_query": "MATCH (n:AZBase{is_priv:false}) RETURN count(n)"
     },
     "azure_ms_graph_controllers": {
         "name": "Return all direct Controllers of MS Graph",
