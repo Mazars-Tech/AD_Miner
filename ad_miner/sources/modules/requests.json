@@ -662,7 +662,8 @@
     },
     "dc_impersonation": {
         "name": "Non-domain admins that can directly or indirectly impersonate a Domain Controller ",
-        "request": "CALL{MATCH p=(u{ou_candidate:true})-[r:MemberOf*1..5]->(g:Group)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p UNION ALL MATCH p=(u{ou_candidate:true})-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p }RETURN DISTINCT p",
+        "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 CALL{MATCH p=(u)-[r:MemberOf*1..5]->(g:Group)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p UNION ALL MATCH p=(u)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p }RETURN DISTINCT p",
+	    "scope_query":"MATCH (u{ou_candidate:true}) RETURN count(u)",
         "output_type": "Graph"
     },
     "rbcd": {
