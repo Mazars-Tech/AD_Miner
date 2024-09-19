@@ -504,7 +504,7 @@
     "poa": "Ensure that this list is empty by setting the ms-DS-User-Password-Not-Required attribute to false for every user."
   },
   "anomaly_acl": {
-    "title": "Anomaly ACL",
+    "title": "ACL Anomalies",
     "description": "An ACL (Access Control List) is a security mechanism that defines permissions and access rights for objects within the Active Directory structure.",
     "risk": "Misconfigured ACL can create access points or privilege escalation that an attacker could use to compromise the domain.<br /><br /><i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i> : At least one domain admin as target<br /><i class='bi bi-star-fill'></i><i class='bi bi-star-fill'></i><i class='bi bi-star'></i> : At least one object has a path to domain admin<br /><i class='bi bi-star-fill'></i><i class='bi bi-star'></i><i class='bi bi-star'></i> : At least one object admin of a computer<br /><i class='bi bi-star'></i><i class='bi bi-star'></i><i class='bi bi-star'></i> : Other",
     "poa": "Regularly review and clean up ACL entries for users and groups that no longer require them."

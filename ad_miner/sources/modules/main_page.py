@@ -410,7 +410,7 @@ def render(
         "dangerous_paths": f"More than {domains.total_dangerous_paths} dangerous paths to DA",
         "users_password_not_required": f"{dico_data['value']['users_password_not_required']} users can bypass your password policy",
         "can_read_laps": f"{len(users.can_read_laps_parsed)} accounts can read LAPS passwords",
-        "anomaly_acl": f"{users.number_group_ACL_anomaly} groups with potential ACL anomalies",
+        "anomaly_acl": f"{users.number_group_ACL_anomaly} objects with potential ACL anomalies",
         "empty_groups": f"{len(domains.empty_groups)} groups without any member",
         "empty_ous": f"{len(domains.empty_ous)} OUs without any member",
         "has_sid_history": f"{len(users.has_sid_history)} objects can exploit SID History",
