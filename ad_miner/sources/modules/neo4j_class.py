@@ -67,7 +67,22 @@ def pre_request(arguments):
         logger.print_error(e)
         driver.close()
         sys.exit(-1)
+        
+    try:
+        with driver.session() as session:
+            with session.begin_transaction() as tx:
+                for record in tx.run(
+                    "CALL dbms.components() YIELD versions RETURN versions[0] AS version"
+                ):
+                    neo4j_version = record.data()
 
+        driver.close()
+    except Exception as e:
+        logger.print_error("Neo4J could not be found.")
+        logger.print_error(e)
+        driver.close()
+        sys.exit(-1)
+        
     try:
         extract_date = datetime.datetime.fromtimestamp(date_lastlogon["last"]).strftime("%Y%m%d")
     except UnboundLocalError as e:
@@ -96,7 +111,7 @@ def pre_request(arguments):
 
     driver.close()
 
-    return extract_date, total_objects, number_relations, boolean_azure
+    return neo4j_version, extract_date, total_objects, number_relations, boolean_azure
 
 
 class Neo4j:
