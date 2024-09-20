@@ -1512,9 +1512,10 @@ class Users:
 
         for k in range(len(self.anomaly_acl)):
 
-            label = generic_formating.clean_label(self.anomaly_acl[k]['LABELS(g)'])
+            label = generic_formating.clean_label(self.anomaly_acl[k]['type(r2)'])
 
-            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}"
+            name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}{target}"
+
 
             if formated_data.get(name_label_instance) and formated_data[name_label_instance]["type"] == self.anomaly_acl[k]["type(r2)"] and formated_data[name_label_instance]["label"] == label:
                 formated_data[name_label_instance]["targets"].append(self.anomaly_acl[k]["n.name"])
