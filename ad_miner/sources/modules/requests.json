@@ -36,7 +36,7 @@
     },
     "delete_unresolved": {
         "name": "Delete objects for which SID could not resolved",
-        "request": "MATCH (n) WHERE ((NOT EXISTS(n.domain) AND NOT (n:Domain)) OR NOT EXISTS(n.name)) AND NOT EXISTS(n.tenantid) DETACH DELETE n",
+        "request": "MATCH (n) WHERE ((n.domain IS NULL AND NOT (n:Domain)) OR n.name IS NULL) AND n.tenantid IS NULL DETACH DELETE n",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -277,7 +277,7 @@
     },
     "set_ou_candidate": {
         "name": "Set ou_candidate=TRUE to candidates eligible to shortestou to DA",
-        "request": "MATCH (m) WHERE NOT m.name IS NULL AND ((m:Computer AND (m.is_dc=false OR NOT EXISTS(m.is_dc))) OR (m:User AND (m.is_da=false OR NOT EXISTS(m.is_da)))) SET m.ou_candidate=TRUE",
+        "request": "MATCH (m) WHERE NOT m.name IS NULL AND ((m:Computer AND (m.is_dc=false OR m.is_dc IS NULL)) OR (m:User AND (m.is_da=false OR m.is_da IS NULL))) SET m.ou_candidate=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -382,7 +382,7 @@
     },
     "set_synced_OP_user_AZ_user": {
         "name": "Set relationships between On premiser User and Azure User",
-        "request": "MATCH (a:AZUser),(u:User) WHERE a.onpremid = u.objectid MERGE (a)-[:Synced]->(u) MERGE (u)-[:Synced]->(a)",
+        "request": "MATCH (a:AZUser) MATCH (u:User) WHERE a.onpremid = u.objectid MERGE (a)-[:Synced]->(u) MERGE (u)-[:Synced]->(a)",
         "output_type": "list",
         "is_a_write_request": "true"
     },
@@ -662,7 +662,7 @@
     },
     "dc_impersonation": {
         "name": "Non-domain admins that can directly or indirectly impersonate a Domain Controller ",
-        "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 CALL{MATCH p=(u)-[r:MemberOf*1..5]->(g:Group)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p UNION ALL MATCH p=(u)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p }RETURN DISTINCT p",
+        "request": "MATCH (u{ou_candidate:true}) WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 CALL{WITH u MATCH p=(u)-[r:MemberOf*1..5]->(g:Group)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p UNION ALL WITH u MATCH p=(u)-[r3:AddKeyCredentialLink|WriteProperty|GenericAll|GenericWrite|Owns|WriteDacl]->(m:Computer{is_dc:true}) RETURN p }RETURN DISTINCT p",
 	    "scope_query":"MATCH (u{ou_candidate:true}) RETURN count(u)",
         "output_type": "Graph"
     },
@@ -745,7 +745,7 @@
     },
     "anomaly_acl_2": {
         "name": "anomaly_acl_2",
-        "request": "MATCH (gg:Group) WHERE EXISTS(gg.members_count) with gg as g order by gg.members_count DESC MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN g.members_count,n.name,g.name,type(r2),LABELS(g) order by g.members_count DESC",
+        "request": "MATCH (gg:Group) WHERE gg.members_count IS NOT NULL with gg as g order by gg.members_count DESC MATCH (g)-[r2{isacl:true}]->(n) WHERE ((g.is_da IS NULL OR g.is_da=FALSE) AND (g.is_dc IS NULL OR g.is_dc=FALSE)) OR (NOT n.domain CONTAINS '.' + g.domain AND n.domain <> g.domain) RETURN g.members_count,n.name,g.name,type(r2),LABELS(g) order by g.members_count DESC",
         "output_type": "dict"
     },
     "get_empty_groups": {
@@ -808,7 +808,7 @@
     },
     "cross_domain_local_admins":{
         "name": "Users that are local admins cross-domain",
-        "request": "MATCH p1=(u{enabled:true})-[r:MemberOf*1..4]->(g:Group{is_admin:true})-[rr:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain WITH collect(distinct p1) as paths OPTIONAL MATCH q=(u{enabled:true})-[r:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain WITH paths + collect(distinct q) as allPaths UNWIND allPaths as p RETURN DISTINCT p",
+        "request": "MATCH p=(u{enabled:true})-[r:MemberOf*0..4]->()-[rr:AdminTo]->(c:Computer) WHERE c.ghost_computer IS NULL AND u.domain <> c.domain AND NOT c.domain CONTAINS u.domain RETURN DISTINCT p",
         "output_type": "Graph"
     },
     "cross_domain_domain_admins":{
@@ -885,7 +885,7 @@
     },
     "azure_admin_on_prem": {
         "name": "Return all Azure admins that are also on premise admins",
-        "request":"MATCH (a:AZUser)-[r:AZGlobalAdmin]->(),(u:User{is_da:true}) where a.onpremisesecurityidentifier=u.objectid return u.name as Name",
+        "request": "MATCH (u:User{is_da:true})-[:Synced]->(a:AZUser)-[r:AZGlobalAdmin]->() RETURN u.name as Name",
         "output_type": "dict"
     },
     "azure_role_listing": {
@@ -910,12 +910,12 @@
     },
     "azure_dormant_accounts": {
         "name": "Azure dormant accounts",
-        "request":"MATCH (a:AZUser),(u:User {enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS Name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS lastlogon, toInteger(($extract_date$ - u.whencreated)/86400) AS whencreated",
+        "request": "MATCH (a:AZUser)-[:Synced]->(u:User {enabled:TRUE}) RETURN a.name AS Name, toInteger(($extract_date$ - u.lastlogontimestamp)/86400) AS lastlogon, toInteger(($extract_date$ - u.whencreated)/86400) AS whencreated",
         "output_type": "dict"
     },
     "azure_accounts_disabled_on_prem": {
         "name": "Azure accounts that are disabled on premise",
-        "request":"MATCH (a:AZUser{enabled:TRUE}),(u:User{enabled:FALSE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise` UNION MATCH (a:AZUser{enabled:FALSE}),(u:User{enabled:TRUE}) WHERE a.onpremisesecurityidentifier = u.objectid RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise`",
+        "request": "MATCH (a:AZUser{enabled:TRUE})-[:Synced]->(u:User{enabled:FALSE}) RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise` UNION MATCH (a:AZUser{enabled:FALSE})-[:Synced]->(u:User{enabled:TRUE}) RETURN a.name AS `Azure name`, a.enabled AS `Enabled on Azure`, u.name AS `On premise name`, u.enabled AS `Enabled on premise`",
         "output_type": "dict"
     },
     "azure_accounts_not_found_on_prem": {
