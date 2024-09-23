@@ -67,7 +67,7 @@ def pre_request(arguments):
         logger.print_error(e)
         driver.close()
         sys.exit(-1)
-        
+
     try:
         with driver.session() as session:
             with session.begin_transaction() as tx:
@@ -82,7 +82,7 @@ def pre_request(arguments):
         logger.print_error(e)
         driver.close()
         sys.exit(-1)
-        
+
     try:
         extract_date = datetime.datetime.fromtimestamp(date_lastlogon["last"]).strftime("%Y%m%d")
     except UnboundLocalError as e:
@@ -105,7 +105,7 @@ def pre_request(arguments):
                 number_relations = record.data()["total_relations"]
 
             for record in tx.run(
-                "MATCH (n) WHERE EXISTS(n.tenantid) return n LIMIT 1"
+                "MATCH (n) WHERE n.tenantid IS NOT NULL return n LIMIT 1"
             ):
                 boolean_azure = bool(record.data()["n"])
 
@@ -990,5 +990,3 @@ class Neo4j:
             error_message += "Sharphound v2 -> Bloodhound Community Edition (https://github.com/SpecterOps/BloodHound)"
 
             logger.print_error(error_message)
-
- 
