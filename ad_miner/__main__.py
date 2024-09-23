@@ -129,7 +129,7 @@ def main() -> None:
     """Main execution function for the script."""
     start = time.time()
     arguments = utils.args()
-    cache_check=utils.cache_check(f"{arguments.cache_prefix}_*",arguments.cache)
+    cache_check = utils.cache_check(f"{arguments.cache_prefix}_*", arguments.cache)
 
     if cache_check["nb_cache"] > 0:
         logger.print_warning(cache_check["message"])
@@ -149,10 +149,12 @@ def main() -> None:
     neo4j_version, extract_date, total_objects, number_relations, boolean_azure = pre_request(arguments)
 
     version = neo4j_version.get('version')
-    logger.print_success("You are using Neo4J " + version + "")
+    logger.print_success("Your neo4j database uses neo4j version " + version)
 
     if not version.startswith('4.4.'):
-        logger.print_error("You must install Neo4J 4.4.X in order to fully use AD Miner")
+        logger.print_error(
+            "Your neo4j database version must be 4.4.X in order to fully use AD Miner"
+        )
         sys.exit(-1)
 
     number_objects = sum([type_label["number_type"] for type_label in total_objects])
