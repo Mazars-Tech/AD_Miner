@@ -1,3 +1,13 @@
+## [1.6.1](https://github.com/Mazars-Tech/AD_Miner/compare/v1.6.0...v1.6.1) (2024-10-03)
+
+
+### Bug Fixes
+
+* better requests and anomaly_acl bug ([ebd6749](https://github.com/Mazars-Tech/AD_Miner/commit/ebd674917b7496a035779148921c104a0e649f23))
+* only first letter was used to generate acl anomaly name label instances ([9089968](https://github.com/Mazars-Tech/AD_Miner/commit/908996843a77672d8689c7ebf1efec87b2888ecb))
+
+
+
 # [1.6.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.2...v1.6.0) (2024-09-10)
 
 
@@ -53,22 +63,6 @@
 ### Performance Improvements
 
 * remove unused requests ([17d5a2c](https://github.com/Mazars-Tech/AD_Miner/commit/17d5a2c7e74adfe5b3ac975726aa4a44fc6f564d))
-
-
-
-# [1.4.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.3.0...v1.4.0) (2024-06-06)
-
-
-### Bug Fixes
-
-* crash when generating reports ([#143](https://github.com/Mazars-Tech/AD_Miner/issues/143)) ([61fefd5](https://github.com/Mazars-Tech/AD_Miner/commit/61fefd5eecf4e1ff4ed8bb04663982fde44c420a))
-* switch AZ / onprem and AD Miner not displayed ([a15367e](https://github.com/Mazars-Tech/AD_Miner/commit/a15367ef3472b1cd37cdac29700a170589cc4162))
-* windows compatibility ([ceaa481](https://github.com/Mazars-Tech/AD_Miner/commit/ceaa48137c3e958fca3ed6fd8d066a2b638debf6))
-
-
-### Features
-
-* Stylised edges between different domains ([#142](https://github.com/Mazars-Tech/AD_Miner/issues/142)) ([b15b5e9](https://github.com/Mazars-Tech/AD_Miner/commit/b15b5e9e5a899e70121df627ae3af75b3f646f8b))
 
 
 
