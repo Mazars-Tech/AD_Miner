@@ -1514,7 +1514,7 @@ class Users:
 
             label = generic_formating.clean_label(self.anomaly_acl[k]["LABELS(g)"])
 
-            edge_type = generic_formating.clean_label(self.anomaly_acl[k]["type(r2)"])
+            edge_type = self.anomaly_acl[k]["type(r2)"]
 
             name_label_instance = f"{self.anomaly_acl[k]['g.name']}{label}{edge_type}"
 
