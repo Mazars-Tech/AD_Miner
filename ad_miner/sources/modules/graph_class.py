@@ -100,26 +100,37 @@ class Graph:
 
                 # Add DA icon if node is DC, DA or Domain
                 if (
-                    node.name in [dc for dc in self.dc_computer if self.dc_computer[dc]]
+                    (
+                        label_instance == "Computer"
+                        and self.dc_computer.get(node.name, False)
+                    )
+                    or (label_instance == "User" and self.user_da.get(node.name, False))
+                    or (
+                        label_instance == "Group"
+                        and self.group_da.get(node.name, False)
+                    )
                     or label_instance == "Domain"
-                    or node.name in [da for da in self.user_da if self.user_da[da]]
-                    or node.name in [dag for dag in self.group_da if self.group_da[dag]]
                 ):
                     node_attributes.append("da")
 
                 # Add ghost icon if ghost
-                if node.name in [
-                    g for g in self.ghost_user if self.ghost_user[g]
-                ] or node.name in [
-                    gc for gc in self.ghost_computer if self.ghost_computer[gc]
-                ]:
+                if (
+                    label_instance == "User" and self.ghost_user.get(node.name, False)
+                ) or (
+                    label_instance == "Computer"
+                    and self.ghost_computer.get(node.name, False)
+                ):
                     node_attributes.append("ghost")
 
-                if (
-                    label_instance == "User"
-                    and node.name in self.disabled_users_dict.keys()
+                if label_instance == "User" and self.disabled_users_dict.get(
+                    node.name, False
                 ):
                     node_attributes.append("disabled")
+
+                if label_instance == "User" and self.kerberoastable_users.get(
+                    node.name, False
+                ):
+                    node_attributes.append("kerberoastable")
 
                 # New nodes attributes that should be added to the node icon
                 # should be added here to the node_attributes list.

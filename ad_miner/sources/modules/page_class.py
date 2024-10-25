@@ -1,5 +1,9 @@
-from ad_miner.sources.modules.utils import DESCRIPTION_MAP, TEMPLATES_DIRECTORY, JS_DIRECTORY
+from ad_miner.sources.modules.utils import (
+    TEMPLATES_DIRECTORY,
+    JS_DIRECTORY,
+)
 from os.path import sep
+
 
 class Page:
     def __init__(
@@ -7,7 +11,7 @@ class Page:
         render_prefix,
         name,
         title,
-        description,
+        dico_description,
         template_file="base",
         include_js=[],
     ):
@@ -16,15 +20,8 @@ class Page:
         self.template = template_file
         self.title = title
         self.include_js = include_js
+        self.dico_description = dico_description
 
-        try:
-            self.description = DESCRIPTION_MAP[description]
-        except:  # A supprimer quand toutes les descriptions auront été changées
-            self.description = DESCRIPTION_MAP["template"]
-            print(
-                "[!] Warning : Add a description in description.json for the key '%s'."
-                % (description)
-            )
         self.components = []
 
     def addComponent(self, component):
@@ -36,18 +33,22 @@ class Page:
         # shutil.copyfile(self.template + "_header", "./render/" +  os.path.basename(self.template + ))
 
         with open(
-            "./render_%s/html/%s" % (self.render_prefix, self.name.replace(sep, '_').replace('/', '_')), "w", encoding='utf-8'
+            "./render_%s/html/%s" % (self.render_prefix, self.name.replace(sep, "_")),
+            "w",
+            encoding="utf-8",
         ) as page_f:
             with open(
-                TEMPLATES_DIRECTORY / (self.template + "_header.html"), "r", encoding='utf-8'
+                TEMPLATES_DIRECTORY / (self.template + "_header.html"),
+                "r",
+                encoding="utf-8",
             ) as header_f:
                 page_f.write(
                     header_f.read()
                     % (
                         self.title,
-                        self.description["description"],
-                        self.description["risk"],
-                        self.description["poa"],
+                        self.dico_description["description"],
+                        self.dico_description["risk"],
+                        self.dico_description["poa"],
                     )
                 )
 
