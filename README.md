@@ -60,13 +60,17 @@ You can also observe indicators over time to help measuring mitigation efficienc
   <img src="doc/img/evol.gif" alt="Main page" width="70%" />
 </p>
 
+AD Miner has been initially created by Forvis Mazars Cybersecurity team.
+
 ## Prerequisites
 
 To run AD Miner, you first need a neo4j database which contains the Active Directory objects:
 
  1. To extract the data from the domain, you can use tools like [SharpHound](https://github.com/BloodHoundAD/SharpHound), [RustHound-CE](https://github.com/g0h4n/RustHound-CE) or [BloodHound.py](https://github.com/dirkjanm/BloodHound.py) and [AzureHound](https://github.com/BloodHoundAD/AzureHound) for EntraID environments.
 > [!CAUTION]
-> We strongly recommend using [BloodHound Automation](https://github.com/Tanguy-Boisset/bloodhound-automation), as it installs the Graph Data Science Neo4j plugin, which significantly improves computation time and overall performance.
+> We strongly recommend using [BloodHound Automation](https://github.com/Tanguy-Boisset/bloodhound-automation), as it installs the Graph Data Science Neo4j plugin, which :
+> - significantly improves computation time and overall performance.
+> - enables the use of Smartest Path instead of built-in Neo4j shortestPath() (i.e., [Paths that are easier to exploit rather than least nodes hops](https://www.linkedin.com/pulse/graph-theory-assess-active-directory-smartest-vs-shortest-besnard-0qgle)).
 </div>
 
  2. To set up your BloodHound environment (including the GUI and Neo4j database), [BloodHound Automation](https://github.com/Tanguy-Boisset/bloodhound-automation) is **highly recommended due to its seamless integration with the Graph Data Science plugin**. Though it is perfectly fine to use the default [BloodHound CE](https://github.com/SpecterOps/BloodHound) installation, be aware that you will miss out on the benefits of GDS (e.g., smarter pathfinding, improved execution speed, etc.).
@@ -107,7 +111,7 @@ To better handle large data sets, it is possible to enable multi-threading and a
 
 If password renewal policy is known, you can specify it using the `-r` parameter to ensure that password renewal controls align with your environment's settings (default is 90 days). For example, if the password policy is set to 180 days, you can use the following:
 
-    AD-miner -c -cf My_Report -b bolt://server1:7687 -u neo4j -p mypassword -r 180
+    AD-miner -c -cf My_Report -b bolt://server:7687 -u neo4j -p mypassword -r 180
     
 > [!TIP]
 > The default password of the Bloodhound CE neo4j database is `bloodhoundcommunityedition` or `neo5j` if you use [BloodHound Automation](https://github.com/Tanguy-Boisset/bloodhound-automation)
