@@ -30,15 +30,16 @@
           </a>
           <div style="display:{{boolean_azure}}">
             <label class="btn btn-primary custom-radio">
-            <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise" autocomplete="off" checked="">
-            <span class="radio-btn"></span>
+              <input type="radio" name="options" onclick="toggleDiv('main_circle')" id="option-on-premise" autocomplete="off"
+                checked="">
+              <span class="radio-btn"></span>
             On Premise
-          </label>
-          <label class="btn btn-primary custom-radio">
-          <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off">
-          <span class="radio-btn"></span>
-          Azure
-          </label>
+            </label>
+            <label class="btn btn-primary custom-radio">
+              <input type="radio" name="options" onclick="toggleDiv('azure_circle')" id="option-azure" autocomplete="off">
+              <span class="radio-btn"></span>
+              Entra ID
+            </label>
           </div>
 
         </div>
@@ -197,7 +198,7 @@
               <li class="nav-item">
                 <a class="nav-link stats-link text-primary active" data-bs-toggle="tab" id="stats-tab-title-azure"
                   style="display:none" href="#azure" aria-selected="false"><i
-                    class="bi bi-microsoft stats-link-icon"></i>Azure</a>
+                    class="bi bi-microsoft stats-link-icon"></i>Entra ID</a>
               </li>
 
             </ul>
@@ -324,9 +325,22 @@
 
             <div class="tab-pane" id="azure" role="tabpanel">
               <div class="card-body" id="stats-tab-azure">
-                <h5 class="card-title stats-title">Azure</h5>
+                <h5 class="card-title stats-title">Entra ID</h5>
                 <div>
                   <div class="d-flex justify-content-between align-items-center stats-div">
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"><i class="bi bi-building stats-icon"></i>{{azure_nb_tenants}}</span>
+                        Tenants
+                      </p>
+                    </div>
+                    <div>
+                      <a href="azure_tenants.html" class="btn btn-outline-dark stats-button">Details <i
+                          class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                  </div>
+
+                 <div class="d-flex justify-content-between align-items-center stats-div">
                     <div>
                       <p class="stats-text">
                         <span class="stats-number"><i class="bi bi-gem stats-icon"></i>{{azure_nb_admin}}</span>
@@ -373,7 +387,7 @@
                   <div class="d-flex justify-content-between align-items-center stats-div">
                     <div>
                       <p class="stats-text">
-                        <span class="stats-number"><i class="bi bi-pc-display stats-icon"></i>{{azure_nb_vm}}</span>
+                        <span class="stats-number"><i class="bi bi-pc-horizontal stats-icon"></i>{{azure_nb_vm}}</span>
                         VMs
                       </p>
                     </div>
@@ -383,6 +397,31 @@
                     </div>
                   </div>
 
+                  <div class="d-flex justify-content-between align-items-center stats-div">
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"><i class="bi bi-pc-display stats-icon"></i>{{azure_nb_devices}}</span>
+                        Devices
+                      </p>
+                    </div>
+                    <div>
+                      <a href="azure_devices.html" class="btn btn-outline-dark stats-button">Details <i
+                          class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center stats-div">
+                    <div>
+                      <p class="stats-text">
+                        <span class="stats-number"><i class="bi bi-window-sidebar stats-icon"></i>{{azure_nb_apps}}</span>
+                        Apps
+                      </p>
+                    </div>
+                    <div>
+                      <a href="azure_apps.html" class="btn btn-outline-dark stats-button">Details <i
+                          class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                  </div>
 
                 </div>
               </div>
