@@ -297,6 +297,24 @@ def main() -> None:
             logger.print_error(e)
             logger.print_error(traceback.format_exc())
 
+            try:
+                dico_category[control.category].append(control.control_key)
+                dico_name_description[control.control_key] = (
+                    f"{control.title} analysis failed (control crashed)."
+                )
+                data_rating[control.azure_or_onprem][-1].append(control.control_key)
+                DESCRIPTION_MAP[control.control_key] = {
+                    "title": control.title,
+                    "description": control.description,
+                    "interpretation": control.interpretation,
+                    "risk": control.risk,
+                    "poa": control.poa,
+                }
+            except Exception as e:
+                logger.print_error("Error while trying to add the control as disabled.")
+                logger.print_error(e)
+                logger.print_error(traceback.format_exc())
+
     dico_rating_color = rating_color(data_rating)
 
     main_page.render(
