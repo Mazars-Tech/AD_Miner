@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.6.1...v1.7.0) (2024-11-05)
+
+
+### Features
+
+* control that crash are displayed in grey and not missing ([#191](https://github.com/Mazars-Tech/AD_Miner/issues/191)) ([3d5d9e2](https://github.com/Mazars-Tech/AD_Miner/commit/3d5d9e28646ebe56d901a808e36a0262c6f8e777))
+
+
+
 ## [1.6.1](https://github.com/Mazars-Tech/AD_Miner/compare/v1.6.0...v1.6.1) (2024-10-03)
 
 
@@ -39,30 +48,6 @@
 
 * add EDCS edges and fix not displayed graphs bug ([d17b843](https://github.com/Mazars-Tech/AD_Miner/commit/d17b843388535439a77db024f6c7527c806794fd))
 * remove MSOL from path candidates ([8451485](https://github.com/Mazars-Tech/AD_Miner/commit/8451485e81092fcb058c8a6474830e431effe0c0))
-
-
-
-# [1.5.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.4.0...v1.5.0) (2024-06-19)
-
-
-### Bug Fixes
-
-* AD Miner crash due tu wrongly formatted strings ([db44242](https://github.com/Mazars-Tech/AD_Miner/commit/db44242be617ff316adc55e1a17d416a28baaad6))
-* Fix hover cards, donuts charts and search of disabled controls ([#145](https://github.com/Mazars-Tech/AD_Miner/issues/145)) ([64b67ae](https://github.com/Mazars-Tech/AD_Miner/commit/64b67ae7bd3ca5020d773b7d4a1a19520e979540))
-* remove DA from users admin on computers control ([3b4753b](https://github.com/Mazars-Tech/AD_Miner/commit/3b4753b0a9cad510faa2861558a9e392e284aa0b))
-* remove DC from path candidates and add non_da_dc request ([545de01](https://github.com/Mazars-Tech/AD_Miner/commit/545de01a43ff0f1868893753a57b35a8101a92ab))
-* remove gmsa account from kerberoastable accounts ([aa0b3b6](https://github.com/Mazars-Tech/AD_Miner/commit/aa0b3b6fefa9d67b29937273cf00ef878b8fc422))
-* unresolved bug during compromise OU request only deactivate the control and doesn't crash AD Miner ([19128f3](https://github.com/Mazars-Tech/AD_Miner/commit/19128f3efc8e9ff0b36f5a240001d464b72ee407))
-
-
-### Features
-
-* add warning when domain objects are missing from the database ([1859718](https://github.com/Mazars-Tech/AD_Miner/commit/18597182be01a0616e89d536afa022bcb64ca99a))
-
-
-### Performance Improvements
-
-* remove unused requests ([17d5a2c](https://github.com/Mazars-Tech/AD_Miner/commit/17d5a2c7e74adfe5b3ac975726aa4a44fc6f564d))
 
 
 
