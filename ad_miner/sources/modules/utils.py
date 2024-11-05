@@ -13,9 +13,6 @@ current_date = today.strftime("%Y%m%d")
 MODULES_DIRECTORY = Path(__file__).parent
 
 
-DESCRIPTION_MAP = json.loads(
-    (MODULES_DIRECTORY / "description.json").read_text(encoding="utf-8")
-)
 CONFIG_MAP = json.loads((MODULES_DIRECTORY / "config.json").read_text(encoding="utf-8"))
 HTML_DIRECTORY = Path(__file__).parent.parent / "html"
 JS_DIRECTORY = Path(__file__).parent.parent / "js"
@@ -47,7 +44,7 @@ def args():
         "--password",
         type=str,
         default="bloodhoundcommunityedition",
-        help="Neo4j password (default : neo5j)",
+        help="Neo4j password (default : bloodhoundcommunityedition)",
     )
     parser.add_argument(
         "-e",

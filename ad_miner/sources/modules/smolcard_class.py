@@ -3,97 +3,23 @@ import json
 from hashlib import md5
 
 
-from ad_miner.sources.modules.utils import DESCRIPTION_MAP, HTML_DIRECTORY
+from ad_miner.sources.modules.utils import HTML_DIRECTORY
 
-dico_category = {
-    "passwords": [
-        "users_pwd_cleartext",
-        "users_pwd_not_changed_since",
-        "never_expires",
-        "computers_without_laps",
-        "can_read_gmsapassword_of_adm",
-        "users_password_not_required",
-        "can_read_laps",
-    ],
-    "kerberos": [
-        "kerberoastables",
-        "as_rep",
-        "non-dc_with_unconstrained_delegations",
-        "users_constrained_delegations",
-        "krb_last_change",
-        "graph_list_objects_rbcd",
-        "users_shadow_credentials",
-        "users_shadow_credentials_to_non_admins",
-    ],
-    "permissions": [
-        "users_admin_of_computers",
-        "server_users_could_be_admin",
-        "dom_admin_on_non_dc",
-        "nb_domain_admins",
-        "can_dcsync",
-        "computers_members_high_privilege",
-        "computers_admin_of_computers",
-        "graph_path_objects_to_da",
-        "users_rdp_access",
-        "computers_list_of_rdp_users",
-        "unpriv_to_dnsadmins",
-        "objects_to_operators_member",
-        "graph_path_objects_to_ou_handlers",
-        "vuln_permissions_adminsdholder",
-        "objects_to_adcs",
-        "users_GPO_access",
-        "da_to_da",
-        "dangerous_paths",
-        "anomaly_acl",
-        "has_sid_history",
-        "cross_domain_admin_privileges",
-        "guest_accounts",
-        "up_to_date_admincount",
-        "privileged_accounts_outside_Protected_Users",
-        "pre_windows_2000_compatible_access_group"
-    ],
-    "misc": [
-        "computers_os_obsolete",
-        "dormants_accounts",
-        "dc_impersonation",
-        "computers_last_connexion",
-        "vuln_functional_level",
-        "empty_groups",
-        "empty_ous",
-        "primaryGroupID_lower_than_1000",
-        "fgpp"
-    ],
-    "az_permissions": [
-        "azure_users_paths_high_target",
-        "azure_admin_on_prem",
-        "azure_aadconnect_users",
-        "azure_roles",
-        "azure_cross_ga_da",
-        ],
-    "az_passwords": [
-        "azure_reset_passwd",
-        "azure_last_passwd_change",
-        ],
-    "az_misc": [
-        "azure_dormant_accounts"
-    ],
+old_dico_category = {
+    "passwords": [],
+    "kerberos": [],
+    "permissions": [],
+    "misc": [],
+    "az_permissions": [],
+    "az_passwords": [],
+    "az_misc": [],
     "ms_graph": [
-        "azure_ms_graph_controllers",
-        "azure_accounts_disabled_on_prem",
-        "azure_accounts_not_found_on_prem",
-        ],
+        "",
+        "",
+        "",
+    ],
 }
 
-dico_category_invert = {}
-for key in dico_category:
-    for value in dico_category[key]:
-        dico_category_invert[value] = key
-
-category_repartition_dict = {}
-for k in ["passwords", "kerberos", "permissions", "misc"]:
-    category_repartition_dict[k] = "on_premise"
-for k in ["az_permissions", "az_passwords", "az_misc", "ms_graph"]:
-    category_repartition_dict[k] = "azure"
 
 class SmolCard:
     def __init__(
@@ -105,7 +31,9 @@ class SmolCard:
         description=None,
         details=None,
         evolution_data={},
-        evolution_labels=[]
+        evolution_labels=[],
+        category="all",
+        title="",
     ):
         self.template_base_path = HTML_DIRECTORY / "components/smolcard/"
         self.template = template
@@ -117,20 +45,14 @@ class SmolCard:
         self.details = details
         self.evolution_data = evolution_data
         self.evolution_labels = evolution_labels
-
-        self.category = "all"
-        for category in dico_category:
-            if self.id in dico_category[category]:
-                self.category = category
-
-        desc = DESCRIPTION_MAP
-        self.title = desc[self.id].get("title")
+        self.category = category
+        self.title = title
 
     def fillTemplate(self, template_raw: str, dict_of_value: dict) -> str:
         """
         Fill the smolcard template with the data in dict_of_value.
         It extracts the {{something}} variables in the html template and replaces them with their value in the dict_of_value dictionnary.
-        Every \` char will be skipped.
+        Every ` char will be skipped.
         """
         original = template_raw
         content = ""
@@ -232,12 +154,19 @@ class SmolCard:
             evolution_chart_data = self.evolution_data[self.id]
         except KeyError:
             evolution_chart_data = []
-        
+
         if len(evolution_chart_data) >= 2:
             percent = "%"
             width_evolution_big = 9
             try:
-                evolution_percent = abs(round((evolution_chart_data[-1] - evolution_chart_data[-2]) / evolution_chart_data[-2] *100, 1))
+                evolution_percent = abs(
+                    round(
+                        (evolution_chart_data[-1] - evolution_chart_data[-2])
+                        / evolution_chart_data[-2]
+                        * 100,
+                        1,
+                    )
+                )
             except ZeroDivisionError:
                 # If the stats staggers at zero, it's a great thing
                 if evolution_chart_data[-1] == 0:
@@ -273,7 +202,6 @@ class SmolCard:
             percent = ""
             width_evolution_big = 12
 
-
         template_data = {
             "category": self.category,
             "hexa_color": hexa_color,
@@ -283,7 +211,7 @@ class SmolCard:
             "description": self.description,
             "description_reduced": self.description_reduced,
             "details": self.details,
-            "id": md5(self.title.encode('utf-8')).hexdigest()[:8],
+            "id": md5(self.title.encode("utf-8")).hexdigest()[:8],
             "rgb_color": rgb_color,
             "evolution_chart_data": evolution_chart_data,
             "evolution_labels": self.evolution_labels,
@@ -292,7 +220,7 @@ class SmolCard:
             "evolution_color": evolution_color,
             "arrow_dir": arrow_dir,
             "width_evolution_big": width_evolution_big,
-            "width_evolution_small": 12 - width_evolution_big
+            "width_evolution_small": 12 - width_evolution_big,
         }
 
         html_line = self.fillTemplate(html_raw, template_data)
