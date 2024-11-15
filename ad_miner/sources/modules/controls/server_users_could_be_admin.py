@@ -22,7 +22,7 @@ class server_users_could_be_admin(Control):
 
         self.title = "Paths to servers"
         self.description = (
-            "Users could gain administration privileges privileges on some servers."
+            "Users could gain administration privileges on some servers."
         )
         self.interpretation = ""
         self.risk = "Inadequate administration rights on computers can lead to easy privilege escalation for an attacker. With a privileged account, it is possible to perform local memory looting to find credentials for example."
