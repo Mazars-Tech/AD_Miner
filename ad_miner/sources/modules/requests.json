@@ -85,7 +85,7 @@
     },
     "set_server": {
         "name": "Set is_server=TRUE to computers for which operatingsystem contains Server)",
-        "request": "MATCH (c:Computer)  WHERE c.operatingsystem CONTAINS \"erver\" SET c.is_server=TRUE",
+        "request": "MATCH (c:Computer)  WHERE toUpper(c.operatingsystem) CONTAINS \"SERVER\" SET c.is_server=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
