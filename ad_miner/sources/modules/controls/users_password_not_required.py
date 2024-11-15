@@ -21,7 +21,7 @@ class users_password_not_required(Control):
 
         self.title = "Password requirement bypass"
         self.description = "Those users have the attribute 'Password not required'. This attribute technically allows the account to accept blank password to be set and even override the password policy of the company."
-        self.risk = "Such misconfiguration could lead to some account having non compliant password suck as a blank or weak password and might be easier to compromise."
+        self.risk = "Such misconfiguration could lead to some account having non compliant password such as a blank or weak password and might be easier to compromise."
         self.poa = "Ensure that this list is empty by setting the ms-DS-User-Password-Not-Required attribute to false for every user."
 
         self.users_password_not_required = requests_results[
