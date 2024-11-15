@@ -280,9 +280,7 @@ class graph_path_objects_to_ou_handlers(Control):
         page.addComponent(grid)
         page.render()
 
-        self.data = (
-            (len(self.compromise_paths_of_OUs) if self.compromise_paths_of_OUs else 0),
-        )
+        self.data = len(self.compromise_paths_of_OUs) if self.compromise_paths_of_OUs else 0
 
         self.name_description = f"{len(self.compromise_paths_of_OUs or [])} dangerous control paths over OUs"
 
