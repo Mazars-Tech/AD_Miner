@@ -98,7 +98,6 @@ class graph_path_objects_to_da(Control):
         for domain in self.domains:
             domain = domain[0]
             if len(self.users_to_domain[domain]):
-                logger.print_debug("... from users")
                 createGraphPage(
                     self.arguments.cache_prefix,
                     domain + f"_users_to_{file_variable}",
@@ -108,7 +107,6 @@ class graph_path_objects_to_da(Control):
                     self.requests_results,
                 )
             if len(self.computers_to_domain[domain]):
-                logger.print_debug("... from computers")
                 createGraphPage(
                     self.arguments.cache_prefix,
                     domain + f"_computers_to_{file_variable}",
@@ -118,7 +116,6 @@ class graph_path_objects_to_da(Control):
                     self.requests_results,
                 )
             if len(self.groups_to_domain[domain]):
-                logger.print_debug("... from groups")
                 createGraphPage(
                     self.arguments.cache_prefix,
                     domain + f"_groups_to_{file_variable}",
