@@ -1122,6 +1122,9 @@ class Neo4j:
             requests_results["users_admin_on_servers_1"]
             + requests_results["users_admin_on_servers_2"]
         )
+        users_admin_on_servers_all_data = [
+            dict(t) for t in {tuple(d.items()) for d in users_admin_on_servers_all_data}
+        ]
         users_admin_on_servers = generic_computing.getCountValueFromKey(
             users_admin_on_servers_all_data, "computer"
         )
