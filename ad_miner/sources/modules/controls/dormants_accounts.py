@@ -42,7 +42,7 @@ class dormants_accounts(Control):
         page = Page(
             self.arguments.cache_prefix,
             "dormants_accounts",
-            "Number of dormants accounts",
+            "Dormant accounts",
             self.get_dico_description(),
         )
         grid = Grid("Dormants accounts")

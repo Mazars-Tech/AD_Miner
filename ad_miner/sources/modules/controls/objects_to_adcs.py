@@ -33,8 +33,8 @@ class objects_to_adcs(Control):
         self.objects_to_adcs = requests_results["objects_to_adcs"]
 
         self.path_to_adcs_name_description = {
-            "title": "Paths to the AdminSDHolder container",
-            "description": "Paths to the AdminSDHolder container",
+            "title": "Non-tier 0 local admin privs on ADCS",
+            "description": "Non-tier 0 local admin privs on ADCS",
             "risk": "This ADCS server can be compromised, which means that an attacker can issue fraudulent certificates, which can be used to impersonate legitimate users or servers on the network. This can lead to unauthorized access to sensitive information, data theft, or network disruption.",
             "poa": "Ensure that the existing privileges on this ADCS server are legitimate and limit them to administrators optimaly.",
         }
@@ -48,7 +48,7 @@ class objects_to_adcs(Control):
         page = Page(
             self.arguments.cache_prefix,
             "objects_to_adcs",
-            "Compromisable ADCS Servers",
+            "Non-tier 0 local admin privs on ADCS",
             self.get_dico_description(),
         )
         grid = Grid("Objects to ADCS servers")

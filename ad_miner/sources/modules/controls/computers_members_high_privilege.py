@@ -40,7 +40,7 @@ class computers_members_high_privilege(Control):
         page = Page(
             self.arguments.cache_prefix,
             "computers_members_high_privilege",
-            "Computers' members with high privilege",
+            "Machine accounts with inadequate privileges",
             self.get_dico_description(),
         )
         grid = Grid("List of computer admins")
