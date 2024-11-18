@@ -33,10 +33,10 @@ class up_to_date_admincount(Control):
         page = Page(
             self.arguments.cache_prefix,
             "up_to_date_admincount",
-            "Priviledged accounts and admincount",
+            "Inadequate AdminCount settings",
             self.get_dico_description(),
         )
-        grid = Grid("Priviledged accounts and admincount")
+        grid = Grid("Inadequate AdminCount settings")
         grid.setheaders(
             [
                 "domain",

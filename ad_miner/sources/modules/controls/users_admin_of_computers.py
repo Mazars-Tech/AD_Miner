@@ -329,7 +329,7 @@ class users_admin_of_computers(Control):
         page = Page(
             self.arguments.cache_prefix,
             "users_admin_of_computers",
-            "Users that are administrator of computers",
+            "Users with local admin privileges",
             self.get_dico_description(),
         )
         grid = Grid("Users admins of")
@@ -344,7 +344,7 @@ class users_admin_of_computers(Control):
         page = Page(
             self.arguments.cache_prefix,
             "users_admin_of_computers_details",
-            "Users that are administrator of computers",
+            "Users with local admin privileges",
             self.get_dico_description(),
         )
         grid = Grid("Users admins of")

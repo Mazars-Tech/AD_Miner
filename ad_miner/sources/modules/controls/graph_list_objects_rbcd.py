@@ -147,7 +147,7 @@ class graph_list_objects_rbcd(Control):  # TODO change the class name
         page = Page(
             self.arguments.cache_prefix,
             "graph_list_objects_rbcd",
-            "Users able to RBCD attack",
+            "Kerberos RBCD against computers",
             self.get_dico_description(),
         )
         grid = Grid("Objects that can perform an RBCD attack on computers")

@@ -31,7 +31,7 @@ class dc_impersonation(Control):
         createGraphPage(
             self.arguments.cache_prefix,
             "dc_impersonation",
-            "DC Impersonation",
+            "Shadow credentials on domain controllers",
             self.get_dico_description(),
             self.users_dc_impersonation,
             requests_results=self.requests_results,

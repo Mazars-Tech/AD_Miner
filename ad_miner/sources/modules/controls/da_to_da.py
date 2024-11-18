@@ -37,11 +37,11 @@ class da_to_da(Control):
         page = Page(
             self.arguments.cache_prefix,
             "da_to_da",
-            "Paths between different domains as domain admin",
+            "Cross-domain paths to Domain Admin",
             self.get_dico_description(),
         )
         # create the grid
-        grid = Grid("Paths between different domains as domain admin")
+        grid = Grid("Cross-domain paths to Domain Admin")
         # create the headers (domains)
         headers = []
         # future list of dicts

@@ -100,7 +100,7 @@ class dangerous_paths(Control):
         page = Page(
             self.arguments.cache_prefix,
             "dangerous_paths",
-            "List of main dangerous paths",
+            "Attack paths choke points",
             self.get_dico_description(),
         )
         grid = Grid("dangerous paths")

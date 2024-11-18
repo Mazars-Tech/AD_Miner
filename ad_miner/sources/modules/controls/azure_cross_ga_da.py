@@ -39,11 +39,11 @@ class azure_cross_ga_da(Control):
         page = Page(
             self.arguments.cache_prefix,
             "azure_cross_ga_da",
-            "Paths between Azure admins and on premise admins",
+            "Cross on-prem/Entra ID path to tier-0",
             self.get_dico_description(),
         )
         # Create the grid
-        grid = Grid("Paths between Azure admins and on premise admins")
+        grid = Grid("Cross on-prem/Entra ID path to tier-0")
         # Add the headers
         headers = ["Domain / Tenant"]
         for tenant_id in self.tenant_id_name.keys():

@@ -29,11 +29,11 @@ class fgpp(Control):
         page = Page(
             self.arguments.cache_prefix,
             "fgpp",
-            "fgpp",
+            "Users FGPP",
             self.get_dico_description(),
         )
         # create the grid
-        grid = Grid("FGPP")
+        grid = Grid("Users FGPP")
         # create the headers
         headers = [
             "affected object",

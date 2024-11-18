@@ -37,7 +37,7 @@ class objects_to_operators_member(Control):
         page = Page(
             self.arguments.cache_prefix,
             "objects_to_operators_member",
-            "Unprivileged path to an operator group",
+            "Paths to Operators Groups",
             self.get_dico_description(),
         )
         # Build raw data from requests
