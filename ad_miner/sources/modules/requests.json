@@ -612,13 +612,13 @@
     },
     "users_admin_on_servers_1": {
         "name": "Users admin on servers n\u00b01",
-        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r:MemberOf*1..4]->(g:Group)-[r1:$properties$]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
+        "request": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL WITH n ORDER BY ID(n) SKIP PARAM1 LIMIT PARAM2 MATCH p=(n)-[r:MemberOf*1..4]->(g:Group)-[r1:$properties$]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
         "scope_query": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL RETURN count(n)",
         "output_type": "dict"
     },
     "users_admin_on_servers_2": {
         "name": "Users admin on servers n\u00b02",
-        "request": "MATCH p=(n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL MATCH (n)-[r1:$properties$]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u SKIP PARAM1 LIMIT PARAM2 WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
+        "request": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL WITH n ORDER BY ID(n) SKIP PARAM1 LIMIT PARAM2 MATCH p=(n)-[r1:$properties$]->(u:Computer) WITH LENGTH(p) as pathLength, p, n, u WHERE NONE (x in NODES(p)[1..(pathLength-1)] WHERE x.objectid = u.objectid) AND NOT n.objectid = u.objectid RETURN n.name AS user, u.name AS computer, u.has_path_to_da as has_path_to_da",
         "scope_query": "MATCH (n:User{enabled:true,is_da:false}) WHERE NOT n.name IS NULL RETURN count(n)",
         "output_type": "dict"
     },
