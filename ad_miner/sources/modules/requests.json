@@ -692,17 +692,12 @@
         "scope_query": "MATCH (u{ou_candidate:true}) RETURN count(u)",
         "output_type": "Graph"
     },
-    "rbcd": {
-        "name": "RBCD attacks",
-        "request": "CALL{MATCH (u:User{enabled:true,is_da:false}) WHERE u.name IS NOT NULL WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH (u:User{enabled:true,is_da:false})-[rr:MemberOf*1..5]->(g:Group)-[r:GenericAll|GenericWrite|WriteDACL|AllExtendedRights|Owns|AdminTo]->(m:Computer{is_server:true}) RETURN u as user, g.name as groupname, r, m UNION ALL MATCH (u:User{enabled:true,is_da:false}) WHERE u.name IS NOT NULL WITH u ORDER BY u.name SKIP PARAM1 LIMIT PARAM2 MATCH (u:User{enabled:true,is_da:false})-[r:GenericAll|GenericWrite|WriteDACL|AllExtendedRights|Owns|AdminTo]->(m:Computer{is_server:true}) RETURN u as user, \"Direct (nogroup)\" as groupname, r, m }RETURN distinct user.name as username, groupname, type(r) as acl, m.name as computername ORDER BY username, computername, acl",
-        "output_type": "dict",
-        "scope_query": "MATCH (u:User{enabled:true,is_da:false}) RETURN count(u)"
-    },
     "graph_rbcd": {
         "name": "Builds RBCD attack path graph and sets is_rbcd_target attribute ",
-        "request": "CALL{ MATCH p1=(u:User{enabled:true,is_da:false})-[rr:MemberOf|AddMember*1..5]->(g:Group)-[r:GenericAll|GenericWrite|WriteDACL|AllExtendedRights|Owns|AdminTo]->(m:Computer{is_server:true}) SET m.is_rbcd_target=TRUE RETURN p1 as p UNION ALL MATCH p2=(u:User{enabled:true,is_da:false})-[r:GenericAll|GenericWrite|WriteDACL|AllExtendedRights|Owns|AdminTo]->(m:Computer{is_server:true}) SET m.is_rbcd_target=TRUE RETURN p2 as p } RETURN p",
+        "request": "MATCH (m:Computer{is_server:true}) WITH m SKIP PARAM1 LIMIT PARAM2 MATCH p=(u:User{path_candidate:true})-[rr:MemberOf|AddMember*0..5]->()-[r:GenericAll|GenericWrite|WriteDACL|AllExtendedRights|Owns]->(m) SET m.is_rbcd_target=TRUE RETURN p",
         "output_type": "Graph",
-        "is_a_write_request": "true"
+        "is_a_write_request": "true",
+        "scope_query": "MATCH (m:Computer{is_server:true}) RETURN count(m)"
     },
     "graph_rbcd_to_da": {
         "name": "Builds RBCD targets to DA paths",

@@ -8,6 +8,7 @@ from ad_miner.sources.modules.utils import grid_data_stringify
 from ad_miner.sources.modules.common_analysis import presence_of, createGraphPage
 
 from urllib.parse import quote
+from tqdm import tqdm
 
 
 @register_control
@@ -70,7 +71,7 @@ class graph_list_objects_rbcd(Control):  # TODO change the class name
 
         ending_nodes_names_distinct = []
 
-        for path in self.rbcd_paths:
+        for path in tqdm(self.rbcd_paths):
             starting_node = path.nodes[0]
             starting_node_name = starting_node.name
             ending_node = path.nodes[-1]
@@ -151,6 +152,8 @@ class graph_list_objects_rbcd(Control):  # TODO change the class name
             self.get_dico_description(),
         )
         grid = Grid("Objects that can perform an RBCD attack on computers")
+        headers = ["Domain", "Name", "Paths to targets", "Paths to DA"]
+        grid.setheaders(headers)
         grid_data = []
 
         if len(list(self.rbcd_graphs.keys())) != 0:
@@ -184,11 +187,9 @@ class graph_list_objects_rbcd(Control):  # TODO change the class name
                 else:
                     tmp_data["Paths to DA"] = "-"
                 grid_data.append(tmp_data)
-            headers = ["Domain", "Name", "Paths to targets", "Paths to DA"]
-            grid.setheaders(headers)
-            grid.setData(grid_data)
-            page.addComponent(grid)
-            page.render()
+        grid.setData(grid_data)
+        page.addComponent(grid)
+        page.render()
 
         # TODO define the metric of your control
         # it will be stored in the data json
