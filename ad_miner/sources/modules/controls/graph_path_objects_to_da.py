@@ -42,7 +42,7 @@ class graph_path_objects_to_da(Control):
         self.collected_domains = requests_results["nb_domain_collected"]
 
         self.dico_description_paths_to_domain_admin = {
-            "description": "Graph of paths leading to domain admin",
+            "description": "Paths leading to domain admin",
             "risk": "Compromission paths to domain admin represent the exposed attack surface that the AD environment presents to the attacker in order to gain privileges in the domain(s). If an attacker exploits one of these paths, they will be able to gain privileges in the domain(s) and cause some serious damage.",
             "poa": "Review the paths, make sure they are not exploitable. If they are, cut the link between the Active Directory objects in order to reduce the attack surface.",
         }
@@ -153,7 +153,7 @@ class graph_path_objects_to_da(Control):
         page = Page(
             self.arguments.cache_prefix,
             f"graph_path_objects_to_{file_variable}",
-            "All compromission paths to Domain Admin",
+            "Paths to Domain Admins",
             self.get_dico_description(),
         )
         grid = Grid("Numbers of path to domain admin per domain and objects")

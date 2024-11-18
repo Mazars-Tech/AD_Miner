@@ -80,7 +80,7 @@ class graph_path_objects_to_ou_handlers(Control):
         page = Page(
             self.arguments.cache_prefix,
             "graph_path_objects_to_ou_handlers",
-            "Path to OU Handlers",
+            "Paths to Organizational Units (OU)",
             self.get_dico_description(),
         )
 

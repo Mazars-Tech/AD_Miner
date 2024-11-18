@@ -96,7 +96,7 @@ class computers_admin_of_computers(Control):
         page = Page(
             self.arguments.cache_prefix,
             "computers_admin_of_computers",
-            "Computers with administration rights on other computers",
+            "Computers admin of other computers",
             self.get_dico_description(),
         )
         grid = Grid("Computers admins of other computers")

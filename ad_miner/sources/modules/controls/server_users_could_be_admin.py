@@ -52,7 +52,7 @@ class server_users_could_be_admin(Control):
         page = Page(
             self.arguments.cache_prefix,
             "server_users_could_be_admin",
-            "Computers that are compromisable by users",
+            "Paths to servers",
             self.get_dico_description(),
         )
         grid = Grid("Servers with the most user compromise paths")

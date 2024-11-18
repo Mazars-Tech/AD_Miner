@@ -47,10 +47,10 @@ class dom_admin_on_non_dc(Control):
         page = Page(
             self.arguments.cache_prefix,
             "dom_admin_on_non_dc",
-            "Domain admin with sessions on non DC computers",
+            "Tier-0 violation (sessions)",
             self.get_dico_description(),
         )
-        grid = Grid("Domain admin with sessions on non DC computers")
+        grid = Grid("Tier-0 violation (sessions)")
         grid.setheaders(
             ["Domain", "Domain Admin", "Computers", "Paths", "Domains impacted"]
         )

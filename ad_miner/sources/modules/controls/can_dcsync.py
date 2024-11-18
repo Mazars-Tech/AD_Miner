@@ -140,7 +140,7 @@ class can_dcsync(Control):
         page = Page(
             self.arguments.cache_prefix,
             "can_dcsync",
-            "List of all objects with dcsync privileges",
+            "Inadequate access to DCSync privileges",
             self.get_dico_description(),
         )
         grid = Grid("DCsync objects")
@@ -154,7 +154,7 @@ class can_dcsync(Control):
         page = Page(
             self.arguments.cache_prefix,
             "can_dcsync",
-            "List of all objects with dcsync privileges",
+            "Inadequate access to DCSync privileges",
             self.get_dico_description(),
         )
         paths = (
