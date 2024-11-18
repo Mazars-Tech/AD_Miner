@@ -93,7 +93,6 @@
         "unpriv_to_dnsadmins": "true",
         "rdp_access": "true",
         "dc_impersonation": "true",
-        "rbcd": "true",
         "graph_rbcd": "true",
         "graph_rbcd_to_da": "true",
         "objects_to_ou_handlers": "true",
