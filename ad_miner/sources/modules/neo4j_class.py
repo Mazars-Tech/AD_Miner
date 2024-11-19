@@ -1129,8 +1129,7 @@ class Neo4j:
             users_admin_on_servers_all_data, "computer"
         )
         users_admin_on_servers_list = generic_computing.getListAdminTo(
-            requests_results["users_admin_on_servers_1"]
-            + requests_results["users_admin_on_servers_2"],
+            users_admin_on_servers_all_data,
             "computer",
             "user",
         )
