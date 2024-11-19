@@ -658,7 +658,7 @@
     },
     "can_read_laps": {
         "name": "Objects allowed to read LAPS",
-        "request": "MATCH p = (n)-[r1:MemberOf*0..]->()-[r2:GenericAll|ReadLAPSPassword|AllExtendedRights|SyncLAPSPassword]->(t:Computer {haslaps:true}) RETURN distinct(n.domain) AS domain, n.name AS name",
+        "request": "MATCH p = (n{path_candidate:true})-[r1:MemberOf*0..]->()-[r2:GenericAll|ReadLAPSPassword|AllExtendedRights|SyncLAPSPassword]->(t:Computer {haslaps:true}) RETURN distinct(n.domain) AS domain, n.name AS name",
         "output_type": "dict"
     },
     "objects_to_dcsync": {
