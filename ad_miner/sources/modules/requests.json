@@ -318,8 +318,16 @@
         "is_a_write_request": "true"
     },
     "set_groups_members_count": {
-        "name": "Set members_count to groups (recursivity = 5)",
+        "name": "Set members_count to groups counting users (recursivity = 5)",
         "request": "MATCH  (g:Group) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 MATCH (u:User)-[:MemberOf*1..5]->(g) WHERE NOT u.name IS NULL AND NOT g.name IS NULL WITH g AS g1, count(u) AS memberscount SET g1.members_count=memberscount",
+        "output_type": "list",
+        "scope_query": "MATCH (g:Group) RETURN count(g)",
+        "is_a_write_request": "true",
+        "_comment": "Recursivity = 5 seems the good match for ratio results/time when searching MemberOf*1..X when using our servers (else 3)"
+    },
+    "set_groups_members_count_computers": {
+        "name": "Set members_count to groups counting computers (recursivity = 5)",
+        "request": "MATCH (g:Group) WITH g ORDER BY g.name SKIP PARAM1 LIMIT PARAM2 MATCH (u:Computer)-[:MemberOf*1..5]->(g) WHERE NOT u.name IS NULL AND NOT g.name IS NULL WITH g AS g1, count(u) AS memberscount SET g1.members_count= COALESCE(g1.members_count, 0) + memberscount",
         "output_type": "list",
         "scope_query": "MATCH (g:Group) RETURN count(g)",
         "is_a_write_request": "true",
