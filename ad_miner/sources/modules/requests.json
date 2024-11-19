@@ -313,7 +313,7 @@
     },
     "set_path_candidate": {
         "name": "Set path_candidate=TRUE to candidates eligible to shortestPath to DA",
-        "request": "MATCH (o{is_da_dc:false}) WHERE NOT o:Domain AND ((o.enabled=True AND o:User) OR NOT o:User) SET o.path_candidate=TRUE",
+        "request": "MATCH (o{is_da_dc:false}) WHERE NOT o:Domain AND ((o.enabled=True AND o:User) OR NOT o:User) AND (NOT o.is_adcs OR o.is_adcs is null) SET o.path_candidate=TRUE",
         "output_type": "list",
         "is_a_write_request": "true"
     },
