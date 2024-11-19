@@ -154,10 +154,9 @@ def complete_data_evolution_time(
                     category_repartition = category_repartition_dict[
                         dico_category_invert[key]
                     ]
-            for key in dico_color_category_origin:
-                dico_color_category[category_repartition][key] = (
-                    dico_color_category_origin[key]
-                )
+                    dico_color_category[category_repartition][key] = (
+                        dico_color_category_origin[key]
+                    )
 
             value_immediate_risk = {"on_premise": 0, "azure": 0}
             value_potential_risk = {"on_premise": 0, "azure": 0}
