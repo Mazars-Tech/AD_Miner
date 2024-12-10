@@ -1,3 +1,28 @@
+# [1.8.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.7.0...v1.8.0) (2024-12-10)
+
+
+### Bug Fixes
+
+* add missing fonts ([#198](https://github.com/Mazars-Tech/AD_Miner/issues/198)) ([2ac67b9](https://github.com/Mazars-Tech/AD_Miner/commit/2ac67b9447dbfbbc8781d4cf966aa8697bede436))
+* admin on servers request and remove duplicates ([4404962](https://github.com/Mazars-Tech/AD_Miner/commit/44049628f4b4dd1bf4dce23beac5fc0b9b3d8230))
+* bug when using evolution ([f88c274](https://github.com/Mazars-Tech/AD_Miner/commit/f88c2745c9fa25f97a165861ae5f59446fcf5fa9))
+* count computers in members count attribute ([1872924](https://github.com/Mazars-Tech/AD_Miner/commit/1872924ab828cf946a59ade694abf7b1496632a3))
+* is_server request ([8898835](https://github.com/Mazars-Tech/AD_Miner/commit/88988353a4a506106a832e845266f26dd4e6d65e))
+* missing histogram for some specific evolution use case ([5dbd83d](https://github.com/Mazars-Tech/AD_Miner/commit/5dbd83db714415df98c28e9212b7113dcc1282a7))
+* typos in description ([bd0ae98](https://github.com/Mazars-Tech/AD_Miner/commit/bd0ae980a1f3df77bee98982906ee0a077ce6028))
+* using existing cache to remove duplicates from paths to servers ([804c7a9](https://github.com/Mazars-Tech/AD_Miner/commit/804c7a96f2900605c9b8468372cc527ef04f8d71))
+
+
+### Features
+
+* better names in control pages ([2b8fd01](https://github.com/Mazars-Tech/AD_Miner/commit/2b8fd0103989bdfd720eff451ff039ef7318a553))
+* can read laps only from path candidate ([f8d037b](https://github.com/Mazars-Tech/AD_Miner/commit/f8d037bb6b1ea61f5dcda8ea16b8dc7806985d18))
+* improve laps reader request ([a107a68](https://github.com/Mazars-Tech/AD_Miner/commit/a107a6888dab9da1fa5cf14bb89dd2be5daa07e2))
+* improve RBCD request and control ([a178c42](https://github.com/Mazars-Tech/AD_Miner/commit/a178c4251d0c723ae87bac3449051c880adf4635))
+* remove ADCS servers from path candidates ([a156244](https://github.com/Mazars-Tech/AD_Miner/commit/a156244c66a576ce1999c66316a6eb7d58004f1e))
+
+
+
 # [1.7.0](https://github.com/Mazars-Tech/AD_Miner/compare/v1.6.1...v1.7.0) (2024-11-05)
 
 
@@ -38,16 +63,6 @@
 ### Bug Fixes
 
 * fix deadlock issue ([6017b2b](https://github.com/Mazars-Tech/AD_Miner/commit/6017b2b0d576de9b1c94d1bde400cd7fdeb63293))
-
-
-
-## [1.5.1](https://github.com/Mazars-Tech/AD_Miner/compare/v1.5.0...v1.5.1) (2024-07-24)
-
-
-### Bug Fixes
-
-* add EDCS edges and fix not displayed graphs bug ([d17b843](https://github.com/Mazars-Tech/AD_Miner/commit/d17b843388535439a77db024f6c7527c806794fd))
-* remove MSOL from path candidates ([8451485](https://github.com/Mazars-Tech/AD_Miner/commit/8451485e81092fcb058c8a6474830e431effe0c0))
 
 
 
